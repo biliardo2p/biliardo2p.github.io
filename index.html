@@ -110,6 +110,7 @@ button.no{cursor:pointer}
 }
 
 .foot{color:var(--dim);font-size:14px;text-align:center;letter-spacing:.04em}
+.foot a{color:var(--mute)}
 
 .bump{animation:bump .7s ease-out}
 /* punti nuovi: al posto del punteggio compare "+12", lampeggia due volte, poi il punteggio riappare e conta fino al nuovo valore */
@@ -1204,7 +1205,7 @@ function loginHTML(msg){
 function regiaHomeHTML(idx){
   const opts = Object.entries(FORMULE).filter(([k,f])=>!f.vecchia).map(([k,f])=>`<option value="${k}">${esc(f.nome)}</option>`).join("");
   return `<main class="wrap"><div class="top"><div><div class="comp">Regia tabellone</div><div class="sub">${esc(session && session.email || "")}</div></div>
-      <div class="rtop"><a class="ghost" href="?regia&amp;anagrafica">👥 Giocatori e squadre</a><button class="ghost" id="logout">Esci</button></div></div>
+      <div class="rtop"><a class="ghost" href="manuale.html" target="_blank" rel="noopener">📖 Manuale</a><a class="ghost" href="?regia&amp;anagrafica">👥 Giocatori e squadre</a><button class="ghost" id="logout">Esci</button></div></div>
     <form id="newgara" class="panel grid">
       <h2>Nuova gara</h2>
       <label for="ng-f">Competizione</label><select id="ng-f">${opts}</select>
@@ -1326,7 +1327,7 @@ function render(){
         e.textContent = a[k]; setTimeout(()=>{ if(e.isConnected){ e.textContent = b[k]; e.classList.add("bump"); } }, 2600); }); }
     prev = clone(S);
   }
-  else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div><a class="lk" href="?giocatori">👥 Giocatori</a></div>${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna</div></main>`;
+  else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div><a class="lk" href="?giocatori">👥 Giocatori</a></div>${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna · <a href="manuale.html">Manuale</a></div></main>`;
   else if(mode==="gioc") app.innerHTML = giocHTML();
   else if(mode==="giocs") app.innerHTML = giocsHTML();
   else if(mode==="login") app.innerHTML = loginHTML(flash);
@@ -1353,7 +1354,7 @@ function renderBar(){
     <button class="x" data-r="end">${S.stato==="finita"?"Riapri gara":"Termina gara"}</button>
     ${S.stato==="live" ? `<button data-r="prog" class="x ${Date.now()-armP<4000?"arm":""}" title="Torna a In programma: azzera punteggi e cronologia">${Date.now()-armP<4000?"Conferma: in programma":"Rimetti in programma"}</button>` : ""}
     <button data-r="reset" class="x ${Date.now()-armT<4000?"arm":""}">${Date.now()-armT<4000?"Conferma: azzera":"Azzera punteggi"}</button>
-    <a class="rlink" href="?regia">Tutte le gare</a>
+    <a class="rlink" href="?regia">Tutte le gare</a> <a class="rlink" href="manuale.html" target="_blank" rel="noopener">Manuale</a>
     <span class="tip">Link per il pubblico: <span class="url" id="puburl">${esc(pub || "?gara="+GARA)}</span> <button data-r="copy">Copia</button> · link fisso per tutte le dirette: <span class="url">${esc(pageURL("?live") || "?live")}</span><br>
     Clic su un punteggio: scrivi i punti del tiro e Invio (si sommano); − Togli / = Totale per togliere o correggere (da tastiera anche -2, =150). 📈 nell'incontro: andamento. Numero dell'incontro o tasti 1–${S.matches.length}: in corso. ${isTorneo() ? "Incontri…: turni e giocatori del torneo." : "Doppio clic sul logo ospite per caricarne uno."} Ctrl+Z annulla.</span>`;
 }

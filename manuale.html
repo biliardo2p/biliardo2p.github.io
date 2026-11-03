@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Manuale · Tabellone Live</title>
+<meta name="description" content="Manuale d'uso del Tabellone Live del Biliardo Seconda Passione: pubblico, regia, tornei, giocatori e amministrazione">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Oswald:wght@600;700&display=swap">
+<style>
+:root{
+  --bg:#070d18; --panel:#0d1728; --line:rgba(150,190,255,.15);
+  --ink:#eef3fb; --mute:#a3b3c9; --dim:#5d6c84;
+  --home:#3cc8ff; --away:#ff7a3d; --gold:#f6c853; --live:#d4202c; --ok:#2fbf71; --warn:#ff9d2e;
+  --fh:"Oswald","Barlow Condensed","Arial Narrow",sans-serif;
+  --fc:"Barlow Condensed","Arial Narrow",sans-serif;
+  --fb:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg);scroll-behavior:smooth;scroll-padding-top:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 var(--fb);-webkit-text-size-adjust:100%}
+a{color:var(--home)}
+.layout{max-width:1120px;margin:0 auto;padding:0 16px 60px;display:grid;grid-template-columns:minmax(0,1fr);gap:24px}
+@media (min-width:960px){ .layout{grid-template-columns:250px minmax(0,1fr);gap:40px} }
+header.hero{grid-column:1/-1;padding:28px 0 8px;border-bottom:1px solid var(--line)}
+.hero .k{font:700 14px var(--fc);letter-spacing:.14em;text-transform:uppercase;color:var(--gold)}
+.hero h1{margin:4px 0 6px;font:700 clamp(30px,6vw,44px)/1.1 var(--fh);letter-spacing:.03em;text-transform:uppercase}
+.hero p{margin:0;color:var(--mute);max-width:720px}
+.hero .meta{margin-top:10px;font-size:14px;color:var(--dim)}
+nav.toc{font-size:15px}
+@media (min-width:960px){ nav.toc{position:sticky;top:16px;align-self:start;max-height:calc(100vh - 32px);overflow:auto;padding-top:24px} }
+nav.toc details{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+@media (min-width:960px){ nav.toc details{background:none;border:0;padding:0} nav.toc summary{display:none} }
+nav.toc summary{cursor:pointer;font:700 15px var(--fc);letter-spacing:.1em;text-transform:uppercase;color:var(--gold)}
+nav.toc ol{list-style:none;margin:8px 0 0;padding:0;counter-reset:c}
+nav.toc li{counter-increment:c}
+nav.toc a{display:block;padding:4px 0;color:var(--mute);text-decoration:none}
+nav.toc a::before{content:counter(c) ". ";color:var(--dim)}
+nav.toc a:hover{color:var(--ink)}
+main{min-width:0;padding-top:12px}
+section{padding-top:18px;border-bottom:1px solid var(--line);padding-bottom:18px}
+h2{margin:8px 0 10px;font:700 26px/1.2 var(--fh);letter-spacing:.04em;text-transform:uppercase}
+h2 .n{color:var(--gold);margin-right:8px}
+h3{margin:22px 0 6px;font:600 19px/1.25 var(--fh);letter-spacing:.04em;text-transform:uppercase;color:#cfe0f5}
+p,li{max-width:760px;overflow-wrap:break-word}
+p code{overflow-wrap:anywhere}
+ul,ol{padding-left:22px}
+li{margin:3px 0}
+code,kbd{font:14px ui-monospace,"Cascadia Mono",Consolas,monospace;background:#16233a;border:1px solid #26385a;border-radius:4px;padding:1px 5px;color:#dbe8f7}
+kbd{border-bottom-width:2px}
+pre{background:#0b1424;border:1px solid var(--line);border-radius:8px;padding:10px 12px;overflow-x:auto;font:14px/1.5 ui-monospace,"Cascadia Mono",Consolas,monospace;color:#dbe8f7;max-width:760px}
+.btn{display:inline-block;font:600 14px var(--fb);padding:1px 8px;border-radius:5px;border:1px solid #4b5563;color:var(--ink);white-space:nowrap}
+.btn.g{background:var(--ok);border-color:var(--ok);color:#05220f}
+.note,.warn,.tip{max-width:760px;margin:12px 0;padding:10px 14px;border-radius:8px;border-left:4px solid var(--home);background:rgba(60,200,255,.07)}
+.warn{border-left-color:var(--warn);background:rgba(255,157,46,.08)}
+.tip{border-left-color:var(--ok);background:rgba(47,191,113,.08)}
+.note b:first-child,.warn b:first-child,.tip b:first-child{display:block;font:700 13px var(--fc);letter-spacing:.12em;text-transform:uppercase;margin-bottom:2px}
+.note b:first-child{color:var(--home)} .warn b:first-child{color:var(--warn)} .tip b:first-child{color:var(--ok)}
+table{border-collapse:collapse;width:100%;max-width:760px;font-size:15px;margin:8px 0}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--mute);font-weight:600}
+.tw{overflow-x:auto;width:100%;max-width:760px}
+.tw table{min-width:520px}
+section{min-width:0}
+.links{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;max-width:760px;margin:10px 0}
+.links div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.links b{display:block;font:600 15px var(--fh);letter-spacing:.04em;text-transform:uppercase}
+.links code{font-size:13px}
+.links span{display:block;color:var(--mute);font-size:14px}
+dl.faq dt{font-weight:700;margin-top:14px}
+dl.faq dd{margin:4px 0 0;color:var(--ink);max-width:740px}
+.chg h3{margin-top:16px}
+footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;padding-top:10px}
+.top{position:fixed;right:14px;bottom:14px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:20px}
+@media print{ body{background:#fff;color:#000} nav.toc,.top{display:none} .layout{display:block} a{color:#000} code,kbd,pre{background:#f2f2f2;color:#000;border-color:#ccc} .note,.warn,.tip{background:#f6f6f6} }
+</style>
+</head>
+<body id="inizio">
+<div class="layout">
+<header class="hero">
+  <div class="k">Biliardo Seconda Passione · Bologna</div>
+  <h1>Tabellone Live — Manuale</h1>
+  <p>Risultati in diretta delle gare del circolo: campionati a squadre, tornei con batterie e finali, schede e statistiche dei giocatori. Questo manuale spiega come seguire le gare, come gestirle dalla regia e come amministrare l'app.</p>
+  <div class="meta">Aggiornato al 3 novembre 2026 · indirizzo dell'app: <a href="https://biliardo2p.github.io/">biliardo2p.github.io</a></div>
+</header>
+
+<nav class="toc" aria-label="Indice">
+<details open><summary>Indice</summary>
+<ol>
+  <li><a href="#indirizzi">Indirizzi</a></li>
+  <li><a href="#pubblico">Per chi segue le gare</a></li>
+  <li><a href="#accesso">La regia: accesso</a></li>
+  <li><a href="#nuova">Creare una gara</a></li>
+  <li><a href="#squadre">Gara a squadre: la diretta</a></li>
+  <li><a href="#pubblica">Pubblicare e stati della gara</a></li>
+  <li><a href="#tornei">Tornei</a></li>
+  <li><a href="#tabellone">Torneo con batterie e finali</a></li>
+  <li><a href="#anagrafica">Giocatori e squadre</a></li>
+  <li><a href="#controllo">Controllo nomi</a></li>
+  <li><a href="#statistiche">Statistiche dei giocatori</a></li>
+  <li><a href="#admin">Amministrazione</a></li>
+  <li><a href="#faq">Problemi e domande</a></li>
+  <li><a href="#novita">Novità</a></li>
+</ol>
+</details>
+</nav>
+
+<main>
+
+<section id="indirizzi">
+<h2><span class="n">1</span>Indirizzi</h2>
+<p>L'app è una sola pagina web: funziona su telefono, tablet e computer, senza installare nulla. Cambia solo la parte finale dell'indirizzo.</p>
+<div class="links">
+  <div><b>Elenco delle gare</b><code>biliardo2p.github.io</code><span>Tutte le gare, dalla più recente.</span></div>
+  <div><b>Diretta</b><code>biliardo2p.github.io/?live</code><span>Link fisso da condividere: apre la gara in corso.</span></div>
+  <div><b>Giocatori</b><code>biliardo2p.github.io/?giocatori</code><span>Elenco dei giocatori con le loro schede.</span></div>
+  <div><b>Regia</b><code>biliardo2p.github.io/?regia</code><span>Solo per chi gestisce le gare (serve l'accesso).</span></div>
+</div>
+<p>Il link <code>?live</code> è quello da mettere su Facebook, WhatsApp o in un QR code: non cambia mai. Se c'è una gara in diretta apre quella; se ce ne sono più di una le elenca; se non ce n'è nessuna apre la prossima in programma o, in mancanza, l'ultima conclusa.</p>
+<div class="note"><b>Vecchio indirizzo</b>Fino al 3 novembre 2026 l'app stava su <code>excelswissknife.github.io/Biliardo2P</code>: chi apre un vecchio link viene portato in automatico al nuovo indirizzo.</div>
+</section>
+
+<section id="pubblico">
+<h2><span class="n">2</span>Per chi segue le gare</h2>
+<h3>Elenco delle gare</h3>
+<p>Ogni gara mostra data, stato (<b>LIVE</b>, <b>In programma</b>, <b>Finale</b>), competizione, giornata e luogo, e il punteggio delle squadre o il vincitore del torneo. Toccando una gara si apre la sua pagina. In alto a destra, <b>👥 Giocatori</b> porta all'elenco dei giocatori.</p>
+<h3>Pagina di una gara a squadre</h3>
+<ul>
+  <li><b>In alto</b> le due squadre con il punteggio totale. A sinistra c'è sempre la squadra che gioca in casa; i colori restano legati alla squadra: azzurro per il nostro circolo, arancione per l'avversario.</li>
+  <li><b>Sotto</b> una scheda per incontro: tipo (Singolo, Coppia, Staffetta), specialità e punti da raggiungere, giocatori con la categoria tra parentesi, per esempio “GALLI E. (2)”, e punteggio. L'incontro in corso è evidenziato; quello vinto mostra il punto assegnato alla squadra.</li>
+  <li><b>Staffetta:</b> si vede la frazione in corso, a quanti punti avviene il cambio e quanto vale l'incontro.</li>
+  <li><b>📈 Andamento:</b> l'icona sull'incontro apre il grafico del punteggio nel tempo e, per gli incontri a più set, i parziali dei set.</li>
+  <li><b>Nomi:</b> toccando il nome di un giocatore riconosciuto si apre la sua scheda.</li>
+</ul>
+<p>La pagina si aggiorna da sola: quando la regia pubblica, i punteggi cambiano con una piccola animazione (“+12”). Sotto il punteggio c'è l'ora dell'ultimo aggiornamento e, durante la diretta, in alto compare quante persone stanno guardando. Se la connessione si interrompe compare un avviso e la pagina si ricollega da sola.</p>
+<h3>Pagina di un torneo</h3>
+<p>Per i tornei con batterie e finali la pagina mostra gli incontri seguiti in diretta e il <b>tabellone</b>, diviso in pagine (una per batteria, più le finali): si scorre con i pulsanti in alto. Ogni incontro del tabellone indica chi è passato e l'eventuale punteggio; quelli in diretta hanno il pallino rosso. A torneo concluso compare il vincitore con la coppa.</p>
+<h3>Giocatori</h3>
+<p>L'elenco è diviso per anno sportivo e per squadra, con una casella di ricerca. Ogni scheda mostra squadra e categoria, i totali (partite giocate, vinte, perse, percentuale di vittorie), una tabella per tipo e specialità e la cronologia delle partite con il link alla gara. Vedi <a href="#statistiche">Statistiche dei giocatori</a>.</p>
+</section>
+
+<section id="accesso">
+<h2><span class="n">3</span>La regia: accesso</h2>
+<p>Apri <code>biliardo2p.github.io/?regia</code> e accedi con email e password dell'utente di regia. L'accesso resta memorizzato su quel dispositivo finché non premi <span class="btn">Esci</span>.</p>
+<p>La schermata principale della regia contiene:</p>
+<ul>
+  <li>il modulo <b>Nuova gara</b>;</li>
+  <li>l'elenco di tutte le gare, ognuna con i pulsanti <span class="btn">⧉ Duplica</span> e <span class="btn">🗑 Elimina</span>;</li>
+  <li>in alto, <span class="btn">👥 Giocatori e squadre</span> per l'anagrafica.</li>
+</ul>
+<p>Toccando una gara si apre la sua pagina in modalità regia: è la stessa pagina che vede il pubblico, con in più le caselle modificabili e la <b>barra di regia</b> verde in fondo.</p>
+<div class="warn"><b>Elimina</b>Il primo tocco su <span class="btn">🗑 Elimina</span> chiede conferma; un secondo tocco entro 4 secondi cancella definitivamente la gara, la sua cronologia e i contatori. Non si può annullare.</div>
+</section>
+
+<section id="nuova">
+<h2><span class="n">4</span>Creare una gara</h2>
+<p>Nel modulo <b>Nuova gara</b> scegli la <b>competizione</b>; i campi cambiano a seconda del tipo.</p>
+<h3>Campionato a squadre (Base o Eccellenza)</h3>
+<table>
+<tr><th>Campo</th><th>Cosa scrivere</th></tr>
+<tr><td>Data</td><td>Il giorno della gara.</td></tr>
+<tr><td>Giornata</td><td>Per esempio “Seconda giornata”.</td></tr>
+<tr><td>Campo</td><td><b>In casa</b> (noi a sinistra) oppure <b>In trasferta</b> (avversari a sinistra).</td></tr>
+<tr><td>Luogo</td><td>Dove si gioca.</td></tr>
+<tr><td>Squadra avversaria</td><td>Mentre scrivi compaiono le squadre dell'anagrafica: scegliendone una, città e logo si compilano da soli.</td></tr>
+<tr><td>Città avversaria</td><td>Si compila da sola per le squadre in anagrafica; altrimenti scrivila.</td></tr>
+</table>
+<p>Gli incontri sono già impostati secondo il regolamento:</p>
+<div class="tw"><table>
+<tr><th>Base</th><th>Eccellenza</th></tr>
+<tr><td>1. Singolo · Italiana a 100<br>2. Singolo · Filotto 60 a 600<br>3. Singolo · Goriziana a 400<br>4. Coppia · Filotto 60 a 800<br>5. Coppia · Italiana a 120<br>6. Staffetta (3 frazioni) · Italiana a 180, cambio ogni 60, vale 2 punti</td>
+<td>1. Singolo · Filotto 60 a 600<br>2. Singolo · 5 Birilli a 120<br>3. Singolo · Goriziana a 500<br>4. Coppia · specialità all'acchito (5 Birilli a 130, Goriziana a 500, Filotto 60 a 800)<br>5. Staffetta (5 frazioni) · 5 Birilli a 250, cambio ogni 50</td></tr>
+</table></div>
+<h3>Tornei</h3>
+<p>Per i due tipi di torneo si indicano nome del torneo, fase o giornata (facoltativa), gioco (singoli o coppie) e la <b>partita</b>: set secco, 2 su 3 o 3 su 5; per ogni set specialità e punti. L'ultimo set può essere <b>a scelta all'acchito</b>. Per il torneo con batterie e finali si indica anche il numero di batterie. Vedi <a href="#tornei">Tornei</a>.</p>
+<h3>Duplica</h3>
+<p><span class="btn">⧉ Duplica</span> riempie il modulo con i dati di una gara esistente: competizione, <b>giornata successiva</b> (Prima → Seconda, 1ª → 2ª, Giornata 3 → Giornata 4), campo, luogo, avversario e città; per i tornei nome, gioco, formula e numero di batterie. La data diventa quella di oggi. Punteggi e nomi dei giocatori non vengono copiati. Controlla i campi, in particolare data e campo, e premi <span class="btn g">Crea gara</span>.</p>
+<p>La gara nuova nasce <b>In programma</b>: compare nell'elenco pubblico ma senza punteggi finché non la pubblichi.</p>
+</section>
+
+<section id="squadre">
+<h2><span class="n">5</span>Gara a squadre: la diretta</h2>
+<h3>Inserire i giocatori</h3>
+<p>Tocca la casella del nome: compare un riquadro con i giocatori della squadra di quel lato (i nostri dalla nostra parte, quelli dell'avversario dall'altra). Scrivendo qualche lettera l'elenco si restringe, cercando in tutta l'anagrafica.</p>
+<ul>
+  <li><b>Scegliere:</b> tocca il nome, oppure usa <kbd>↓</kbd> <kbd>↑</kbd> e <kbd>Invio</kbd>.</li>
+  <li><b>Scrivere a mano:</b> premi <kbd>Invio</kbd> senza scegliere nulla e resta il testo scritto. Se corrisponde a un solo giocatore (“Galli”, “Galli E.”, “Galli Enrico”, il soprannome) viene collegato in automatico.</li>
+  <li><b>Nome non riconosciuto:</b> resta sottolineato a tratteggio arancione (lo vede solo la regia). In fondo al riquadro c'è <span class="btn">+ Aggiungi … all'elenco giocatori</span>: si apre la scheda già compilata e, salvando, la casella si collega al nuovo giocatore.</li>
+  <li><b>Sostituire un giocatore:</b> riscrivi la casella o scegli un altro nome; il collegamento segue sempre il nome scritto.</li>
+</ul>
+<p>Accanto al nome compare la categoria dell'anno sportivo della gara, per esempio “(M)”, “(1)”.</p>
+<h3>Inserire i punti</h3>
+<p>Tocca il punteggio di un giocatore: compare un piccolo tastierino con tre modalità.</p>
+<table>
+<tr><th>Modalità</th><th>Cosa fa</th><th>Da tastiera</th></tr>
+<tr><td><b>+ Aggiungi</b> (normale)</td><td>Scrivi i punti del tiro e premi Invio: si sommano al totale.</td><td><code>12</code> Invio</td></tr>
+<tr><td><b>− Togli</b></td><td>Toglie punti, per correggere un errore.</td><td><code>-2</code> Invio</td></tr>
+<tr><td><b>= Totale</b></td><td>Imposta direttamente il punteggio totale.</td><td><code>=150</code> Invio</td></tr>
+</table>
+<p>Nella <b>staffetta</b> ogni frazione ha i suoi punti: si inseriscono nella casella accanto al nome di chi sta tirando, e il totale si calcola da solo. Negli incontri a più set c'è una casella per ogni set.</p>
+<h3>Altri comandi</h3>
+<ul>
+  <li><b>Incontro in corso:</b> tocca il numero dell'incontro, oppure premi il tasto con il suo numero (<kbd>1</kbd>–<kbd>6</kbd>); <kbd>0</kbd> toglie tutti gli “in corso”. Si giocano due incontri alla volta: si possono segnare entrambi.</li>
+  <li><b>Specialità all'acchito</b> (Coppia dell'Eccellenza, set “a scelta”): tocca la specialità per scorrere le possibilità.</li>
+  <li><b>Casa / trasferta:</b> il pulsante sotto il punteggio (“In casa · ⇄ cambia”) inverte i lati.</li>
+  <li><b>Logo dell'avversario:</b> doppio clic sul logo o sull'iniziale per caricare un'immagine; viene salvato anche nella scheda della squadra.</li>
+  <li><b>Nomi e città delle squadre, titolo e sottotitolo:</b> si correggono toccandoli.</li>
+  <li><b>Annulla:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd>.</li>
+</ul>
+</section>
+
+<section id="pubblica">
+<h2><span class="n">6</span>Pubblicare e stati della gara</h2>
+<p>Tutto quello che modifichi in regia resta <b>privato</b> finché non premi <span class="btn g">PUBBLICA</span> (o il tasto <kbd>P</kbd>). La barra in fondo lo indica: “● Modifiche NON ancora pubblicate” oppure “✓ Il pubblico vede tutto aggiornato”. Le modifiche non pubblicate restano salvate sul dispositivo anche se chiudi la pagina.</p>
+<p>Il ritmo consigliato è: inserisci i punti di un tiro, controlla, premi <kbd>P</kbd>. Ogni pubblicazione aggiunge un punto al grafico dell'andamento.</p>
+<table>
+<tr><th>Comando</th><th>Effetto</th></tr>
+<tr><td><span class="btn g">PUBBLICA</span></td><td>Il pubblico vede la situazione attuale. Alla prima pubblicazione la gara passa da <b>In programma</b> a <b>LIVE</b>.</td></tr>
+<tr><td><span class="btn">Scarta</span></td><td>Torna all'ultima versione pubblicata, buttando le modifiche non pubblicate.</td></tr>
+<tr><td><span class="btn">Termina gara</span></td><td>La gara diventa <b>Finale</b> e viene pubblicata. Lo stesso pulsante diventa <span class="btn">Riapri gara</span>.</td></tr>
+<tr><td><span class="btn">Rimetti in programma</span></td><td>Solo per una gara LIVE: azzera punteggi e cronologia e la riporta a In programma (per esempio se è partita per errore). Chiede conferma.</td></tr>
+<tr><td><span class="btn">Azzera punteggi</span></td><td>Mette a zero tutti i punteggi, lasciando i nomi. Chiede conferma.</td></tr>
+<tr><td><span class="btn">Copia</span></td><td>Copia il link pubblico di questa gara.</td></tr>
+<tr><td><span class="btn">Tutte le gare</span></td><td>Torna alla schermata principale della regia.</td></tr>
+</table>
+<p>Su telefono i comandi meno usati sono sotto il pulsante <span class="btn">⋯</span>.</p>
+<div class="warn"><b>Una regia alla volta</b>Ogni PUBBLICA invia la gara intera. Se due dispositivi gestiscono la stessa gara contemporaneamente, l'ultimo che pubblica sovrascrive l'altro.</div>
+</section>
+
+<section id="tornei">
+<h2><span class="n">7</span>Tornei</h2>
+<p>Ci sono due tipi di torneo:</p>
+<ul>
+  <li><b>Torneo a incontri liberi:</b> un elenco di incontri divisi per turno, senza tabellone. Adatto a gironi o a tornei piccoli.</li>
+  <li><b>Torneo con batterie e finali:</b> batterie da 8 giocatori (o coppie) con tre turni, poi le finali, con eventuali partite dell'acqua. Vedi la sezione successiva.</li>
+</ul>
+<h3>La formula della partita</h3>
+<p>Si sceglie set secco, 2 su 3 o 3 su 5; per ogni set la specialità (5 Birilli, Goriziana, Filotto 60, oppure “Altro…” con un nome libero) e i punti. L'ultimo set può essere <b>a scelta all'acchito</b>: in diretta si tocca la specialità per indicare quella scelta. Si possono aggiungere altre formule con un nome (per esempio “Finale” a 3 set) e usarle solo in alcuni incontri.</p>
+<h3>Finestra “Incontri…”</h3>
+<p>Nel torneo a incontri liberi, dalla barra di regia <span class="btn">Incontri…</span> apre un testo dove si scrive tutto il torneo:</p>
+<pre># Quarti di finale
+Galli - Rossi
+Tamburini - Bianchi
+# Semifinale
+? - ?
+# Finale
+? - ? | Finale</pre>
+<ul>
+  <li><code># Nome del turno</code> apre un turno; poi un incontro per riga.</li>
+  <li>Coppie: <code>Galli / Tamburini - Rossi / Bianchi</code>.</li>
+  <li><code>?</code> = giocatore ancora da decidere.</li>
+  <li><code>| Finale</code> in fondo alla riga usa la formula chiamata “Finale”.</li>
+  <li>I punteggi già inseriti restano se l'incontro rimane nello stesso turno e nella stessa posizione. Se una modifica farebbe sparire dei punteggi, la finestra avvisa e chiede conferma.</li>
+</ul>
+</section>
+
+<section id="tabellone">
+<h2><span class="n">8</span>Torneo con batterie e finali</h2>
+<h3>Batterie e finali</h3>
+<p>Dalla barra di regia <span class="btn">Batterie e finali…</span> si scrivono gli iscritti:</p>
+<pre># Batteria 1 · mercoledì 28/10 ore 19:00
+Galli
+Rossi
+Tamburini
+assente
+…</pre>
+<ul>
+  <li>Gli 8 iscritti vanno nell'ordine del sorteggio: 1° contro 2°, 3° contro 4°, 5° contro 6°, 7° contro 8°.</li>
+  <li><code>assente</code> = avversario non presente: l'altro passa il turno (non conta nelle statistiche).</li>
+  <li><code>?</code> o riga mancante = ancora da definire.</li>
+  <li>Coppie: <code>Galli / Tamburini</code>.</li>
+</ul>
+<p>Le <b>finali</b> si scrivono con riferimenti: <code>B3</code> = vincitore della 3ª batteria, <code>A1</code> = vincitore della 1ª partita dell'acqua. Sotto <code># Partite dell'acqua</code> (se servono) e <code># Tabellone finale</code> va un incontro per riga, nell'ordine del sorteggio; i turni successivi si formano da soli. <span class="btn">Rigenera l'ordine proposto</span> ricalcola uno schema standard in base al numero di batterie (per esempio con 12 batterie: 4 partite dell'acqua e 4 vincitori di batteria già nei quarti).</p>
+<h3>Segnare i risultati</h3>
+<p>Tocca un incontro nel tabellone. Nella finestra puoi:</p>
+<ul>
+  <li><b>indicare il vincitore</b> e, se vuoi, un punteggio libero (“120–95”, “2–1”), poi <span class="btn g">Salva</span>: il vincitore passa al turno successivo;</li>
+  <li><b><span class="btn">▶ Segui in diretta</span></b> scegliendo la formula: l'incontro diventa una scheda con i punteggi come nelle gare a squadre, e il vincitore avanza da solo quando l'incontro finisce. <span class="btn">Smetti di seguire</span> lo toglie dalla diretta.</li>
+</ul>
+<p>Nella pagina pubblica gli incontri in diretta stanno in cima; quelli conclusi si raccolgono sotto “Incontri seguiti e conclusi”.</p>
+</section>
+
+<section id="anagrafica">
+<h2><span class="n">9</span>Giocatori e squadre</h2>
+<p>Dalla regia, <span class="btn">👥 Giocatori e squadre</span> apre l'anagrafica, con quattro schede: Giocatori, Squadre, Importa / esporta, Controllo nomi.</p>
+<h3>Anno sportivo e categorie</h3>
+<p>L'anno sportivo va da settembre ad agosto e si indica con l'anno di inizio: <b>2026 = 2026/27</b>. Per ogni anno un giocatore ha una squadra e una categoria: <b>M</b> (Master), <b>1</b>, <b>2</b>, <b>3</b>. Ogni partita usa la categoria dell'anno sportivo in cui è stata giocata, quindi un cambio di categoria non altera le gare passate.</p>
+<h3>Scheda del giocatore</h3>
+<ul>
+  <li><b>Cognome e nome:</b> il nome sul tabellone si compone da solo, “Galli E.”. Il nome può restare vuoto: sul tabellone comparirà solo il cognome.</li>
+  <li><b>Soprannome</b> (facoltativo), riconosciuto anche quando lo si scrive in una gara.</li>
+  <li><b>Nome sul tabellone:</b> da scrivere solo per distinguere due omonimi con la stessa iniziale. La scheda avvisa quando due giocatori risulterebbero uguali.</li>
+  <li><b>Squadra e categoria per anno sportivo:</b> <span class="btn">+ Aggiungi anno</span> copia l'ultima riga, così basta cambiare ciò che è diverso.</li>
+</ul>
+<p>Ogni giocatore ha un <b>codice</b> interno, creato alla prima registrazione e mai più modificato. Le gare sono collegate al codice: se cambi nome, grafia o soprannome, tutte le gare e le statistiche mostrano il nome aggiornato.</p>
+<h3>Squadre</h3>
+<p>Nome, città e logo. Il logo viene inserito da solo nelle nuove gare contro quella squadra. Una squadra con giocatori associati non si può eliminare.</p>
+<h3>Importa / esporta</h3>
+<p>Per caricare molti giocatori insieme, copia le righe da Excel (con l'intestazione) e incollale nel riquadro <b>Importa da tabella</b>:</p>
+<div class="tw"><table>
+<tr><th>Nome</th><th>Cognome</th><th>Squadra</th><th>Città</th><th>Categoria</th><th>Anno</th></tr>
+<tr><td>Enrico</td><td>Galli</td><td>Biliardo Seconda Passione</td><td>Bologna (BO)</td><td>2</td><td>2026</td></tr>
+<tr><td></td><td>Carli</td><td>Elite</td><td>Ferrara (FE)</td><td>2</td><td>2026</td></tr>
+</table></div>
+<ul>
+  <li>Obbligatori: cognome, squadra, anno. Categoria: M (o Master), 1, 2, 3; si può lasciare vuota.</li>
+  <li>Con l'intestazione le colonne possono essere in qualsiasi ordine. Vanno bene anche testi separati da <code>;</code> o <code>,</code>.</li>
+  <li>Prima di importare compare un'anteprima riga per riga: nuovo giocatore, anno aggiunto, aggiornamento, già presente. Le squadre mancanti vengono create.</li>
+  <li>Reincollare la stessa tabella non crea doppioni. A ogni nuova stagione basta incollare le righe del nuovo anno.</li>
+</ul>
+<p><b>Esporta</b> restituisce tutta l'anagrafica nello stesso formato, una riga per giocatore e per anno, pronta da incollare in Excel.</p>
+</section>
+
+<section id="controllo">
+<h2><span class="n">10</span>Controllo nomi</h2>
+<p>Serve a collegare all'anagrafica i nomi scritti nelle gare: quelle giocate prima dell'anagrafica e quelle con nomi scritti a mano. La scheda legge tutte le gare e mostra quattro contatori: collegati, riconosciuti da confermare, riconosciuti nei tornei, da sistemare.</p>
+<ol>
+  <li><span class="btn">⬇ Copia di sicurezza</span>: scarica un file con gare, giocatori e squadre. Fallo prima di cominciare.</li>
+  <li><b>Riconosciuti automaticamente:</b> nomi delle gare a squadre che corrispondono a un solo giocatore. Controlla l'elenco e premi <span class="btn g">Conferma tutti</span>.</li>
+  <li><b>Da sistemare:</b> un riquadro per ogni nome, con le gare in cui compare. La tendina propone prima i giocatori con nome uguale o simile (anche con refusi), poi quelli della squadra, poi tutti. Scegli e premi <span class="btn g">Collega</span>: vale per tutte le caselle del gruppo. <span class="btn">+ Nuovo giocatore</span> crea il giocatore e collega subito il gruppo.</li>
+</ol>
+<ul>
+  <li>Nelle gare a squadre si salva solo il collegamento: il testo scritto resta com'era.</li>
+  <li>Nei tornei il nome viene riscritto come in anagrafica (per esempio “Antenuci” diventa “Antenucci V.”).</li>
+  <li>Punteggi e risultati non vengono mai toccati.</li>
+</ul>
+<div class="warn"><b>Prima pubblica</b>Fai il controllo con tutte le gare pubblicate. Se una gara ha modifiche non pubblicate aperte in regia, la sua prossima PUBBLICA riscrive la gara intera e i collegamenti fatti nel frattempo andrebbero persi.</div>
+<div class="tip"><b>Stesso nome, giocatori diversi</b>Se lo stesso testo (“Albano”) indica giocatori diversi in gare diverse, collega il gruppo al più frequente e correggi le altre gare direttamente in regia.</div>
+</section>
+
+<section id="statistiche">
+<h2><span class="n">11</span>Statistiche dei giocatori</h2>
+<p>Le statistiche non sono salvate a parte: si ricalcolano dalle gare ogni volta che si apre una scheda. Correggere un punteggio o collegare un nome aggiorna subito le statistiche.</p>
+<table>
+<tr><th>Situazione</th><th>Come conta</th></tr>
+<tr><td>Incontro di una gara a squadre</td><td>Vinta o persa, con il punteggio. In coppia compare il compagno.</td></tr>
+<tr><td>Staffetta</td><td>La frazione e i punti del giocatore; l'esito è quello della squadra.</td></tr>
+<tr><td>Incontro di torneo seguito in diretta</td><td>Vinta o persa, con il punteggio o i set.</td></tr>
+<tr><td>Incontro del tabellone segnato a mano</td><td>Vinta o persa, con il punteggio se è stato scritto.</td></tr>
+<tr><td>Vittoria a tavolino (avversario assente)</td><td>Non conta.</td></tr>
+<tr><td>Incontro con punti ma senza vincitore</td><td>Compare come “In corso” e non entra nei totali.</td></tr>
+<tr><td>Incontro senza punti</td><td>Non compare.</td></tr>
+</table>
+<p>Contano solo i nomi riconosciuti, cioè collegati a un giocatore dell'anagrafica. Se un giocatore ha giocato in più stagioni, nella scheda compaiono i pulsanti per filtrare per anno sportivo.</p>
+</section>
+
+<section id="admin">
+<h2><span class="n">12</span>Amministrazione</h2>
+<h3>Come è fatta l'app</h3>
+<ul>
+  <li><b>Pagina:</b> un unico file <code>index.html</code>, pubblicato con GitHub Pages dal repository <code>github.com/biliardo2p/biliardo2p.github.io</code> (account del circolo <code>biliardo2p</code>). Questo manuale è il file <code>manuale.html</code> dello stesso repository.</li>
+  <li><b>Dati:</b> database Firebase Realtime Database del progetto <code>biliardo-2p</code>. Contiene gare, elenco delle gare, cronologia dei punteggi, giocatori, squadre, spettatori collegati e contatori delle visite.</li>
+  <li><b>Accesso alla regia:</b> utente di Firebase Authentication (email e password). Le regole del database permettono la scrittura solo a quell'utente; tutti possono leggere.</li>
+</ul>
+<h3>Copia di lavoro</h3>
+<p>La copia di riferimento dei file sta anche nella cartella <code>OBS\Live</code> (insieme a <code>regole_database.json</code> e al file LEGGIMI con le note tecniche). Ogni modifica viene fatta lì e caricata su GitHub; il sito si aggiorna dopo un paio di minuti.</p>
+<h3>Regole del database</h3>
+<p>Il file <code>regole_database.json</code> contiene le regole complete. Per cambiarle: console di Firebase → Realtime Database → <b>Regole</b> → incolla il contenuto del file → <b>Pubblica</b>.</p>
+<h3>Copie di sicurezza</h3>
+<p>Dall'anagrafica, scheda Controllo nomi, <span class="btn">⬇ Copia di sicurezza</span> scarica gare, giocatori e squadre in un file. Dalla console di Firebase si può anche esportare l'intero database (Realtime Database → ⋮ → Esporta JSON).</p>
+<h3>Aggiungere un utente di regia</h3>
+<p>Si crea in Firebase → Authentication → Users, e la sua email va aggiunta alle regole del database accanto a quella esistente.</p>
+</section>
+
+<section id="faq">
+<h2><span class="n">13</span>Problemi e domande</h2>
+<dl class="faq">
+  <dt>Dopo un aggiornamento vedo ancora la versione vecchia.</dt>
+  <dd>GitHub pubblica le modifiche dopo qualche minuto e il browser può tenere in memoria la pagina precedente. Ricarica con <kbd>Ctrl</kbd>+<kbd>F5</kbd> (su telefono chiudi e riapri la scheda), oppure prova in una finestra in incognito.</dd>
+  <dt>“Non riesco a leggere l'anagrafica”.</dt>
+  <dd>Mancano i nodi <code>giocatori</code> e <code>squadre</code> nelle regole del database, oppure le regole sono state pubblicate con la pagina già aperta. La pagina riprova da sola ogni 5 secondi; altrimenti ricarica.</dd>
+  <dt>“Pubblicazione rifiutata”.</dt>
+  <dd>L'utente non è autorizzato dalle regole, oppure la sessione è scaduta: torna a Tutte le gare, premi Esci e rientra.</dd>
+  <dt>Il pubblico non vede un punteggio che ho inserito.</dt>
+  <dd>Controlla la barra di regia: se dice “Modifiche NON ancora pubblicate”, premi PUBBLICA.</dd>
+  <dt>Un nome è sottolineato in arancione.</dt>
+  <dd>Non è collegato a nessun giocatore dell'anagrafica: sceglilo dai suggerimenti, aggiungilo all'elenco o correggi la grafia. Non compare nelle statistiche finché non è collegato.</dd>
+  <dt>Toccando un nome nella regia non si apre la scheda del giocatore.</dt>
+  <dd>È voluto: in regia toccare un nome serve a modificarlo. I nomi sono link solo nelle pagine pubbliche.</dd>
+  <dt>Ho creato una gara con la data o l'avversario sbagliato.</dt>
+  <dd>Titolo, sottotitolo e nomi si correggono toccandoli in regia. Per cambiare la data conviene creare una nuova gara (anche con Duplica) ed eliminare quella sbagliata.</dd>
+</dl>
+</section>
+
+<section id="novita" class="chg">
+<h2><span class="n">14</span>Novità</h2>
+<h3>3 novembre 2026</h3>
+<ul>
+  <li>Nuovo indirizzo: <b>biliardo2p.github.io</b>, sull'account GitHub del circolo. I vecchi link portano al nuovo indirizzo.</li>
+  <li>Schede pubbliche dei giocatori con statistiche e cronologia; nomi cliccabili nelle pagine delle gare.</li>
+  <li>Controllo nomi: collegamento all'anagrafica dei nomi delle gare già giocate.</li>
+  <li>Questo manuale.</li>
+</ul>
+<h3>2 novembre 2026</h3>
+<ul>
+  <li>Anagrafica di giocatori e squadre, con categorie per anno sportivo e import da Excel.</li>
+  <li>Suggerimenti dei giocatori nelle caselle della regia e categoria accanto ai nomi.</li>
+  <li>Squadra avversaria scelta dall'elenco, con città e logo automatici.</li>
+</ul>
+<h3>Fine ottobre 2026</h3>
+<ul>
+  <li>Casa e trasferta: a sinistra sempre la squadra di casa.</li>
+  <li>Pulsanti Duplica ed Elimina nell'elenco delle gare della regia.</li>
+  <li>Tornei con batterie, finali e partite dell'acqua; formule a più set con specialità all'acchito.</li>
+  <li>Grafico dell'andamento, animazione dei punteggi, link fisso <code>?live</code>.</li>
+</ul>
+</section>
+</main>
+
+<footer>Biliardo Seconda Passione · Bologna · Tabellone Live</footer>
+</div>
+<a class="top" href="#inizio" aria-label="Torna su">↑</a>
+</body>
+</html>
