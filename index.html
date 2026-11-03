@@ -441,6 +441,21 @@ details.dn .m{margin-bottom:10px}
 #anm .btns .ghost{background:transparent;border-color:#4b5563;color:var(--ink)}
 #anm .btns [data-adel]{border-color:#6b3a3a;color:#ffb0b0}
 #anm .btns [data-adel].arm{background:#7f1d1d;border-color:#b91c1c;color:#fff}
+/* nomi dei giocatori: categoria e suggerimenti */
+.ct{font-style:normal;font-weight:600;font-size:.78em;color:var(--mute);letter-spacing:.02em}
+.pw{display:flex;align-items:baseline;gap:6px;min-width:0}
+.pw>.p,.pw>.nm{flex:0 1 auto;min-width:1.5em}
+.pw>.ct{flex:none}
+body.ed .nl{text-decoration:underline dashed rgba(255,157,46,.85);text-decoration-thickness:2px;text-underline-offset:4px}
+.bp .ct{font-size:.85em}
+#sug{position:fixed;z-index:45;box-sizing:border-box;overflow:auto;background:#122036;border:1px solid rgba(60,200,255,.45);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.6);padding:4px;display:flex;flex-direction:column;gap:2px}
+#sug[hidden]{display:none}
+#sug .sg{display:flex;flex-direction:column;align-items:flex-start;gap:1px;text-align:left;padding:7px 9px;border-radius:6px;border:0;background:transparent;color:var(--ink);cursor:pointer;font:inherit}
+#sug .sg b{font-family:var(--fh);font-weight:600;font-size:16px;letter-spacing:.04em;text-transform:uppercase}
+#sug .sg span{font-family:system-ui,"Segoe UI",sans-serif;font-size:12px;color:var(--mute)}
+#sug .sg.on,#sug .sg:hover{background:rgba(60,200,255,.16)}
+#sug .sg.add{font-family:system-ui,"Segoe UI",sans-serif;font-size:13px;font-weight:700;color:#cfe0f5;border-top:1px solid var(--line);border-radius:0 0 6px 6px}
+@media (min-width:640px){ .side.L .pw{justify-content:flex-end} }
 </style>
 </head>
 <body>
@@ -484,6 +499,7 @@ details.dn .m{margin-bottom:10px}
 <input id="logofile" type="file" accept="image/*" hidden>
 <div id="anm" hidden><div class="bx" role="dialog" aria-modal="true" aria-label="Scheda"></div></div>
 <input id="anlogo" type="file" accept="image/*" hidden>
+<div id="sug" hidden role="listbox" aria-label="Giocatori"></div>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
@@ -594,6 +610,7 @@ function normalize(st){
   st.matches = f.matches.map((d,i)=>{
     const m = Object.assign(clone(d), ms[i]||{});
     m.h = d.h.map((_,j)=>arr(m.h)[j]||""); m.a = d.a.map((_,j)=>arr(m.a)[j]||"");
+    m.hc = d.h.map((_,j)=>arr(m.hc)[j]||""); m.ac = d.a.map((_,j)=>arr(m.ac)[j]||"");
     const s = arr(m.s); m.s = [+s[0]||0, +s[1]||0];
     m.kind = d.kind; m.pts = d.pts; if(d.step) m.step = d.step;
     if(d.opts){ m.opts = d.opts; m.opt = (typeof m.opt==="number") ? m.opt : -1; const o = m.opts[m.opt]; m.spec = o ? o.spec : ""; m.target = o ? o.target : 0; }
@@ -975,12 +992,12 @@ function relayList(m, i, sd){
     const cls = (j<idx || done&&j<=idx) ? "done" : (!done && j===idx ? "cur" : "");
     const show = j<=idx || a[j]>0;
     const fp = editor ? `<span class="fp" contenteditable="plaintext-only" spellcheck="false" inputmode="numeric" data-fr="${i}.${sd}.${j}">${show?a[j]:""}</span>` : `<span class="fp">${show?a[j]:""}</span>`;
-    return `<div class="r ${cls}"><span class="k">${j+1}</span>${ed(`matches.${i}.${sd}.${j}`,"nm")}${fp}</div>`;
+    return `<div class="r ${cls}"><span class="k">${j+1}</span>${nameCell(m, i, sd, j, "nm")}${fp}</div>`;
   }).join("") + `</div>`;
 }
 function sideHTML(m, i, sd){
   const k = sd==="h"?0:1, w = winner(m), pc = m.target ? Math.min(100, m.s[k]/m.target*100) : 0;
-  const names = m.kind==="Staffetta" ? relayList(m,i,sd) : `<div class="names">${m[sd].map((_,j)=>m.tid ? `<span class="p">${esc(m[sd][j])}</span>` : ed(`matches.${i}.${sd}.${j}`,"p")).join("")}</div>`;
+  const names = m.kind==="Staffetta" ? relayList(m,i,sd) : `<div class="names">${m[sd].map((_,j)=>nameCell(m, i, sd, j, "p")).join("")}</div>`;
   return `<div class="side ${sd} ${SDS()[0]===sd ? "L" : "R"} ${w===sd?"won":w?"lost":""}">${names}<div class="bar"><i style="width:${pc}%"></i></div>${sc(i,sd)}</div>`;
 }
 function setsHTML(m, i){
@@ -1051,7 +1068,7 @@ function nodeHTML(TB, id){
   if(L){ const m = L.m, lw = winner(m), multi = m.defs && m.defs.length>1;
     info = `<span class="blv${lw ? "" : " on"}">${lw ? "" : "● "}${multi ? "set " + m.sw[0] + "–" + m.sw[1] : m.s[0] + "–" + m.s[1]}</span>`; }
   else if(rs && rs.txt) info = `<span class="btx">${esc(rs.txt)}</span>`;
-  const row = (x, sd) => `<div class="bp ${w ? (w.sd===sd ? "w" : "l") : ""}${x.abs ? " abs" : ""}">${x.tbd ? `<i>${esc(x.lab || "da definire")}</i>` : esc(x.name)}</div>`;
+  const row = (x, sd) => `<div class="bp ${w ? (w.sd===sd ? "w" : "l") : ""}${x.abs ? " abs" : ""}">${x.tbd ? `<i>${esc(x.lab || "da definire")}</i>` : x.abs ? esc(x.name) : namesCat(x.name)}</div>`;
   return `<div class="bn${L ? " lv" : ""}${w ? " done" : ""}" data-node="${id}"><div class="bnh"><span class="bno">${nd.no}</span>${info}</div>${row(h,"h")}${row(a,"a")}</div>`;
 }
 function tabPagesHTML(TB){
@@ -1720,9 +1737,13 @@ function parseAnno(t){ const m = String(t||"").match(/(20\d\d)/); return m ? +m[
 const wErr = err => err && err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: aggiungi alle regole del database i nodi giocatori e squadre (vedi LEGGIMI)" : "Salvataggio non riuscito (" + ((err && (err.code||err.message)) || "?") + ")";
 function watchAnag(){
   if(anWatch) return; anWatch = true;
-  const fail = () => { anErr = "Non riesco a leggere l'anagrafica: probabilmente mancano i nodi giocatori e squadre nelle regole del database."; ANAG = ANAG || {}; SQUADRE = SQUADRE || {}; anRepaint(); };
-  db.ref("giocatori").on("value", s=>{ ANAG = s.val() || {}; anErr = ""; anRepaint(); }, fail);
-  db.ref("squadre").on("value", s=>{ SQUADRE = s.val() || {}; anRepaint(); }, fail);
+  /* se la lettura viene rifiutata (regole non ancora pubblicate) si riprova da soli ogni 5 secondi */
+  const okG = {g:false, s:false};
+  const watch = (path, key, set) => db.ref(path).on("value", s=>{ set(s.val() || {}); okG[key] = true; if(okG.g && okG.s) anErr = ""; anRepaint(); }, ()=>{
+    okG[key] = false; anErr = "Non riesco a leggere l'anagrafica: controlla che nelle regole del database ci siano i nodi giocatori e squadre. Riprovo da solo…";
+    ANAG = ANAG || {}; SQUADRE = SQUADRE || {}; anRepaint(); setTimeout(()=>watch(path, key, set), 5000); });
+  watch("giocatori", "g", v=>ANAG = v);
+  watch("squadre", "s", v=>SQUADRE = v);
 }
 function anRepaint(){
   if(mode==="anag"){ const ae = document.activeElement;
@@ -1730,6 +1751,7 @@ function anRepaint(){
     else if(ae && ae.id==="an-imp"){ const p = $("#an-prev"); if(p) p.innerHTML = impPrevHTML(); }
     else render(); }
   else if(mode==="regiahome"){ const d = $("#sq-dl"); if(d) d.innerHTML = sqDatalist(); }
+  else if(mode==="board" && S) render();
 }
 const sqDatalist = () => sqSorted().filter(([k])=>!isClub(k)).map(([k,s])=>`<option value="${esc(s.nome)}"></option>`).join("");
 function anYears(){ const s = new Set([stagione()]); Object.values(ANAG||{}).forEach(p=>anniOf(p).forEach(y=>s.add(y))); return [...s].sort((a,b)=>b-a); }
@@ -1839,10 +1861,12 @@ const yrow = (y, r) => `<div class="row yr"><label>Anno sportivo<select data-yy>
   <label>Categoria<select data-yc><option value="">—</option>${CATS.map(c=>`<option value="${c}"${c===r.cat ? " selected" : ""}>${catLabel(c)}</option>`).join("")}</select></label><button class="yx" data-yx title="Togli questo anno" aria-label="Togli questo anno">✕</button></div>`;
 const anMsg = t => { const m = $("#an-m"); if(m) m.textContent = t; };
 const delLabel = () => anEd.del && Date.now() - anEd.del < 4000 ? "Conferma: elimina" : "Elimina";
-function openPlayer(k){
+function openPlayer(k, pre){
   if(!SQUADRE || !Object.keys(SQUADRE).length){ anErr = "Prima crea almeno una squadra (scheda Squadre) o importa una tabella."; render(); return; }
-  const p = k ? clone(ANAG[k]) : {cognome:"", nome:"", anni:{[anStag]: {sq:anSq || (SQUADRE[CLUBSQ] ? CLUBSQ : sqSorted()[0][0]), cat:""}}};
-  anEd = {kind:"p", k, p, del:0}; paintPlayer(); $("#anm").hidden = false; if(!k) setTimeout(()=>{ const x = $("#an-c"); if(x) x.focus(); }, 30);
+  const y = pre ? pre.y : (anStag ?? stagione()), sq0 = pre && pre.sq && SQUADRE[pre.sq] ? pre.sq : anSq || (SQUADRE[CLUBSQ] ? CLUBSQ : sqSorted()[0][0]);
+  const p = k ? clone(ANAG[k]) : {cognome:pre ? pre.cognome : "", nome:pre ? pre.nome : "", anni:{[y]: {sq:sq0, cat:""}}};
+  anEd = {kind:"p", k, p, del:0, link:pre && pre.link}; paintPlayer(); $("#anm").hidden = false;
+  if(!k) setTimeout(()=>{ const x = pre && pre.cognome ? $("#an-n") : $("#an-c"); if(x) x.focus(); }, 30);
 }
 function paintPlayer(){
   const p = anEd.p, ys = anniOf(p).sort((a,b)=>b-a);
@@ -1874,7 +1898,11 @@ async function savePlayer(){
   const twin = Object.entries(ANAG).find(([kk,q])=>kk!==k && tabName(q).toLowerCase()===tn && anniOf(q).some(y=>ys.includes(y)));
   if(twin && anEd.twin!==tn){ anEd.twin = tn; return anMsg(`Anche ${[twin[1].nome, twin[1].cognome].filter(Boolean).join(" ")} compare come “${tabName(p)}”: scrivi un nome sul tabellone diverso, oppure premi di nuovo Salva per lasciarlo così.`); }
   const val = {cognome:p.cognome, nome:p.nome, anni:p.anni}; if(p.sopr) val.sopr = p.sopr; if(p.tab) val.tab = p.tab; if(p.avatar) val.avatar = p.avatar;
-  try{ await dbWrite({["giocatori/" + k]: val}); closeAn(); } catch(err){ anMsg(wErr(err)); }
+  const link = anEd.link;
+  try{ await dbWrite({["giocatori/" + k]: val}); closeAn(); } catch(err){ anMsg(wErr(err)); return; }
+  if(link && S && mode==="board"){ const [i, sd, j] = link.split("."), m = S.matches[+i];   /* aggiunto dalla gara: la casella si collega al nuovo giocatore */
+    if(m){ ANAG = Object.assign({}, ANAG, {[k]: val}); snapshot(); m[sd][+j] = tabName(val);
+      if(!isTorneo()){ if(!Array.isArray(m[sd + "c"])) m[sd + "c"] = m[sd].map(()=>""); m[sd + "c"][+j] = k; } commit(); } }
 }
 function openSquad(k){
   const s = k ? clone(SQUADRE[k]) : {nome:"", citta:""};
@@ -1951,6 +1979,114 @@ app.addEventListener("input", e=>{
   if(e.target.id==="ng-c") e.target.dataset.auto = "";
 });
 
+/* ================= nomi dei giocatori nelle gare: riconoscimento, categoria, suggerimenti =================
+   Campionati a squadre: accanto ai nomi m.h / m.a ci sono i codici m.hc / m.ac (vuoto = scritto a mano, non collegato).
+   Il codice segue sempre il nome: se si riscrive la casella, il codice si ricalcola dal testo. Con il codice si mostra il nome attuale dell'elenco.
+   Tornei: i nomi vengono dai testi degli incontri e delle batterie e si riconoscono al volo. */
+let anIdx = null, anIdxOf = null;
+const nkey = t => slug(String(t||"").replace(/\(\s*[m123]\s*\)\s*$/i, ""));
+function anIndex(){
+  if(anIdx && anIdxOf===ANAG) return anIdx;
+  anIdx = new Map(); anIdxOf = ANAG;
+  Object.entries(ANAG||{}).forEach(([k,p])=>{
+    new Set([tabName(p), p.cognome, p.nome && p.cognome + " " + p.nome, p.nome && p.nome + " " + p.cognome, p.sopr].filter(Boolean).map(nkey))
+      .forEach(x=>{ if(!x) return; if(!anIdx.has(x)) anIdx.set(x, []); anIdx.get(x).push(k); });
+  });
+  return anIdx;
+}
+function resolveName(t, sq, y){
+  if(!ANAG || !String(t||"").trim()) return "";
+  const ks = anIndex().get(nkey(t)); if(!ks || !ks.length) return ""; if(ks.length===1) return ks[0];
+  if(sq){ const f = ks.filter(k=>rowAt(ANAG[k], y).sq===sq); if(f.length===1) return f[0]; }
+  return "";
+}
+const sideSq = sd => !S || isTorneo() ? "" : sd==="h" ? CLUBSQ : (S.away.sq || findSq(S.away.name));
+const gYear = () => stagione(S && S.data);
+function pInfo(m, sd, j){
+  const t = m[sd][j] || "", c = (m[sd + "c"] || [])[j] || "", y = gYear();
+  if(!ANAG) return {t, k:"", cat:""};
+  const k = c && ANAG[c] ? c : resolveName(t, sideSq(sd), y), p = k && ANAG[k];
+  return {t: p ? tabName(p) : t, k, cat: p ? rowAt(p, y).cat || "" : ""};
+}
+const catTag = c => c ? `<i class="ct">(${esc(c)})</i>` : "";
+function nameCell(m, i, sd, j, cls){
+  const x = pInfo(m, sd, j);
+  if(!editor || m.tid) return `<span class="${cls}">${esc(x.t)}${x.cat ? " " + catTag(x.cat) : ""}</span>`;
+  const nl = x.t && !x.k && ANAG ? " nl" : "";
+  return `<span class="pw"><span class="${cls}${nl}" contenteditable="plaintext-only" spellcheck="false" data-nm="${i}.${sd}.${j}" data-orig="${esc(x.t)}"${nl ? ` title="Nome non presente nell'elenco giocatori"` : ""}>${esc(x.t)}</span>${catTag(x.cat)}</span>`;
+}
+/* tornei: testo "Galli / Tamburini" -> ogni nome con la sua categoria */
+function namesCat(t){
+  if(!ANAG) return esc(t); const y = gYear();
+  return String(t).split(" / ").map(n=>{ const k = resolveName(n, "", y), c = k ? rowAt(ANAG[k], y).cat : ""; return esc(n) + (c ? " " + catTag(c) : ""); }).join(" / ");
+}
+app.addEventListener("focusout", e=>{
+  const el = e.target; if(!editor || mode!=="board" || !el.dataset || !el.dataset.nm) return;
+  hideSug();
+  if(el.dataset.cancel) return;
+  const txt = el.textContent.replace(/\s+/g, " ").trim(), [i, sd, j] = el.dataset.nm.split("."), m = S.matches[+i];
+  if(!m || txt===el.dataset.orig) return;
+  snapshot(); m[sd][+j] = txt;
+  if(!isTorneo()){ if(!Array.isArray(m[sd + "c"])) m[sd + "c"] = m[sd].map(()=>"");
+    m[sd + "c"][+j] = el.dataset.pick && el.dataset.pickt===txt ? el.dataset.pick : resolveName(txt, sideSq(sd), gYear()); }
+  setTimeout(commit);
+});
+/* ---- tendina dei suggerimenti ---- */
+let sugFor = null, sugI = -1, sugL = [];
+function sugCands(el){
+  const sd = el.dataset.nm.split(".")[1], y = gYear(), sq = sideSq(sd), q = nkey(el.textContent).split("-").filter(Boolean);
+  const L = Object.entries(ANAG||{}).map(([k,p])=>({k, p, r:rowAt(p, y), now:!!(p.anni||{})[y]})).filter(x=>{
+    if(!q.length) return x.now && (sq ? x.r.sq===sq : isClub(x.r.sq));
+    const hay = [x.p.cognome, x.p.nome, x.p.sopr, tabName(x.p)].map(nkey).join("-").split("-");
+    return q.every(w=>hay.some(h=>h.startsWith(w)));
+  });
+  L.sort((a,b)=>(sq ? (b.r.sq===sq) - (a.r.sq===sq) : 0) || isClub(b.r.sq) - isClub(a.r.sq) || b.now - a.now
+    || String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||"")));
+  return L.slice(0, 40);
+}
+function showSug(el){
+  const box = $("#sug");
+  if(!ANAG || !el || !el.isConnected){ hideSug(); return; }
+  const txt = el.textContent.replace(/\s+/g, " ").trim(), sd = el.dataset.nm.split(".")[1];
+  sugL = sugCands(el); sugFor = el;
+  const add = txt && !resolveName(txt, sideSq(sd), gYear()) && SQUADRE && Object.keys(SQUADRE).length;
+  const n = sugL.length + (add ? 1 : 0);
+  if(!n){ box.hidden = true; return; }
+  if(sugI>=n) sugI = -1;
+  const y = gYear();
+  box.innerHTML = sugL.map((x,k)=>`<button type="button" class="sg${k===sugI ? " on" : ""}" data-sg="${k}"><b>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}</b><span>${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))} · ${esc(sqName(x.r.sq))}${x.now ? "" : " (" + stagLabel(anniOf(x.p).at(-1)) + ")"}</span></button>`).join("")
+    + (add ? `<button type="button" class="sg add${sugI===sugL.length ? " on" : ""}" data-sg="add">+ Aggiungi “${esc(txt)}” all'elenco giocatori</button>` : "");
+  box.hidden = false;
+  const r = el.getBoundingClientRect(), vh = window.visualViewport ? visualViewport.height : innerHeight, w = Math.min(340, innerWidth - 16);
+  box.style.width = w + "px"; box.style.left = Math.max(8, Math.min(r.left, innerWidth - w - 8)) + "px";
+  const below = vh - r.bottom - 8, above = r.top - 8, h = Math.min(box.scrollHeight, 300);
+  if(below>=Math.min(h, 180) || below>=above){ box.style.top = (r.bottom + 4) + "px"; box.style.bottom = ""; box.style.maxHeight = Math.max(120, Math.min(300, below)) + "px"; }
+  else { box.style.top = ""; box.style.bottom = (innerHeight - r.top + 4) + "px"; box.style.maxHeight = Math.min(300, above) + "px"; }
+  const on = box.querySelector(".sg.on"); if(on) on.scrollIntoView({block:"nearest"});
+}
+function hideSug(){ const b = $("#sug"); if(b) b.hidden = true; sugFor = null; }
+function pickSug(k){
+  const el = sugFor; if(!el) return;
+  if(k==="add"){ const txt = el.textContent.replace(/\s+/g, " ").trim(), nm = el.dataset.nm, sd = nm.split(".")[1];
+    hideSug(); el.blur();
+    const parts = txt.split(" "), cog = parts.shift(), rest = parts.join(" ").trim();
+    openPlayer(null, {cognome:cog, nome:/^[^\s.]\.?$/.test(rest) ? "" : rest, sq:sideSq(sd) || CLUBSQ, y:gYear(), link:nm}); return; }
+  const x = sugL[+k]; if(!x) return;
+  el.textContent = tabName(x.p); el.dataset.pick = x.k; el.dataset.pickt = tabName(x.p); hideSug(); el.blur();
+}
+app.addEventListener("focusin", e=>{ if(editor && mode==="board" && e.target.dataset && e.target.dataset.nm){ sugI = -1; showSug(e.target); } });
+app.addEventListener("input", e=>{ if(e.target.dataset && e.target.dataset.nm && document.activeElement===e.target){ sugI = -1; showSug(e.target); } });
+document.addEventListener("keydown", e=>{
+  if(!sugFor || $("#sug").hidden || e.target!==sugFor) return;
+  const n = $("#sug").querySelectorAll(".sg").length;
+  if(e.key==="ArrowDown" || e.key==="ArrowUp"){ e.preventDefault(); e.stopPropagation(); sugI = e.key==="ArrowDown" ? (sugI + 1) % n : (sugI <= 0 ? n - 1 : sugI - 1); showSug(sugFor); }
+  else if(e.key==="Enter" || e.key==="Tab"){ const on = $("#sug .sg.on"); if(on){ e.preventDefault(); e.stopPropagation(); pickSug(on.dataset.sg); } }
+  else if(e.key==="Escape"){ e.preventDefault(); e.stopPropagation(); hideSug(); }
+}, true);
+$("#sug").addEventListener("pointerdown", e=>{ const b = e.target.closest("[data-sg]"); e.preventDefault(); if(b) pickSug(b.dataset.sg); });
+addEventListener("scroll", ()=>{ if(sugFor) showSug(sugFor); }, {passive:true});
+addEventListener("resize", ()=>{ if(sugFor) showSug(sugFor); });
+
 /* lo spazio in fondo alla pagina segue l'altezza reale della barra di regia (su telefono va a capo su più righe) */
 try{ new ResizeObserver(()=>document.body.style.setProperty("--rbh", $("#rbar").offsetHeight+"px")).observe($("#rbar")); }catch(err){}
 $("#rbar").addEventListener("click", e=>{
@@ -2003,7 +2139,7 @@ function trackPresence(){
   if(REGIA) db.ref("visite/" + GARA).on("value", s=>{ visits = +s.val()||0; paintViewers(); }, ()=>{});
 }
 function watchGara(){
-  trackPresence();
+  trackPresence(); watchAnag();
   db.ref("gare/"+GARA).on("value", snap=>{
     const v = normalize(snap.val());
     if(!v){ if(!editor){ mode = "missing"; render(); } return; }
