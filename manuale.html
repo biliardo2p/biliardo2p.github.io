@@ -71,6 +71,15 @@ section{min-width:0}
 dl.faq dt{font-weight:700;margin-top:14px}
 dl.faq dd{margin:4px 0 0;color:var(--ink);max-width:740px}
 .chg h3{margin-top:16px}
+figure.sh{margin:14px 0;max-width:760px}
+figure.sh img{display:block;width:100%;height:auto;border-radius:10px;border:1px solid var(--line);box-shadow:0 8px 24px rgba(0,0,0,.45);background:var(--panel)}
+figure.sh.tel{max-width:300px}
+figure.sh.tel img{border-radius:18px}
+figure.sh figcaption{margin-top:6px;color:var(--mute);font-size:14px}
+.shs{display:flex;flex-wrap:wrap;gap:18px;align-items:flex-start;max-width:760px}
+.shs figure.sh{margin:14px 0 6px}
+@media (max-width:700px){ .shs figure.sh.tel{max-width:calc(50% - 9px)} }
+@media print{ figure.sh img{box-shadow:none} figure.sh{break-inside:avoid} }
 footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;padding-top:10px}
 .top{position:fixed;right:14px;bottom:14px;width:42px;height:42px;border-radius:50%;display:grid;place-items:center;background:var(--panel);border:1px solid var(--line);color:var(--ink);text-decoration:none;font-size:20px}
 @media print{ body{background:#fff;color:#000} nav.toc,.top{display:none} .layout{display:block} a{color:#000} code,kbd,pre{background:#f2f2f2;color:#000;border-color:#ccc} .note,.warn,.tip{background:#f6f6f6} }
@@ -125,6 +134,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <h2><span class="n">2</span>Per chi segue le gare</h2>
 <h3>Elenco delle gare</h3>
 <p>Ogni gara mostra data, stato (<b>LIVE</b>, <b>In programma</b>, <b>Finale</b>), competizione, giornata e luogo, e il punteggio delle squadre o il vincitore del torneo. Toccando una gara si apre la sua pagina. In alto a destra, <b>👥 Giocatori</b> porta all'elenco dei giocatori.</p>
+<div class="shs"><figure class="sh tel"><img src="img/manuale/elenco.webp" alt="Elenco delle gare (telefono)" loading="lazy" width="390" height="844"><figcaption>Elenco delle gare (telefono)</figcaption></figure><figure class="sh tel"><img src="img/manuale/gara-telefono.webp" alt="Una gara a squadre in diretta, in trasferta: gli avversari sono a sinistra" loading="lazy" width="390" height="844"><figcaption>Una gara a squadre in diretta, in trasferta: gli avversari sono a sinistra</figcaption></figure></div>
 <h3>Pagina di una gara a squadre</h3>
 <ul>
   <li><b>In alto</b> le due squadre con il punteggio totale. A sinistra c'è sempre la squadra che gioca in casa; i colori restano legati alla squadra: azzurro per il nostro circolo, arancione per l'avversario.</li>
@@ -134,8 +144,11 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <li><b>Nomi:</b> toccando il nome di un giocatore riconosciuto si apre la sua scheda.</li>
 </ul>
 <p>La pagina si aggiorna da sola: quando la regia pubblica, i punteggi cambiano con una piccola animazione (“+12”). Sotto il punteggio c'è l'ora dell'ultimo aggiornamento e, durante la diretta, in alto compare quante persone stanno guardando. Se la connessione si interrompe compare un avviso e la pagina si ricollega da sola.</p>
+<figure class="sh"><img src="img/manuale/gara-computer.webp" alt="La stessa gara su computer: gli incontri sono faccia a faccia" loading="lazy" width="1100" height="760"><figcaption>La stessa gara su computer: gli incontri sono faccia a faccia</figcaption></figure>
+<figure class="sh"><img src="img/manuale/andamento.webp" alt="📈 Andamento di un incontro: grafico e punteggio a ogni pubblicazione" loading="lazy" width="1100" height="760"><figcaption>📈 Andamento di un incontro: grafico e punteggio a ogni pubblicazione</figcaption></figure>
 <h3>Pagina di un torneo</h3>
 <p>Per i tornei con batterie e finali la pagina mostra gli incontri seguiti in diretta e il <b>tabellone</b>, diviso in pagine (una per batteria, più le finali): si scorre con i pulsanti in alto. Ogni incontro del tabellone indica chi è passato e l'eventuale punteggio; quelli in diretta hanno il pallino rosso. A torneo concluso compare il vincitore con la coppa.</p>
+<figure class="sh"><img src="img/manuale/tabellone.webp" alt="Torneo con batterie e finali: in alto l'incontro in diretta, sotto il tabellone della batteria" loading="lazy" width="1100" height="900"><figcaption>Torneo con batterie e finali: in alto l'incontro in diretta, sotto il tabellone della batteria</figcaption></figure>
 <h3>Giocatori</h3>
 <p>L'elenco è diviso per anno sportivo e per squadra, con una casella di ricerca. Ogni scheda mostra squadra e categoria, i totali (partite giocate, vinte, perse, percentuale di vittorie), una tabella per tipo e specialità e la cronologia delle partite con il link alla gara. Vedi <a href="#statistiche">Statistiche dei giocatori</a>.</p>
 </section>
@@ -149,6 +162,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <li>l'elenco di tutte le gare, ognuna con i pulsanti <span class="btn">⧉ Duplica</span> e <span class="btn">🗑 Elimina</span>;</li>
   <li>in alto, <span class="btn">👥 Giocatori e squadre</span> per l'anagrafica.</li>
 </ul>
+<figure class="sh tel"><img src="img/manuale/regia-home.webp" alt="Schermata principale della regia: nuova gara ed elenco delle gare" loading="lazy" width="390" height="844"><figcaption>Schermata principale della regia: nuova gara ed elenco delle gare</figcaption></figure>
 <p>Toccando una gara si apre la sua pagina in modalità regia: è la stessa pagina che vede il pubblico, con in più le caselle modificabili e la <b>barra di regia</b> verde in fondo.</p>
 <div class="warn"><b>Elimina</b>Il primo tocco su <span class="btn">🗑 Elimina</span> chiede conferma; un secondo tocco entro 4 secondi cancella definitivamente la gara, la sua cronologia e i contatori. Non si può annullare.</div>
 </section>
@@ -198,6 +212,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <tr><td><b>− Togli</b></td><td>Toglie punti, per correggere un errore.</td><td><code>-2</code> Invio</td></tr>
 <tr><td><b>= Totale</b></td><td>Imposta direttamente il punteggio totale.</td><td><code>=150</code> Invio</td></tr>
 </table>
+<div class="shs"><figure class="sh tel"><img src="img/manuale/regia-suggerimenti.webp" alt="Suggerimenti dei giocatori: dal lato dell'avversario compaiono i giocatori di Elite" loading="lazy" width="390" height="844"><figcaption>Suggerimenti dei giocatori: dal lato dell'avversario compaiono i giocatori di Elite</figcaption></figure><figure class="sh tel"><img src="img/manuale/regia-tastierino.webp" alt="Tastierino dei punti: Aggiungi, Togli, Totale" loading="lazy" width="390" height="844"><figcaption>Tastierino dei punti: Aggiungi, Togli, Totale</figcaption></figure></div>
 <p>Nella <b>staffetta</b> ogni frazione ha i suoi punti: si inseriscono nella casella accanto al nome di chi sta tirando, e il totale si calcola da solo. Negli incontri a più set c'è una casella per ogni set.</p>
 <h3>Altri comandi</h3>
 <ul>
@@ -213,6 +228,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <section id="pubblica">
 <h2><span class="n">6</span>Pubblicare e stati della gara</h2>
 <p>Tutto quello che modifichi in regia resta <b>privato</b> finché non premi <span class="btn g">PUBBLICA</span> (o il tasto <kbd>P</kbd>). La barra in fondo lo indica: “● Modifiche NON ancora pubblicate” oppure “✓ Il pubblico vede tutto aggiornato”. Le modifiche non pubblicate restano salvate sul dispositivo anche se chiudi la pagina.</p>
+<figure class="sh"><img src="img/manuale/regia-gara.webp" alt="Una gara aperta in regia su computer: in fondo la barra verde con PUBBLICA e gli altri comandi" loading="lazy" width="1100" height="760"><figcaption>Una gara aperta in regia su computer: in fondo la barra verde con PUBBLICA e gli altri comandi</figcaption></figure>
 <p>Il ritmo consigliato è: inserisci i punti di un tiro, controlla, premi <kbd>P</kbd>. Ogni pubblicazione aggiunge un punto al grafico dell'andamento.</p>
 <table>
 <tr><th>Comando</th><th>Effetto</th></tr>
@@ -272,12 +288,14 @@ assente
   <li>Coppie: <code>Galli / Tamburini</code>.</li>
 </ul>
 <p>Le <b>finali</b> si scrivono con riferimenti: <code>B3</code> = vincitore della 3ª batteria, <code>A1</code> = vincitore della 1ª partita dell'acqua. Sotto <code># Partite dell'acqua</code> (se servono) e <code># Tabellone finale</code> va un incontro per riga, nell'ordine del sorteggio; i turni successivi si formano da soli. <span class="btn">Rigenera l'ordine proposto</span> ricalcola uno schema standard in base al numero di batterie (per esempio con 12 batterie: 4 partite dell'acqua e 4 vincitori di batteria già nei quarti).</p>
+<figure class="sh"><img src="img/manuale/batterie.webp" alt="Finestra “Batterie e finali”: formule delle partite e iscritti delle batterie" loading="lazy" width="1100" height="760"><figcaption>Finestra “Batterie e finali”: formule delle partite e iscritti delle batterie</figcaption></figure>
 <h3>Segnare i risultati</h3>
 <p>Tocca un incontro nel tabellone. Nella finestra puoi:</p>
 <ul>
   <li><b>indicare il vincitore</b> e, se vuoi, un punteggio libero (“120–95”, “2–1”), poi <span class="btn g">Salva</span>: il vincitore passa al turno successivo;</li>
   <li><b><span class="btn">▶ Segui in diretta</span></b> scegliendo la formula: l'incontro diventa una scheda con i punteggi come nelle gare a squadre, e il vincitore avanza da solo quando l'incontro finisce. <span class="btn">Smetti di seguire</span> lo toglie dalla diretta.</li>
 </ul>
+<figure class="sh"><img src="img/manuale/tabellone-incontro.webp" alt="Un incontro del tabellone aperto in regia: vincitore, punteggio o “Segui in diretta”" loading="lazy" width="1100" height="760"><figcaption>Un incontro del tabellone aperto in regia: vincitore, punteggio o “Segui in diretta”</figcaption></figure>
 <p>Nella pagina pubblica gli incontri in diretta stanno in cima; quelli conclusi si raccolgono sotto “Incontri seguiti e conclusi”.</p>
 </section>
 
@@ -293,6 +311,7 @@ assente
   <li><b>Nome sul tabellone:</b> da scrivere solo per distinguere due omonimi con la stessa iniziale. La scheda avvisa quando due giocatori risulterebbero uguali.</li>
   <li><b>Squadra e categoria per anno sportivo:</b> <span class="btn">+ Aggiungi anno</span> copia l'ultima riga, così basta cambiare ciò che è diverso.</li>
 </ul>
+<div class="shs"><figure class="sh tel"><img src="img/manuale/anagrafica.webp" alt="Elenco dei giocatori per anno sportivo e squadra" loading="lazy" width="390" height="844"><figcaption>Elenco dei giocatori per anno sportivo e squadra</figcaption></figure><figure class="sh tel"><img src="img/manuale/anagrafica-scheda.webp" alt="Scheda di un giocatore: squadra e categoria per anno sportivo" loading="lazy" width="390" height="844"><figcaption>Scheda di un giocatore: squadra e categoria per anno sportivo</figcaption></figure></div>
 <p>Ogni giocatore ha un <b>codice</b> interno, creato alla prima registrazione e mai più modificato. Le gare sono collegate al codice: se cambi nome, grafia o soprannome, tutte le gare e le statistiche mostrano il nome aggiornato.</p>
 <h3>Squadre</h3>
 <p>Nome, città e logo. Il logo viene inserito da solo nelle nuove gare contro quella squadra. Una squadra con giocatori associati non si può eliminare.</p>
@@ -309,6 +328,7 @@ assente
   <li>Prima di importare compare un'anteprima riga per riga: nuovo giocatore, anno aggiunto, aggiornamento, già presente. Le squadre mancanti vengono create.</li>
   <li>Reincollare la stessa tabella non crea doppioni. A ogni nuova stagione basta incollare le righe del nuovo anno.</li>
 </ul>
+<figure class="sh tel"><img src="img/manuale/importa.webp" alt="Import da Excel: anteprima prima di confermare" loading="lazy" width="390" height="844"><figcaption>Import da Excel: anteprima prima di confermare</figcaption></figure>
 <p><b>Esporta</b> restituisce tutta l'anagrafica nello stesso formato, una riga per giocatore e per anno, pronta da incollare in Excel.</p>
 </section>
 
@@ -320,6 +340,7 @@ assente
   <li><b>Riconosciuti automaticamente:</b> nomi delle gare a squadre che corrispondono a un solo giocatore. Controlla l'elenco e premi <span class="btn g">Conferma tutti</span>.</li>
   <li><b>Da sistemare:</b> un riquadro per ogni nome, con le gare in cui compare. La tendina propone prima i giocatori con nome uguale o simile (anche con refusi), poi quelli della squadra, poi tutti. Scegli e premi <span class="btn g">Collega</span>: vale per tutte le caselle del gruppo. <span class="btn">+ Nuovo giocatore</span> crea il giocatore e collega subito il gruppo.</li>
 </ol>
+<figure class="sh tel"><img src="img/manuale/controllo-nomi.webp" alt="Controllo nomi: contatori, nomi riconosciuti da confermare e nomi da sistemare" loading="lazy" width="390" height="844"><figcaption>Controllo nomi: contatori, nomi riconosciuti da confermare e nomi da sistemare</figcaption></figure>
 <ul>
   <li>Nelle gare a squadre si salva solo il collegamento: il testo scritto resta com'era.</li>
   <li>Nei tornei il nome viene riscritto come in anagrafica (per esempio “Antenuci” diventa “Antenucci V.”).</li>
@@ -332,6 +353,7 @@ assente
 <section id="statistiche">
 <h2><span class="n">11</span>Statistiche dei giocatori</h2>
 <p>Le statistiche non sono salvate a parte: si ricalcolano dalle gare ogni volta che si apre una scheda. Correggere un punteggio o collegare un nome aggiorna subito le statistiche.</p>
+<figure class="sh tel"><img src="img/manuale/giocatore.webp" alt="Scheda pubblica di un giocatore: totali, specialità e partite" loading="lazy" width="390" height="844"><figcaption>Scheda pubblica di un giocatore: totali, specialità e partite</figcaption></figure>
 <table>
 <tr><th>Situazione</th><th>Come conta</th></tr>
 <tr><td>Incontro di una gara a squadre</td><td>Vinta o persa, con il punteggio. In coppia compare il compagno.</td></tr>
@@ -414,6 +436,7 @@ assente
 <h2><span class="n">14</span>Novità</h2>
 <h3>4 novembre 2026</h3>
 <ul>
+  <li>Il manuale ha le immagini delle schermate principali.</li>
   <li>L'app è divisa in più file (grafica, regole di gioco, regia, anagrafica…) per rendere più sicure le modifiche future. Per chi la usa non cambia nulla.</li>
 </ul>
 <h3>3 novembre 2026</h3>
