@@ -20,6 +20,7 @@ function trackPresence(){
   if(REGIA) db.ref("visite/" + GARA).on("value", s=>{ visits = +s.val()||0; paintViewers(); }, ()=>{});
 }
 function watchGara(){
+  if(REGIA) setTimeout(ondaWatch);
   trackPresence(); watchAnag();
   db.ref("gare/"+GARA).on("value", snap=>{
     const v = normalize(snap.val());
@@ -41,7 +42,7 @@ function startRegia(){
 /* ?live = link fisso: apre la gara LIVE; se sono più d'una le elenca; se nessuna, la prossima in programma o l'ultima conclusa */
 function openLive(){
   db.ref("indice").once("value").then(snap=>{
-    const all = Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id}, m));
+    const all = Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id}, m)).filter(g=>!g.prova);
     const go = g => location.replace("?gara=" + encodeURIComponent(g.id));
     const live = all.filter(g=>g.stato==="live");
     if(live.length===1) return go(live[0]);
@@ -59,6 +60,7 @@ function watchIndex(){ db.ref("indice").on("value", snap=>{ INDEX = snap.val() |
 (() => {
 if(!initFirebase()){ mode = "error"; render(); return; }
 db.ref(".info/connected").on("value", s=>{ const was = online; online = !!s.val(); if(was!==online && mode==="board") render(); });
+if(OVERLAY){ ovStart(); return; }
 if(REGIA){
   document.title = "Regia · Tabellone Live";
   startRegia();

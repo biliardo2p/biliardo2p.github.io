@@ -14,7 +14,8 @@ app.addEventListener("focusout", e=>{
   const el = e.target; if(!editor || !el.isContentEditable) return;
   const txt = el.textContent.replace(/\s+/g," ").trim();
   if(el.dataset.cancel){ setTimeout(render); return; }
-  if(el.dataset.ed){ if(getP(el.dataset.ed)!==txt){ snapshot(); setP(el.dataset.ed, txt); } setTimeout(commit); }
+  if(el.dataset.bil!=null){ const m = S.matches[+el.dataset.bil], v = txt.slice(0, 6); if(m && (m.bil||"")!==v){ snapshot(); m.bil = v; } setTimeout(commit); }   /* numero del biliardo */
+  else if(el.dataset.ed){ if(getP(el.dataset.ed)!==txt){ snapshot(); setP(el.dataset.ed, txt); } setTimeout(commit); }
   else if(el.dataset.ss){
     const [i,k,sd] = el.dataset.ss.split("."), v = entryValue(txt, scoreCur(el), el.dataset.mode || "add");
     setTimeout(()=>{ if(v!==null) setSetScore(+i, +k, sd, v); render(); });
@@ -387,7 +388,7 @@ app.addEventListener("submit", async e=>{
     const id = tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
     if(INDEX && INDEX[id]){ location.search = "?regia&gara=" + id; return; }
     if(tor && dupSrc && dupSrc.formula===o.formula && dupSrc.formule) o.formule = [o.formule[0], ...dupSrc.formule.slice(1).filter(x=>x.nome.toLowerCase()!==o.formule[0].nome.toLowerCase())];
-    const st = newState(o);
+    const st = newState(o); if($("#ng-pr") && $("#ng-pr").checked) st.prova = true;
     if(dupSrc && !tor && (FORMULE[dupSrc.formula] || {}).nome===FORMULE[o.formula].nome){   /* duplicata: stessi titolo e squadra di casa; logo ospite se è la stessa squadra */
       st.title = dupSrc.title || st.title; st.home = clone(dupSrc.home);
       if(dupSrc.away && dupSrc.away.name.trim().toLowerCase()===o.ospite.toLowerCase()){ st.away.badge = dupSrc.away.badge || st.away.badge; if(dupSrc.away.logo) st.away.logo = dupSrc.away.logo; }

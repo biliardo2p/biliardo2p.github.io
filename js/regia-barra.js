@@ -10,6 +10,8 @@ $("#rbar").addEventListener("click", e=>{
   else if(r==="disc") discard();
   else if(r==="more"){ barOpen = !barOpen; renderBar(); }
   else if(r==="inc") openInc();
+  else if(r==="onda"){ ondaToggle(); renderBar(); }
+  else if(r==="prova"){ snapshot(); S.prova = !S.prova; if(!S.prova) delete S.prova; commit(); setFlash(S.prova ? "Gara di prova: premi PUBBLICA per toglierla dall'elenco pubblico" : "Gara pubblica: premi PUBBLICA per farla comparire nell'elenco"); }
   else if(r==="tbe") openTbe();
   else if(r==="reset") resetScores();
   else if(r==="prog"){

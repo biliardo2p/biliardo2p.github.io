@@ -33,6 +33,13 @@ body.ed [data-logo]{cursor:pointer}
 .gdup:hover{background:rgba(60,200,255,.12)}
 .panel.dupl{border-color:rgba(60,200,255,.6);box-shadow:0 0 0 1px rgba(60,200,255,.25)}
 .gdel{font:600 13px system-ui,"Segoe UI",sans-serif;padding:5px 10px;border-radius:6px;border:1px solid #6b3a3a;background:transparent;color:#ffb0b0;cursor:pointer}
+.chip.prova{background:#7c3aed;color:#fff;margin-right:6px}
+.gtop .chip.prova + .chip{margin-left:0}
+.panel label.chk{grid-column:1/-1;display:flex;gap:8px;align-items:flex-start;font-weight:500;color:var(--mute)}
+.panel label.chk input{margin-top:3px;flex:none;width:17px;height:17px;padding:0;min-width:0;accent-color:var(--ok)}
+.top>div:first-child{min-width:0}
+.top .sub{overflow-wrap:anywhere}
+@media (max-width:520px){ .rtop .ghost{padding:7px 10px;font-size:13px} }
 .gdel:hover{background:rgba(127,29,29,.35)}
 .gdel.arm{background:#7f1d1d;border-color:#ef4444;color:#fff}
 .gdel:disabled{opacity:.5;cursor:default}

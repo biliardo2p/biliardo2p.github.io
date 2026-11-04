@@ -3,10 +3,10 @@
    così la regia funziona anche aperta dal disco). L'ordine conta. */
 /* ================= vista elenco gare ================= */
 function listHTML(idx, forRegia){
-  const items = Object.entries(idx||{}).map(([id,m])=>Object.assign({id}, m))
+  const items = Object.entries(idx||{}).map(([id,m])=>Object.assign({id}, m)).filter(g=>forRegia || !g.prova)   /* gare di prova: solo in regia */
     .sort((a,b)=> (b.data||"").localeCompare(a.data||"") || (b.aggiornato||0)-(a.aggiornato||0));
   const card = g => {
-    const st = g.stato==="live" ? `<span class="chip run">LIVE</span>` : g.stato==="finita" ? `<span class="chip wait">Finale</span>` : `<span class="chip wait">In programma</span>`;
+    const st = (g.prova ? `<span class="chip prova">PROVA</span>` : "") + (g.stato==="live" ? `<span class="chip run">LIVE</span>` : g.stato==="finita" ? `<span class="chip wait">Finale</span>` : `<span class="chip wait">In programma</span>`);
     const p = arr(g.punti);
     const href = forRegia ? `?regia&gara=${g.id}` : `?gara=${g.id}`;
     return (forRegia ? `<div class="gwrap">` : "") + `<a class="gcard" href="${href}"><div class="gtop"><span>${esc(fmtDate(g.data))}</span>${st}</div>

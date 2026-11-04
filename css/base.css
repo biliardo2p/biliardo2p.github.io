@@ -54,6 +54,8 @@ button.no{cursor:pointer}
 .sp b{color:var(--gold);font-family:var(--fc);font-weight:700;font-size:15px;margin-left:5px;letter-spacing:.06em}
 .chip{margin-left:auto;font-size:13px;font-weight:800;letter-spacing:.14em;padding:2px 8px;border-radius:3px;white-space:nowrap}
 .chip.run{background:var(--gold);color:#1a1205}
+.chip .bil{display:inline-block;min-width:1.5em;padding:0 3px;border-bottom:1px dashed #1a1205;outline:none;text-align:center;cursor:text}
+.chip .bil:empty::before{content:"?";opacity:.45}
 .chip.win{background:var(--gold);color:#1a1205}
 .chip.wait{color:var(--dim);border:1px solid var(--line);font-weight:700}
 

@@ -38,7 +38,7 @@ function normalize(st){
       const defs = defsFor(st, {fr, formato:fm});
       const ssIn = arr(m.ss).map(arr); if(!m.ss && m.s) ssIn[0] = arr(m.s);
       const chIn = arr(m.ch);
-      const x = {id, tid:m.tid||"", turno:m.turno||"", kind:st.gioco, formato:fm, fr, pts:1,
+      const x = {id, tid:m.tid||"", turno:m.turno||"", bil:String(m.bil||""), kind:st.gioco, formato:fm, fr, pts:1,
         h:Array.from({length:n},(_,j)=>arr(m.h)[j]||""), a:Array.from({length:n},(_,j)=>arr(m.a)[j]||""),
         ss:defs.map((_,k)=>[+(ssIn[k]||[])[0]||0, +(ssIn[k]||[])[1]||0]), ch:defs.map((_,k)=>Number.isInteger(chIn[k]) ? chIn[k] : -1)};
       x.defs = defs.map((d,k)=>d.opts ? Object.assign({opts:d.opts}, d.opts[x.ch[k]] || {spec:"", target:0}) : d);

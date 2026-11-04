@@ -108,6 +108,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <li><a href="#anagrafica">Giocatori e squadre</a></li>
   <li><a href="#controllo">Controllo nomi</a></li>
   <li><a href="#statistiche">Statistiche dei giocatori</a></li>
+  <li><a href="#obs">Dirette video (OBS)</a></li>
   <li><a href="#admin">Amministrazione</a></li>
   <li><a href="#faq">Problemi e domande</a></li>
   <li><a href="#novita">Novità</a></li>
@@ -199,6 +200,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <p>Per i due tipi di torneo si indicano nome del torneo, fase o giornata (facoltativa), gioco (singoli o coppie) e la <b>partita</b>: set secco, 2 su 3 o 3 su 5; per ogni set specialità e punti. L'ultimo set può essere <b>a scelta all'acchito</b>. Per il torneo con batterie e finali si indica anche il numero di batterie. Vedi <a href="#tornei">Tornei</a>.</p>
 <h3>Duplica</h3>
 <p><span class="btn">⧉ Duplica</span> riempie il modulo con i dati di una gara esistente: competizione, <b>giornata successiva</b> (Prima → Seconda, 1ª → 2ª, Giornata 3 → Giornata 4), campo, luogo, avversario e città; per i tornei nome, gioco, formula e numero di batterie. La data diventa quella di oggi. Punteggi e nomi dei giocatori non vengono copiati. Controlla i campi, in particolare data e campo, e premi <span class="btn g">Crea gara</span>.</p>
+<p>La spunta <b>Gara di prova</b> crea una gara che si vede solo in regia: non compare nell'elenco pubblico né nel link <code>?live</code>, ma si apre con il suo link diretto. Serve per provare la regia o l'overlay in OBS. Dalla barra di regia (<span class="btn">⋯</span>) <span class="btn">Segna come prova</span> / <span class="btn">Rendi pubblica</span> cambia lo stato, poi PUBBLICA.</p>
 <p>La gara nuova nasce <b>In programma</b>: compare nell'elenco pubblico ma senza punteggi finché non la pubblichi.</p>
 </section>
 
@@ -225,7 +227,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <p>Nella <b>staffetta</b> ogni frazione ha i suoi punti: si inseriscono nella casella accanto al nome di chi sta tirando, e il totale si calcola da solo. Negli incontri a più set c'è una casella per ogni set.</p>
 <h3>Altri comandi</h3>
 <ul>
-  <li><b>Incontro in corso:</b> tocca il numero dell'incontro, oppure premi il tasto con il suo numero (<kbd>1</kbd>–<kbd>6</kbd>); <kbd>0</kbd> toglie tutti gli “in corso”. Si giocano due incontri alla volta: si possono segnare entrambi.</li>
+  <li><b>Incontro in corso:</b> tocca il numero dell'incontro, oppure premi il tasto con il suo numero (<kbd>1</kbd>–<kbd>6</kbd>); <kbd>0</kbd> toglie tutti gli “in corso”. Si giocano due incontri alla volta: si possono segnare entrambi. Accanto a “In corso” c'è la casella <b>Bil.</b>: scrivi il numero del biliardo su cui si gioca (numerazione libera: 1, 2, 7…). Compare sul sito (“In corso · Biliardo 2”) e nell'overlay; si può lasciare vuota.</li>
   <li><b>Specialità all'acchito</b> (Coppia dell'Eccellenza, set “a scelta”): tocca la specialità per scorrere le possibilità.</li>
   <li><b>Casa / trasferta:</b> il pulsante sotto il punteggio (“In casa · ⇄ cambia”) inverte i lati.</li>
   <li><b>Logo dell'avversario:</b> doppio clic sul logo o sull'iniziale per caricare un'immagine; viene salvato anche nella scheda della squadra.</li>
@@ -376,12 +378,49 @@ assente
 <p>Contano solo i nomi riconosciuti, cioè collegati a un giocatore dell'anagrafica. Se un giocatore ha giocato in più stagioni, nella scheda compaiono i pulsanti per filtrare per anno sportivo.</p>
 </section>
 
+<section id="obs">
+<h2><span class="n">12</span>Dirette video (OBS)</h2>
+<p>Per le dirette video la grafica (punteggi, tabellone, fascia dell'incontro) è una vista dello stesso sito: i punti si inseriscono una sola volta dalla regia e vanno sia sul sito sia in diretta. Non serve più collegare la regia a OBS.</p>
+<h3>Preparare OBS (una volta sola)</h3>
+<ol>
+  <li>In OBS aggiungi una sorgente <b>Browser</b> sopra la telecamera.</li>
+  <li>Indirizzo (URL): <code>https://biliardo2p.github.io/?overlay&amp;live</code> — segue da solo la gara in diretta. Per una gara precisa: <code>?overlay&amp;gara=…</code> (il link si copia dal pannello Onda).</li>
+  <li>Larghezza <b>1280</b>, altezza <b>720</b> (con una scena 1920×1080 si può ingrandire la sorgente a tutto schermo: la grafica resta nitida).</li>
+  <li>Lascia il CSS personalizzato di OBS com'è (sfondo trasparente).</li>
+</ol>
+<p>Serve la connessione a internet nel PC con OBS, come per trasmettere.</p>
+<div class="shs"><figure class="sh"><img src="img/manuale/overlay-squadre.webp" alt="Overlay di una gara a squadre" loading="lazy" width="1280" height="720"><figcaption>Overlay di una gara a squadre: tabellone completo, incontri in corso con il numero del biliardo, categoria accanto ai nomi</figcaption></figure></div>
+<h3>Cosa si vede</h3>
+<ul>
+  <li><b>Gare a squadre:</b> squadre e punti in alto, tutti gli incontri con giocatori, categorie, punteggi e barre di avanzamento; gli incontri in corso sono evidenziati con il numero del biliardo; la staffetta mostra frazioni e cambio. A sinistra c'è sempre la squadra di casa, come sul sito.</li>
+  <li><b>Torneo con batterie e finali:</b> il tabellone a grafo, una pagina per batteria più le finali, con gli incontri in diretta evidenziati.</li>
+  <li><b>Torneo a incontri liberi:</b> gli incontri del turno in corso.</li>
+  <li><b>Fascia dell'incontro:</b> una fascia in basso con l'incontro in primo piano, lasciando libera l'immagine del tavolo.</li>
+</ul>
+<p>In basso resta sempre libera una fascia di 100 pixel per eventuali altre grafiche.</p>
+<figure class="sh"><img src="img/manuale/overlay-tabellone.webp" alt="Overlay del tabellone di un torneo" loading="lazy" width="1280" height="720"><figcaption>Torneo con batterie: pagina della batteria con l'incontro in diretta</figcaption></figure><figure class="sh"><img src="img/manuale/overlay-fascia.webp" alt="Fascia dell'incontro in primo piano" loading="lazy" width="1280" height="720"><figcaption>Fascia dell'incontro in primo piano</figcaption></figure>
+<h3>Comandi dalla regia: pannello 📺 Onda</h3>
+<p>Nella barra di regia, <span class="btn">📺 Onda</span> apre il pannello dei comandi dell'overlay. Questi comandi vanno in onda <b>subito</b>, senza PUBBLICA (risultati e nomi invece con PUBBLICA, come sempre). Il sito pubblico non ne è toccato.</p>
+<table>
+<tr><th>Comando</th><th>Tasto</th><th>Effetto</th></tr>
+<tr><td>In onda: Tabellone / Fascia incontro / Nascosto</td><td><kbd>V</kbd> · <kbd>N</kbd></td><td>V passa da tabellone a fascia; N nasconde e rimostra l'overlay.</td></tr>
+<tr><td>Incontro in primo piano</td><td><kbd>F</kbd></td><td>Quale incontro va nella fascia. Automatico = l'ultimo segnato in corso; F passa al successivo.</td></tr>
+<tr><td>Pagina del tabellone</td><td></td><td>Solo tornei con batterie: pagina fissa, automatica, oppure rotazione ogni 10–30 secondi.</td></tr>
+<tr><td>Sfondo del tabellone</td><td><kbd>[</kbd> <kbd>]</kbd></td><td>Più pieno o più trasparente.</td></tr>
+</table>
+<p>Il pannello mostra anche gli indirizzi da incollare in OBS, con il pulsante Copia.</p>
+<figure class="sh"><img src="img/manuale/regia-onda.webp" alt="Pannello Onda nella regia" loading="lazy" width="1100" height="760"><figcaption>Il pannello 📺 Onda aperto nella regia</figcaption></figure>
+<h3>Prove</h3>
+<p>Per provare senza farsi vedere dal pubblico: crea una <b>gara di prova</b> (sezione 4) e in OBS usa <code>?overlay&amp;live&amp;prova</code> (segue la gara di prova in diretta) oppure il link della gara.</p>
+<div class="note"><b>Vecchi tabelloni OBS</b>I file degli overlay precedenti (cartelle OBS\Base, Eccellenza, Eliminazione, collegati con il WebSocket di OBS) restano disponibili come riserva finché il nuovo overlay non è collaudato in una diretta vera.</div>
+</section>
+
 <section id="admin">
-<h2><span class="n">12</span>Amministrazione</h2>
+<h2><span class="n">13</span>Amministrazione</h2>
 <h3>Come è fatta l'app</h3>
 <ul>
   <li><b>Pagina:</b> pubblicata con GitHub Pages dal repository <code>github.com/biliardo2p/biliardo2p.github.io</code> (account del circolo <code>biliardo2p</code>). È divisa in più file, elencati sotto. Questo manuale è il file <code>manuale.html</code> dello stesso repository.</li>
-  <li><b>Dati:</b> database Firebase Realtime Database del progetto <code>biliardo-2p</code>. Contiene gare, elenco delle gare, cronologia dei punteggi, giocatori, squadre, spettatori collegati e contatori delle visite.</li>
+  <li><b>Dati:</b> database Firebase Realtime Database del progetto <code>biliardo-2p</code>. Contiene gare, elenco delle gare, cronologia dei punteggi, giocatori, squadre, comandi dell'overlay (onda), spettatori collegati e contatori delle visite.</li>
   <li><b>Accesso alla regia:</b> utente di Firebase Authentication (email e password). Le regole del database permettono la scrittura solo a quell'utente; tutti possono leggere.</li>
 </ul>
 <h3>I file dell'app</h3>
@@ -409,6 +448,7 @@ assente
 <tr><td><code>js/nomi.js</code></td><td>Riconoscimento dei nomi nelle gare, categoria, suggerimenti.</td></tr>
 <tr><td><code>js/controllo-nomi.js</code></td><td>Controllo nomi.</td></tr>
 <tr><td><code>js/giocatori.js</code></td><td>Pagine pubbliche dei giocatori e statistiche.</td></tr>
+<tr><td><code>js/overlay.js</code>, <code>css/overlay.css</code></td><td>Overlay per OBS e pannello 📺 Onda della regia.</td></tr>
 <tr><td><code>js/regia-barra.js</code></td><td>Barra di regia e scorciatoie da tastiera.</td></tr>
 <tr><td><code>js/avvio.js</code></td><td>Partenza: sceglie quale pagina mostrare in base all'indirizzo.</td></tr>
 </table></div>
@@ -424,7 +464,7 @@ assente
 </section>
 
 <section id="faq">
-<h2><span class="n">13</span>Problemi e domande</h2>
+<h2><span class="n">14</span>Problemi e domande</h2>
 <dl class="faq">
   <dt>Dopo un aggiornamento vedo ancora la versione vecchia.</dt>
   <dd>GitHub pubblica le modifiche dopo qualche minuto e il browser può tenere in memoria la pagina precedente. Ricarica con <kbd>Ctrl</kbd>+<kbd>F5</kbd> (su telefono chiudi e riapri la scheda), oppure prova in una finestra in incognito.</dd>
@@ -444,9 +484,12 @@ assente
 </section>
 
 <section id="novita" class="chg">
-<h2><span class="n">14</span>Novità</h2>
+<h2><span class="n">15</span>Novità</h2>
 <h3>4 novembre 2026</h3>
 <ul>
+  <li>Overlay per le dirette video in OBS dallo stesso sito (<code>?overlay&amp;live</code>), con categoria accanto ai nomi e pannello 📺 Onda nella regia.</li>
+  <li>Numero del biliardo per gli incontri in corso, sul sito e nell'overlay.</li>
+  <li>Gare di prova, visibili solo in regia.</li>
   <li>Si può installare il sito come app sul telefono (icone “Live 2P” e “Regia 2P”). Facoltativo: il link resta quello di sempre.</li>
   <li>Il manuale ha le immagini delle schermate principali.</li>
   <li>L'app è divisa in più file (grafica, regole di gioco, regia, anagrafica…) per rendere più sicure le modifiche future. Per chi la usa non cambia nulla.</li>

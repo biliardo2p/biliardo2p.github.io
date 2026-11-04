@@ -58,7 +58,8 @@ function matchHTML(m, i){
   const w = winner(m), act = isAct(i), p = m.pts||1;
   const no = editor ? `<button class="no" data-act="${i}" title="Segna/togli in corso (tasto ${i+1})">${i+1}</button>` : `<span class="no">${i+1}</span>`;
   const chip = w ? (isTorneo() ? `<span class="chip win">Vince ${esc(sideName(m,w))}</span>` : `<span class="chip win">+${p} ${esc(teamShort(w))}</span>`)
-             : act ? `<span class="chip run">In corso</span>`
+             : act ? (editor ? `<span class="chip run">In corso · Bil. <span class="bil" contenteditable="plaintext-only" spellcheck="false" inputmode="numeric" data-bil="${i}" title="Numero del biliardo (facoltativo)">${esc(m.bil||"")}</span></span>`
+                           : `<span class="chip run">In corso${m.bil ? ` · Biliardo ${esc(m.bil)}` : ""}</span>`)
              : !hasPts(m) ? `<span class="chip wait">Da giocare</span>` : "";
   let extra = m.defs && m.defs.length>1 && editor ? setsHTML(m, i) : "";
   const setc = m.defs && m.defs.length>1 ? `<span class="setc">Set <b>${m.sw[0]}–${m.sw[1]}</b></span>` : "";
@@ -96,7 +97,7 @@ function nodeHTML(TB, id){
   const nd = TB.nodes.get(id), [h,a] = nd.sd, w = nd.w, L = TB.live.get(id), rs = S.tab.res[id];
   let info = "";
   if(L){ const m = L.m, lw = winner(m), multi = m.defs && m.defs.length>1;
-    info = `<span class="blv${lw ? "" : " on"}">${lw ? "" : "● "}${multi ? "set " + m.sw[0] + "–" + m.sw[1] : m.s[0] + "–" + m.s[1]}</span>`; }
+    info = `<span class="blv${lw ? "" : " on"}">${lw ? "" : "● "}${multi ? "set " + m.sw[0] + "–" + m.sw[1] : m.s[0] + "–" + m.s[1]}${!lw && m.bil ? " · B" + esc(m.bil) : ""}</span>`; }
   else if(rs && rs.txt) info = `<span class="btx">${esc(rs.txt)}</span>`;
   const row = (x, sd) => `<div class="bp ${w ? (w.sd===sd ? "w" : "l") : ""}${x.abs ? " abs" : ""}">${x.tbd ? `<i>${esc(x.lab || "da definire")}</i>` : x.abs ? esc(x.name) : namesCat(x.name)}</div>`;
   return `<div class="bn${L ? " lv" : ""}${w ? " done" : ""}" data-node="${id}"><div class="bnh"><span class="bno">${nd.no}</span>${info}</div>${row(h,"h")}${row(a,"a")}</div>`;

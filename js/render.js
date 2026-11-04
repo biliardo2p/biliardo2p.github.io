@@ -27,6 +27,7 @@ function regiaHomeHTML(idx){
       <label for="ng-l">Luogo</label><input id="ng-l" placeholder="es. Modena">
       <div class="fs" data-fs="sq"><label for="ng-o">Squadra avversaria</label><input id="ng-o" required placeholder="es. Tempio B" list="sq-dl" autocomplete="off">
         <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO"></div>
+      <label class="chk"><input type="checkbox" id="ng-pr"> Gara di prova: non compare nell'elenco pubblico né nel link ?live (utile per provare l'overlay in OBS)</label>
       <button type="submit">Crea gara</button><p class="hint" id="ng-msg"></p>
     </form><datalist id="sq-dl">${SQUADRE ? sqDatalist() : ""}</datalist>
     <h2 class="lh">Gare</h2>${delMsg ? `<p class="${delErr ? "err" : "hint"}">${esc(delMsg)}</p>` : ""}${listHTML(idx, true)}</main>`;
@@ -134,6 +135,7 @@ function render(){
     prev = clone(S);
   }
   else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div><a class="lk" href="?giocatori">👥 Giocatori</a></div>${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna · <a href="manuale.html">Manuale</a></div></main>`;
+  else if(mode==="overlay"){ ovRender(); return; }
   else if(mode==="gioc") app.innerHTML = giocHTML();
   else if(mode==="giocs") app.innerHTML = giocsHTML();
   else if(mode==="login") app.innerHTML = loginHTML(flash);
@@ -143,6 +145,7 @@ function render(){
   else if(mode==="error") app.innerHTML = `<main class="wrap"><p class="empty">Impossibile collegarsi al servizio dei risultati. Controlla la connessione e ricarica la pagina.</p></main>`;
   else app.innerHTML = `<main class="wrap"><p class="empty">Caricamento…</p></main>`;
   renderBar();
+  if(typeof ondaOpen!=="undefined" && ondaOpen) ondaPaint();
 }
 let barOpen = false;
 function renderBar(){
@@ -157,6 +160,8 @@ function renderBar(){
     <button data-r="disc" ${d&&!busy?"":"disabled"}>Scarta</button>
     <button class="more" data-r="more" title="Altri comandi" aria-label="Altri comandi" aria-expanded="${barOpen}">${barOpen ? "✕" : "⋯"}</button>
     ${isTab() ? `<button class="x" data-r="tbe">Batterie e finali…</button>` : isTorneo() ? `<button class="x" data-r="inc">Incontri…</button>` : ""}
+    <button class="ondab${ondaOpen ? " on" : ""}" data-r="onda" title="Comandi dell'overlay per OBS (in onda subito, senza PUBBLICA)">📺 Onda</button>
+    <button class="x" data-r="prova" title="Una gara di prova non compare nell'elenco pubblico né nel link ?live">${S.prova ? "Rendi pubblica" : "Segna come prova"}</button>
     <button class="x" data-r="end">${S.stato==="finita"?"Riapri gara":"Termina gara"}</button>
     ${S.stato==="live" ? `<button data-r="prog" class="x ${Date.now()-armP<4000?"arm":""}" title="Torna a In programma: azzera punteggi e cronologia">${Date.now()-armP<4000?"Conferma: in programma":"Rimetti in programma"}</button>` : ""}
     <button data-r="reset" class="x ${Date.now()-armT<4000?"arm":""}">${Date.now()-armT<4000?"Conferma: azzera":"Azzera punteggi"}</button>
