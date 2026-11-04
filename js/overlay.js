@@ -17,7 +17,7 @@ function ovStart(){
 /* ?overlay&live: la gara LIVE (la più aggiornata se sono più d'una); se nessuna, la prossima in programma o l'ultima conclusa. Le gare di prova solo con &prova */
 function ovAuto(){
   db.ref("indice").on("value", snap=>{
-    const all = Object.entries(snap.val() || {}).map(([id,m])=>Object.assign({id}, m)).filter(g=>P.has("prova") ? g.prova : !g.prova);
+    const all = Object.entries(snap.val() || {}).map(([id,m])=>Object.assign({id}, m)).filter(g=>P.has("prova") ? visOf(g)==="prova" : visOf(g)!=="prova");
     const live = all.filter(g=>g.stato==="live").sort((a,b)=>(b.aggiornato||0) - (a.aggiornato||0));
     const next = all.filter(g=>g.stato==="programmata" && (g.data||"")>=today()).sort((a,b)=>(a.data||"").localeCompare(b.data||""));
     const last = all.filter(g=>g.stato==="finita").sort((a,b)=>(b.data||"").localeCompare(a.data||"") || (b.aggiornato||0) - (a.aggiornato||0));

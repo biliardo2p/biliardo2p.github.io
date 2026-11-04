@@ -127,7 +127,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <div><b>Giocatori</b><code>biliardo2p.github.io/?giocatori</code><span>Elenco dei giocatori con le loro schede.</span></div>
   <div><b>Regia</b><code>biliardo2p.github.io/?regia</code><span>Solo per chi gestisce le gare (serve l'accesso).</span></div>
 </div>
-<p>Il link <code>?live</code> è quello da mettere su Facebook, WhatsApp o in un QR code: non cambia mai. Se c'è una gara in diretta apre quella; se ce ne sono più di una le elenca; se non ce n'è nessuna apre la prossima in programma o, in mancanza, l'ultima conclusa.</p>
+<p>Il link <code>?live</code> è quello da mettere su Facebook, WhatsApp o in un QR code: non cambia mai. Se c'è una gara in diretta apre quella; se ce ne sono più di una le elenca; se non ce n'è nessuna apre la prossima in programma o, in mancanza, l'ultima conclusa. Considera anche le gare “solo con il link”, mai quelle di prova.</p>
 <h3>Installare l'app sul telefono (facoltativo)</h3>
 <p>Chi segue spesso le gare può aggiungere il sito alla schermata del telefono: compare un'icona con il logo del circolo e il sito si apre a schermo intero, come un'app. È la stessa identica pagina, con gli stessi dati in diretta: non serve aggiornarla e non occupa spazio. Il link da condividere resta quello di sempre.</p>
 <ul>
@@ -200,7 +200,17 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <p>Per i due tipi di torneo si indicano nome del torneo, fase o giornata (facoltativa), gioco (singoli o coppie) e la <b>partita</b>: set secco, 2 su 3 o 3 su 5; per ogni set specialità e punti. L'ultimo set può essere <b>a scelta all'acchito</b>. Per il torneo con batterie e finali si indica anche il numero di batterie. Vedi <a href="#tornei">Tornei</a>.</p>
 <h3>Duplica</h3>
 <p><span class="btn">⧉ Duplica</span> riempie il modulo con i dati di una gara esistente: competizione, <b>giornata successiva</b> (Prima → Seconda, 1ª → 2ª, Giornata 3 → Giornata 4), campo, luogo, avversario e città; per i tornei nome, gioco, formula e numero di batterie. La data diventa quella di oggi. Punteggi e nomi dei giocatori non vengono copiati. Controlla i campi, in particolare data e campo, e premi <span class="btn g">Crea gara</span>.</p>
-<p>La spunta <b>Gara di prova</b> crea una gara che si vede solo in regia: non compare nell'elenco pubblico né nel link <code>?live</code>, ma si apre con il suo link diretto. Serve per provare la regia o l'overlay in OBS. Dalla barra di regia (<span class="btn">⋯</span>) <span class="btn">Segna come prova</span> / <span class="btn">Rendi pubblica</span> cambia lo stato, poi PUBBLICA.</p>
+<h3>Partite singole</h3>
+<p>Per seguire solo uno o pochi incontri di un torneo, anche organizzato da altri, senza compilare il tabellone: scegli <b>Partite singole</b>. Si indicano evento (es. “Gran Premio di Modena”), fase facoltativa, singoli o coppie, la partita e, se vuoi, i nomi del primo incontro: con <span class="btn g">Crea gara</span> sei subito in diretta. Altri incontri si aggiungono dopo con <span class="btn">Incontri…</span>, come nei tornei a incontri liberi. Sito, overlay, numero del biliardo e andamento funzionano come per le altre gare.</p>
+<p>Le partite singole nascono con visibilità <b>Solo con il link</b>. A fine diretta, <span class="btn">Termina gara</span> ricorda che la gara resta raggiungibile con il suo link; se non serve conservarla, <span class="btn">🗑 Elimina gara</span> (nella barra di regia, sotto <span class="btn">⋯</span> su telefono) la cancella con doppia conferma. Eliminandola il link smette di funzionare.</p>
+<h3>Visibilità</h3>
+<table>
+<tr><th>Visibilità</th><th>Elenco pubblico</th><th>Link della gara</th><th>Link fisso ?live e overlay</th><th>Statistiche</th></tr>
+<tr><td><b>Pubblica</b></td><td>sì</td><td>sì</td><td>sì</td><td>sì</td></tr>
+<tr><td><b>Solo con il link</b></td><td>no</td><td>sì</td><td>sì, quando è in diretta</td><td>sì</td></tr>
+<tr><td><b>Prova</b></td><td>no</td><td>sì</td><td>no (overlay solo con <code>?overlay&amp;live&amp;prova</code>)</td><td>no</td></tr>
+</table>
+<p>Si sceglie nel modulo Nuova gara e si cambia dalla barra di regia (<span class="btn">Visibilità: …</span>, poi PUBBLICA). Nella regia le gare non pubbliche hanno l'etichetta <b>SOLO LINK</b> o <b>PROVA</b>. Con <span class="btn">Statistiche: incluse/escluse</span> si può anche togliere una singola gara dalle statistiche dei giocatori.</p>
 <p>La gara nuova nasce <b>In programma</b>: compare nell'elenco pubblico ma senza punteggi finché non la pubblichi.</p>
 </section>
 
@@ -247,6 +257,9 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <tr><td><span class="btn">Scarta</span></td><td>Torna all'ultima versione pubblicata, buttando le modifiche non pubblicate.</td></tr>
 <tr><td><span class="btn">Termina gara</span></td><td>La gara diventa <b>Finale</b> e viene pubblicata. Lo stesso pulsante diventa <span class="btn">Riapri gara</span>.</td></tr>
 <tr><td><span class="btn">Rimetti in programma</span></td><td>Solo per una gara LIVE: azzera punteggi e cronologia e la riporta a In programma (per esempio se è partita per errore). Chiede conferma.</td></tr>
+<tr><td><span class="btn">Visibilità: …</span></td><td>Pubblica → Solo con il link → Prova (poi PUBBLICA). Vedi sezione 4.</td></tr>
+<tr><td><span class="btn">Statistiche: …</span></td><td>Include o esclude gli incontri di questa gara dalle statistiche dei giocatori.</td></tr>
+<tr><td><span class="btn">🗑 Elimina gara</span></td><td>Solo partite singole: elimina la gara con doppia conferma.</td></tr>
 <tr><td><span class="btn">Azzera punteggi</span></td><td>Mette a zero tutti i punteggi, lasciando i nomi. Chiede conferma.</td></tr>
 <tr><td><span class="btn">Copia</span></td><td>Copia il link pubblico di questa gara.</td></tr>
 <tr><td><span class="btn">Tutte le gare</span></td><td>Torna alla schermata principale della regia.</td></tr>
@@ -375,7 +388,7 @@ assente
 <tr><td>Incontro con punti ma senza vincitore</td><td>Compare come “In corso” e non entra nei totali.</td></tr>
 <tr><td>Incontro senza punti</td><td>Non compare.</td></tr>
 </table>
-<p>Contano solo i nomi riconosciuti, cioè collegati a un giocatore dell'anagrafica. Se un giocatore ha giocato in più stagioni, nella scheda compaiono i pulsanti per filtrare per anno sportivo.</p>
+<p>Contano solo i nomi riconosciuti, cioè collegati a un giocatore dell'anagrafica. Se un giocatore ha giocato in più stagioni, nella scheda compaiono i pulsanti per filtrare per anno sportivo. Non contano le gare di prova e quelle escluse dalla regia (“Statistiche: escluse”).</p>
 </section>
 
 <section id="obs">
@@ -411,7 +424,7 @@ assente
 <p>Il pannello mostra anche gli indirizzi da incollare in OBS, con il pulsante Copia.</p>
 <figure class="sh"><img src="img/manuale/regia-onda.webp" alt="Pannello Onda nella regia" loading="lazy" width="1100" height="760"><figcaption>Il pannello 📺 Onda aperto nella regia</figcaption></figure>
 <h3>Prove</h3>
-<p>Per provare senza farsi vedere dal pubblico: crea una <b>gara di prova</b> (sezione 4) e in OBS usa <code>?overlay&amp;live&amp;prova</code> (segue la gara di prova in diretta) oppure il link della gara.</p>
+<p>Per provare senza farsi vedere dal pubblico: crea una gara con visibilità <b>Prova</b> (sezione 4) e in OBS usa <code>?overlay&amp;live&amp;prova</code> (segue la gara di prova in diretta) oppure il link della gara.</p>
 <div class="note"><b>Vecchi tabelloni OBS</b>I file degli overlay precedenti (cartelle OBS\Base, Eccellenza, Eliminazione, collegati con il WebSocket di OBS) restano disponibili come riserva finché il nuovo overlay non è collaudato in una diretta vera.</div>
 </section>
 
@@ -489,7 +502,8 @@ assente
 <ul>
   <li>Overlay per le dirette video in OBS dallo stesso sito (<code>?overlay&amp;live</code>), con categoria accanto ai nomi e pannello 📺 Onda nella regia.</li>
   <li>Numero del biliardo per gli incontri in corso, sul sito e nell'overlay.</li>
-  <li>Gare di prova, visibili solo in regia.</li>
+  <li>Partite singole: per seguire uno o pochi incontri di un torneo senza tabellone.</li>
+  <li>Visibilità delle gare: Pubblica, Solo con il link, Prova; possibilità di escludere una gara dalle statistiche.</li>
   <li>Si può installare il sito come app sul telefono (icone “Live 2P” e “Regia 2P”). Facoltativo: il link resta quello di sempre.</li>
   <li>Il manuale ha le immagini delle schermate principali.</li>
   <li>L'app è divisa in più file (grafica, regole di gioco, regia, anagrafica…) per rendere più sicure le modifiche future. Per chi la usa non cambia nulla.</li>

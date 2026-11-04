@@ -13,6 +13,10 @@ const slug = t => String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerC
 const fmtTime = ts => new Date(ts).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Rome"});
 const fmtDate = d => { try{ return new Date(d+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short",day:"numeric",month:"short"}); }catch(e){ return d; } };
 const today = () => new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Rome"});
+/* visibilità di una gara (o della sua voce nell'indice): "pub" = nell'elenco pubblico, "link" = solo con il link, "prova" = solo in regia.
+   Le gare create con la vecchia spunta "prova" valgono come "prova". */
+const visOf = g => !g ? "pub" : g.vis==="link" || g.vis==="prova" ? g.vis : g.prova ? "prova" : "pub";
+const VIS_LAB = {pub:"Pubblica", link:"Solo con il link", prova:"Prova"};
 const arr = v => Array.isArray(v) ? v : (v && typeof v==="object" ? Object.keys(v).sort((a,b)=>a-b).map(k=>v[k]) : []);
 
 /* Firebase toglie le liste vuote e trasforma gli array: si ricompone lo stato */

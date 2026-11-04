@@ -355,10 +355,18 @@ app.addEventListener("click", e=>{
 /* nuova gara: campi diversi per squadre e tornei */
 app.addEventListener("change", e=>{
   if(e.target.id!=="ng-f") return;
-  const tor = !!FORMULE[e.target.value].torneo, tab = !!FORMULE[e.target.value].tab;
-  app.querySelectorAll("[data-fs]").forEach(g=>{ const on = g.dataset.fs==="to" ? tor : g.dataset.fs==="tb" ? tab : !tor; g.hidden = !on;
-    g.querySelectorAll(":scope > input, :scope > select, :scope > label > input, :scope > .fb input, :scope > .fb select").forEach(x=>x.disabled = !on); });
+  const F = FORMULE[e.target.value], tor = !!F.torneo, tab = !!F.tab, sg = !!F.singole;
+  app.querySelectorAll("[data-fs]").forEach(g=>{ const on = g.dataset.fs==="to" ? tor : g.dataset.fs==="tb" ? tab : g.dataset.fs==="sg" ? sg : !tor; g.hidden = !on;
+    g.querySelectorAll(":scope > input, :scope > select, :scope > label > input, :scope > .fb input, :scope > .fb select, :scope > .sgp input").forEach(x=>x.disabled = !on); });
+  const tl = $("#ng-tl"), t = $("#ng-t"); if(tl) tl.textContent = sg ? "Evento" : "Nome del torneo"; if(t) t.placeholder = sg ? "es. Gran Premio di Modena" : "es. 1° Memorial Luca Tamburini";
+  const fa = $("#ng-fa"); if(fa) fa.placeholder = sg ? "es. Quarti di finale (facoltativo)" : "es. Batteria 1 (facoltativo)";
+  const vs = $("#ng-vis"); if(vs) vs.value = sg ? "link" : "pub";
+  ngCoppia();
 });
+/* partite singole: il compagno compare solo per le coppie */
+function ngCoppia(){ const cp = ($("#ng-gi") || {}).value==="Coppia", sg = !!(FORMULE[($("#ng-f") || {}).value] || {}).singole;
+  app.querySelectorAll(".sgp .cp").forEach(x=>{ x.hidden = !cp; x.disabled = !(cp && sg); }); }
+app.addEventListener("change", e=>{ if(e.target.id==="ng-gi") ngCoppia(); });
 app.addEventListener("dblclick", e=>{ if(editor && e.target.closest("[data-logo]")){ getSelection().removeAllRanges(); $("#logofile").click(); } });
 app.addEventListener("submit", async e=>{
   e.preventDefault();
@@ -385,10 +393,14 @@ app.addEventListener("submit", async e=>{
       $("#ng-msg").textContent = "";
       Object.assign(o, {titolo:$("#ng-t").value.trim(), fase:$("#ng-fa").value.trim(), gioco:$("#ng-gi").value, formule:[rd.f]});
       if(FORMULE[o.formula].tab) o.nbat = Math.max(1, Math.min(32, Math.round(+$("#ng-nb").value) || 4)); }
-    const id = tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
+    const sg = !!FORMULE[o.formula].singole, val = x => ($(x) && !$(x).disabled ? $(x).value.trim() : "");
+    const H = [val("#ng-h1"), val("#ng-h2")].slice(0, o.gioco==="Coppia" ? 2 : 1), A = [val("#ng-a1"), val("#ng-a2")].slice(0, o.gioco==="Coppia" ? 2 : 1);
+    const id = sg ? ["partita", o.data, slug(o.titolo), slug(H[0] && A[0] ? H[0] + " " + A[0] : o.fase), Date.now().toString(36).slice(-4)].filter(Boolean).join("-")
+             : tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
     if(INDEX && INDEX[id]){ location.search = "?regia&gara=" + id; return; }
     if(tor && dupSrc && dupSrc.formula===o.formula && dupSrc.formule) o.formule = [o.formule[0], ...dupSrc.formule.slice(1).filter(x=>x.nome.toLowerCase()!==o.formule[0].nome.toLowerCase())];
-    const st = newState(o); if($("#ng-pr") && $("#ng-pr").checked) st.prova = true;
+    const st = newState(o); st.vis = ($("#ng-vis") || {}).value || "pub"; if(st.vis==="pub") delete st.vis;
+    if(sg && (H.some(Boolean) || A.some(Boolean))){ st.matches = [{id:1, turno:o.fase || "", h:H, a:A}]; st.nextId = 2; Object.assign(st, normalize(st)); }
     if(dupSrc && !tor && (FORMULE[dupSrc.formula] || {}).nome===FORMULE[o.formula].nome){   /* duplicata: stessi titolo e squadra di casa; logo ospite se è la stessa squadra */
       st.title = dupSrc.title || st.title; st.home = clone(dupSrc.home);
       if(dupSrc.away && dupSrc.away.name.trim().toLowerCase()===o.ospite.toLowerCase()){ st.away.badge = dupSrc.away.badge || st.away.badge; if(dupSrc.away.logo) st.away.logo = dupSrc.away.logo; }

@@ -2,7 +2,7 @@
    I file js/ si caricano in ordine da index.html e condividono le stesse variabili (script classici, non moduli:
    così la regia funziona anche aperta dal disco). L'ordine conta. */
 /* ================= stato della pagina ================= */
-let PUB = null, prev = null, editor = false, flash = "", flashT = null, busy = false, armT = 0, armP = 0, online = true, user = null;
+let PUB = null, prev = null, editor = false, flash = "", flashT = null, busy = false, armT = 0, armP = 0, armD = 0, online = true, user = null;
 const hist = [];
 const DKEY = () => "b2p_live_bozza_" + GARA;
 function loadDraft(){ try{ const d = JSON.parse(localStorage.getItem(DKEY())||"null"); if(d && PUB && d.base===PUB.rev && d.state) return normalize(d.state); }catch(e){} return null; }
@@ -63,10 +63,10 @@ function metaOf(st){
   if(isTorneo(st)){ const c = champion(st);
     return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", formula:st.formula, stato:st.stato, tipo:"torneo",
       fatti:isTab(st) ? [...buildTab(st).nodes.values()].filter(n=>n.w && n.w.how!=="abs").length : st.matches.filter(m=>winner(m)).length,
-      totale:isTab(st) ? [...buildTab(st).nodes.values()].filter(n=>!(n.w && n.w.how==="abs")).length : st.matches.length, vincitore:c ? c.n : "", prova:!!st.prova, aggiornato:st.updatedAt||0}; }
+      totale:isTab(st) ? [...buildTab(st).nodes.values()].filter(n=>!(n.w && n.w.how==="abs")).length : st.matches.length, vincitore:c ? c.n : "", vis:visOf(st), prova:visOf(st)==="prova", aggiornato:st.updatedAt||0}; }
   const t = totals(st);
   return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", formula:st.formula, stato:st.stato,
-    casa:st.home.name, ospite:st.away.name, punti:t, trasferta:!!st.trasferta, prova:!!st.prova, aggiornato:st.updatedAt||0};
+    casa:st.home.name, ospite:st.away.name, punti:t, trasferta:!!st.trasferta, vis:visOf(st), prova:visOf(st)==="prova", aggiornato:st.updatedAt||0};
 }
 /* cronologia: a ogni PUBBLICA, in storia/<gara>/r<rev>, i punteggi degli incontri cambiati; azzerando tutto si cancella */
 function storiaWrite(next){

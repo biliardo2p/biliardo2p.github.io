@@ -11,7 +11,12 @@ $("#rbar").addEventListener("click", e=>{
   else if(r==="more"){ barOpen = !barOpen; renderBar(); }
   else if(r==="inc") openInc();
   else if(r==="onda"){ ondaToggle(); renderBar(); }
-  else if(r==="prova"){ snapshot(); S.prova = !S.prova; if(!S.prova) delete S.prova; commit(); setFlash(S.prova ? "Gara di prova: premi PUBBLICA per toglierla dall'elenco pubblico" : "Gara pubblica: premi PUBBLICA per farla comparire nell'elenco"); }
+  else if(r==="vis"){ snapshot(); const v = {pub:"link", link:"prova", prova:"pub"}[visOf(S)]; S.vis = v; delete S.prova; commit();
+    setFlash(`Visibilità: ${VIS_LAB[v]} — premi PUBBLICA per applicarla`); }
+  else if(r==="stat"){ if(visOf(S)==="prova"){ setFlash("Le gare di prova non contano mai nelle statistiche"); } else { snapshot(); S.nostat = !S.nostat; if(!S.nostat) delete S.nostat; commit(); setFlash(S.nostat ? "Statistiche escluse — premi PUBBLICA" : "Statistiche incluse — premi PUBBLICA"); } }
+  else if(r==="delg"){ if(Date.now()-armD > 4000){ armD = Date.now(); renderBar(); setTimeout(renderBar, 4100); }
+    else { armD = 0; (async()=>{ try{ await dbWrite({["gare/"+GARA]: null, ["indice/"+GARA]: null}); try{ await dbWrite({["storia/"+GARA]: null, ["onda/"+GARA]: null}); }catch(e){} try{ await dbWrite({["visite/"+GARA]: null}); }catch(e){}
+      try{ localStorage.removeItem(DKEY()); }catch(e){} location.search = "?regia"; }catch(err){ setFlash("Eliminazione non riuscita: controlla la connessione"); } })(); } }
   else if(r==="tbe") openTbe();
   else if(r==="reset") resetScores();
   else if(r==="prog"){
@@ -20,7 +25,8 @@ $("#rbar").addEventListener("click", e=>{
       S.matches.forEach(m=>{ m.s=[0,0]; if(m.ph){ m.ph=m.ph.map(()=>0); m.pa=m.pa.map(()=>0); } if(m.opts){ m.opt=-1; m.spec=""; m.target=0; } if(m.ss){ m.ss = m.ss.map(()=>[0,0]); m.ch = m.ch.map(()=>-1); } });
       S.inCorso = []; S.stato = "programmata"; if(S.tab) S.tab.res = {}; S = normalize(S); publish({stato:"programmata"}); }
   }
-  else if(r==="end"){ snapshot(); S.stato = S.stato==="finita" ? "live" : "finita"; S.inCorso = S.stato==="finita" ? [] : S.inCorso; publish(); }
+  else if(r==="end"){ snapshot(); S.stato = S.stato==="finita" ? "live" : "finita"; S.inCorso = S.stato==="finita" ? [] : S.inCorso;
+    publish().then(()=>{ if(S.stato==="finita" && FORMULE[S.formula].singole){ barOpen = true; setFlash("Gara terminata: resta raggiungibile con il suo link. Se non serve conservarla, “🗑 Elimina gara”."); } }); }
   else if(r==="copy"){ const t = $("#puburl").textContent;
     try{ navigator.clipboard.writeText(t).then(()=>setFlash("Link copiato"), ()=>selectUrl()); }catch(err){ selectUrl(); } }
   b.blur();

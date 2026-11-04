@@ -18,18 +18,23 @@ function regiaHomeHTML(idx){
       <label for="ng-d">Data</label><input id="ng-d" type="date" value="${today()}" required>
       <div class="fs" data-fs="sq"><label for="ng-g">Giornata</label><input id="ng-g" value="Prima giornata">
         <label for="ng-cp">Campo</label><select id="ng-cp"><option value="casa">In casa (noi a sinistra)</option><option value="trasferta">In trasferta (avversari a sinistra)</option></select></div>
-      <div class="fs" data-fs="to" hidden><label for="ng-t">Nome del torneo</label><input id="ng-t" required disabled placeholder="es. 1° Memorial Luca Tamburini">
+      <div class="fs" data-fs="to" hidden><label for="ng-t" id="ng-tl">Nome del torneo</label><input id="ng-t" required disabled placeholder="es. 1° Memorial Luca Tamburini">
         <label for="ng-fa">Fase / giornata</label><input id="ng-fa" disabled placeholder="es. Batteria 1 (facoltativo)">
         <label for="ng-gi">Gioco</label><select id="ng-gi" disabled><option value="Singolo">Singoli</option><option value="Coppia">Coppie</option></select>
         <label>Partita</label>${fbHTML(FB_NUOVA, 0, false).replace(/<(select|input)/g, "<$1 disabled")}
+        <div class="fs" data-fs="sg" hidden><label>Primo incontro</label><div class="sgp">
+          <div><input id="ng-h1" disabled placeholder="Giocatore" list="pl-dl" autocomplete="off"><input id="ng-h2" class="cp" disabled hidden placeholder="Compagno" list="pl-dl" autocomplete="off"></div>
+          <span>contro</span>
+          <div><input id="ng-a1" disabled placeholder="Avversario" list="pl-dl" autocomplete="off"><input id="ng-a2" class="cp" disabled hidden placeholder="Compagno" list="pl-dl" autocomplete="off"></div></div>
+          <p class="hint">Facoltativo: altri incontri si aggiungono dopo con “Incontri…”.</p></div>
         <div class="fs" data-fs="tb" hidden><label for="ng-nb">Numero di batterie</label><input id="ng-nb" type="number" inputmode="numeric" min="1" max="32" value="4" disabled></div>
         <p class="hint">Vale per tutti gli incontri; per la finale o altri incontri si possono aggiungere altre formule nella finestra degli incontri.</p></div>
       <label for="ng-l">Luogo</label><input id="ng-l" placeholder="es. Modena">
       <div class="fs" data-fs="sq"><label for="ng-o">Squadra avversaria</label><input id="ng-o" required placeholder="es. Tempio B" list="sq-dl" autocomplete="off">
         <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO"></div>
-      <label class="chk"><input type="checkbox" id="ng-pr"> Gara di prova: non compare nell'elenco pubblico né nel link ?live (utile per provare l'overlay in OBS)</label>
+      <label for="ng-vis">Visibilità</label><select id="ng-vis"><option value="pub">Pubblica: nell'elenco delle gare</option><option value="link">Solo con il link: non compare nell'elenco</option><option value="prova">Prova: solo in regia (per provare regia e OBS)</option></select>
       <button type="submit">Crea gara</button><p class="hint" id="ng-msg"></p>
-    </form><datalist id="sq-dl">${SQUADRE ? sqDatalist() : ""}</datalist>
+    </form><datalist id="sq-dl">${SQUADRE ? sqDatalist() : ""}</datalist><datalist id="pl-dl">${ANAG ? Object.values(ANAG).map(p=>`<option value="${esc(tabName(p))}"></option>`).join("") : ""}</datalist>
     <h2 class="lh">Gare</h2>${delMsg ? `<p class="${delErr ? "err" : "hint"}">${esc(delMsg)}</p>` : ""}${listHTML(idx, true)}</main>`;
 }
 
@@ -161,7 +166,9 @@ function renderBar(){
     <button class="more" data-r="more" title="Altri comandi" aria-label="Altri comandi" aria-expanded="${barOpen}">${barOpen ? "✕" : "⋯"}</button>
     ${isTab() ? `<button class="x" data-r="tbe">Batterie e finali…</button>` : isTorneo() ? `<button class="x" data-r="inc">Incontri…</button>` : ""}
     <button class="ondab${ondaOpen ? " on" : ""}" data-r="onda" title="Comandi dell'overlay per OBS (in onda subito, senza PUBBLICA)">📺 Onda</button>
-    <button class="x" data-r="prova" title="Una gara di prova non compare nell'elenco pubblico né nel link ?live">${S.prova ? "Rendi pubblica" : "Segna come prova"}</button>
+    <button class="x" data-r="vis" title="Pubblica → Solo con il link → Prova (poi PUBBLICA)">Visibilità: ${VIS_LAB[visOf(S)]}</button>
+    <button class="x" data-r="stat" title="Gli incontri di questa gara contano nelle statistiche dei giocatori?">Statistiche: ${S.nostat || visOf(S)==="prova" ? "escluse" : "incluse"}</button>
+    ${FORMULE[S.formula] && FORMULE[S.formula].singole ? `<button class="x${Date.now()-armD<4000 ? " arm" : ""}" data-r="delg" title="Elimina definitivamente questa gara">${Date.now()-armD<4000 ? "Conferma: elimina" : "🗑 Elimina gara"}</button>` : ""}
     <button class="x" data-r="end">${S.stato==="finita"?"Riapri gara":"Termina gara"}</button>
     ${S.stato==="live" ? `<button data-r="prog" class="x ${Date.now()-armP<4000?"arm":""}" title="Torna a In programma: azzera punteggi e cronologia">${Date.now()-armP<4000?"Conferma: in programma":"Rimetti in programma"}</button>` : ""}
     <button data-r="reset" class="x ${Date.now()-armT<4000?"arm":""}">${Date.now()-armT<4000?"Conferma: azzera":"Azzera punteggi"}</button>

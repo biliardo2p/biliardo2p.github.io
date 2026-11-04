@@ -26,6 +26,8 @@ const FORMULE = {
   /* tabellone: batterie da 8 (3 turni) + finali (con eventuali partite dell'acqua); gli incontri si seguono in diretta a scelta */
   tabellone: {nome:"Torneo con batterie e finali", torneo:true, tab:true, matches:[]},
   torneo: {nome:"Torneo a incontri liberi (senza tabellone)", torneo:true, matches:[]},
+  /* partite singole: uno o pochi incontri di un torneo (anche di altri), senza tabellone; di solito visibili solo con il link */
+  singole: {nome:"Partite singole", torneo:true, singole:true, matches:[]},
   eccellenza: {nome:"Campionato Regionale a Squadre di Eccellenza", matches:[
     {kind:"Singolo",  spec:"Filotto 60", target:600, h:[""], a:[""], pts:1},
     {kind:"Singolo",  spec:"5 Birilli",  target:120, h:[""], a:[""], pts:1},

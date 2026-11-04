@@ -42,7 +42,7 @@ function startRegia(){
 /* ?live = link fisso: apre la gara LIVE; se sono più d'una le elenca; se nessuna, la prossima in programma o l'ultima conclusa */
 function openLive(){
   db.ref("indice").once("value").then(snap=>{
-    const all = Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id}, m)).filter(g=>!g.prova);
+    const all = Object.entries(snap.val()||{}).map(([id,m])=>Object.assign({id}, m)).filter(g=>visOf(g)!=="prova");
     const go = g => location.replace("?gara=" + encodeURIComponent(g.id));
     const live = all.filter(g=>g.stato==="live");
     if(live.length===1) return go(live[0]);

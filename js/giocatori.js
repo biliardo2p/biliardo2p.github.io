@@ -13,6 +13,7 @@ function allMatches(){
   if(mxCache && mxOf===ALLG && mxAnag===ANAG) return mxCache;
   const out = []; mxOf = ALLG; mxAnag = ANAG;
   Object.entries(ALLG||{}).forEach(([gid, raw])=>{
+    if(!raw || visOf(raw)==="prova" || raw.nostat) return;   /* gare di prova e gare escluse: non contano */
     let st; try{ st = normalize(clone(raw)); }catch(e){ return; } if(!st) return;
     const y = stagione(st.data), tor = isTorneo(st), base = {gid, data:st.data||"", y, tit:st.title||"", sub:st.subtitle||"", stato:st.stato};
     const who = (t, sq, c) => { t = String(t||"").trim(); const k = c && ANAG[c] ? c : resolveName(t, sq, y); return {t: k ? tabName(ANAG[k]) : t, k}; };
