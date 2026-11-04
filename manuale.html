@@ -82,7 +82,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <div class="k">Biliardo Seconda Passione · Bologna</div>
   <h1>Tabellone Live — Manuale</h1>
   <p>Risultati in diretta delle gare del circolo: campionati a squadre, tornei con batterie e finali, schede e statistiche dei giocatori. Questo manuale spiega come seguire le gare, come gestirle dalla regia e come amministrare l'app.</p>
-  <div class="meta">Aggiornato al 3 novembre 2026 · indirizzo dell'app: <a href="https://biliardo2p.github.io/">biliardo2p.github.io</a></div>
+  <div class="meta">Aggiornato al 4 novembre 2026 · indirizzo dell'app: <a href="https://biliardo2p.github.io/">biliardo2p.github.io</a></div>
 </header>
 
 <nav class="toc" aria-label="Indice">
@@ -349,10 +349,37 @@ assente
 <h2><span class="n">12</span>Amministrazione</h2>
 <h3>Come è fatta l'app</h3>
 <ul>
-  <li><b>Pagina:</b> un unico file <code>index.html</code>, pubblicato con GitHub Pages dal repository <code>github.com/biliardo2p/biliardo2p.github.io</code> (account del circolo <code>biliardo2p</code>). Questo manuale è il file <code>manuale.html</code> dello stesso repository.</li>
+  <li><b>Pagina:</b> pubblicata con GitHub Pages dal repository <code>github.com/biliardo2p/biliardo2p.github.io</code> (account del circolo <code>biliardo2p</code>). È divisa in più file, elencati sotto. Questo manuale è il file <code>manuale.html</code> dello stesso repository.</li>
   <li><b>Dati:</b> database Firebase Realtime Database del progetto <code>biliardo-2p</code>. Contiene gare, elenco delle gare, cronologia dei punteggi, giocatori, squadre, spettatori collegati e contatori delle visite.</li>
   <li><b>Accesso alla regia:</b> utente di Firebase Authentication (email e password). Le regole del database permettono la scrittura solo a quell'utente; tutti possono leggere.</li>
 </ul>
+<h3>I file dell'app</h3>
+<div class="tw"><table>
+<tr><th>File</th><th>Contenuto</th></tr>
+<tr><td><code>index.html</code></td><td>Scheletro della pagina ed elenco dei file da caricare, nell'ordine giusto.</td></tr>
+<tr><td><code>img/logo.png</code></td><td>Logo del circolo (anche icona della pagina).</td></tr>
+<tr><td><code>css/base.css</code></td><td>Colori, caratteri, impaginazione, punteggio, schede degli incontri, animazioni.</td></tr>
+<tr><td><code>css/elenco-regia.css</code></td><td>Barra di regia, elenco delle gare, moduli e pulsanti.</td></tr>
+<tr><td><code>css/torneo.css</code></td><td>Tornei, tabellone di batterie e finali, finestre del torneo.</td></tr>
+<tr><td><code>css/set-andamento.css</code></td><td>Set, tastierino dei punti, grafico dell'andamento, regia su telefono.</td></tr>
+<tr><td><code>css/anagrafica.css</code></td><td>Anagrafica, suggerimenti dei nomi, controllo nomi, pagine dei giocatori.</td></tr>
+<tr><td><code>js/config.js</code></td><td>Collegamento a Firebase, indirizzo pubblico, logo e dati del circolo.</td></tr>
+<tr><td><code>js/formule.js</code></td><td>Incontri dei campionati a squadre (Base, Eccellenza) e tipi di torneo: è il file da toccare se cambia un regolamento.</td></tr>
+<tr><td><code>js/util.js</code></td><td>Funzioni di servizio, lettura dell'indirizzo, preparazione dei dati delle gare.</td></tr>
+<tr><td><code>js/gara.js</code></td><td>Regole di gioco: tabellone di batterie e finali, set, vincitori, totali.</td></tr>
+<tr><td><code>js/dati.js</code></td><td>Accesso della regia, scrittura nel database, PUBBLICA, cronologia.</td></tr>
+<tr><td><code>js/vista-gara.js</code></td><td>Disegno della pagina della gara e del tabellone.</td></tr>
+<tr><td><code>js/vista-elenco.js</code></td><td>Elenco delle gare.</td></tr>
+<tr><td><code>js/render.js</code></td><td>Schermata della regia (nuova gara, duplica, elimina) e aggiornamento della pagina.</td></tr>
+<tr><td><code>js/interazioni.js</code></td><td>Comandi: punteggi e tastierino, andamento, finestre dei tornei, logo.</td></tr>
+<tr><td><code>js/anagrafica.js</code></td><td>Giocatori, squadre, import ed export.</td></tr>
+<tr><td><code>js/nomi.js</code></td><td>Riconoscimento dei nomi nelle gare, categoria, suggerimenti.</td></tr>
+<tr><td><code>js/controllo-nomi.js</code></td><td>Controllo nomi.</td></tr>
+<tr><td><code>js/giocatori.js</code></td><td>Pagine pubbliche dei giocatori e statistiche.</td></tr>
+<tr><td><code>js/regia-barra.js</code></td><td>Barra di regia e scorciatoie da tastiera.</td></tr>
+<tr><td><code>js/avvio.js</code></td><td>Partenza: sceglie quale pagina mostrare in base all'indirizzo.</td></tr>
+</table></div>
+<p>I file <code>js/</code> condividono le stesse variabili e vanno caricati nell'ordine scritto in <code>index.html</code>. Nei collegamenti c'è un numero di versione (per esempio <code>js/gara.js?v=20261104</code>) che si cambia a ogni aggiornamento, così nessun dispositivo resta con file vecchi e nuovi mescolati.</p>
 <h3>Copia di lavoro</h3>
 <p>La copia di riferimento dei file sta anche nella cartella <code>OBS\Live</code> (insieme a <code>regole_database.json</code> e al file LEGGIMI con le note tecniche). Ogni modifica viene fatta lì e caricata su GitHub; il sito si aggiorna dopo un paio di minuti.</p>
 <h3>Regole del database</h3>
@@ -385,6 +412,10 @@ assente
 
 <section id="novita" class="chg">
 <h2><span class="n">14</span>Novità</h2>
+<h3>4 novembre 2026</h3>
+<ul>
+  <li>L'app è divisa in più file (grafica, regole di gioco, regia, anagrafica…) per rendere più sicure le modifiche future. Per chi la usa non cambia nulla.</li>
+</ul>
 <h3>3 novembre 2026</h3>
 <ul>
   <li>Nuovo indirizzo: <b>biliardo2p.github.io</b>, sull'account GitHub del circolo. I vecchi link portano al nuovo indirizzo.</li>
