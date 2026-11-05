@@ -408,7 +408,7 @@ app.addEventListener("submit", async e=>{
     const sqk = tor ? "" : findSq(o.ospite);   /* squadra dell'anagrafica: codice, logo e città */
     if(sqk){ const q = SQUADRE[sqk]; st.away.sq = sqk; if(q.logo) st.away.logo = q.logo; if(!st.away.city && q.citta) st.away.city = q.citta; }
     try{ await dbWrite({["gare/"+id]: st, ["indice/"+id]: metaOf(st)}); location.search = "?regia&gara=" + id; }
-    catch(err){ $("#ng-msg").textContent = err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: controlla le regole del database e l'email dell'utente" : "Non riesco a creare la gara (" + (err.code||err.message) + ")"; }
+    catch(err){ $("#ng-msg").textContent = err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: controlla le regole del database e l'utente di regia (UID)" : "Non riesco a creare la gara (" + (err.code||err.message) + ")"; }
   }
 });
 $("#logofile").addEventListener("change", ()=>{

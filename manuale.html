@@ -160,7 +160,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <p>Per i tornei con batterie e finali la pagina mostra gli incontri seguiti in diretta e il <b>tabellone</b>, diviso in pagine (una per batteria, più le finali): si scorre con i pulsanti in alto. Ogni incontro del tabellone indica chi è passato e l'eventuale punteggio; quelli in diretta hanno il pallino rosso. A torneo concluso compare il vincitore con la coppa.</p>
 <figure class="sh"><img src="img/manuale/tabellone.webp" alt="Torneo con batterie e finali: in alto l'incontro in diretta, sotto il tabellone della batteria" loading="lazy" width="1100" height="900"><figcaption>Torneo con batterie e finali: in alto l'incontro in diretta, sotto il tabellone della batteria</figcaption></figure>
 <h3>Giocatori</h3>
-<p>L'elenco è diviso per anno sportivo e per squadra, con una casella di ricerca. Ogni scheda mostra squadra e categoria, i totali (partite giocate, vinte, perse, percentuale di vittorie), una tabella per tipo e specialità e la cronologia delle partite con il link alla gara. Vedi <a href="#statistiche">Statistiche dei giocatori</a>.</p>
+<p>L'elenco è diviso per anno sportivo e per squadra, con una casella di ricerca. Ogni scheda mostra squadra e categoria, la foto (se c'è), i totali (partite giocate, vinte, perse, percentuale di vittorie), una tabella per tipo e specialità e la cronologia delle partite con il link alla gara. Vedi <a href="#statistiche">Statistiche dei giocatori</a>.</p>
 </section>
 
 <section id="accesso">
@@ -333,9 +333,10 @@ assente
   <li><b>Cognome e nome:</b> il nome sul tabellone si compone da solo, “Galli E.”. Il nome può restare vuoto: sul tabellone comparirà solo il cognome.</li>
   <li><b>Soprannome</b> (facoltativo), riconosciuto anche quando lo si scrive in una gara.</li>
   <li><b>Nome sul tabellone:</b> da scrivere solo per distinguere due omonimi con la stessa iniziale. La scheda avvisa quando due giocatori risulterebbero uguali.</li>
+  <li><b>Foto</b> (facoltativa): <span class="btn">Carica foto</span> sceglie un'immagine dal telefono o dal computer; viene rimpicciolita da sola a 400 pixel prima di salvarla, quindi va bene anche l'originale grande. Compare nella pagina pubblica del giocatore. <span class="btn">Cambia foto</span> la sostituisce, <span class="btn">Togli foto</span> la elimina; la modifica vale dopo <span class="btn g">Salva</span>. Nell'elenco i giocatori con la foto hanno il simbolo 📷.</li>
   <li><b>Squadra e categoria per anno sportivo:</b> <span class="btn">+ Aggiungi anno</span> copia l'ultima riga, così basta cambiare ciò che è diverso.</li>
 </ul>
-<div class="shs"><figure class="sh tel"><img src="img/manuale/anagrafica.webp" alt="Elenco dei giocatori per anno sportivo e squadra" loading="lazy" width="390" height="844"><figcaption>Elenco dei giocatori per anno sportivo e squadra</figcaption></figure><figure class="sh tel"><img src="img/manuale/anagrafica-scheda.webp" alt="Scheda di un giocatore: squadra e categoria per anno sportivo" loading="lazy" width="390" height="844"><figcaption>Scheda di un giocatore: squadra e categoria per anno sportivo</figcaption></figure></div>
+<div class="shs"><figure class="sh tel"><img src="img/manuale/anagrafica.webp" alt="Elenco dei giocatori per anno sportivo e squadra" loading="lazy" width="390" height="844"><figcaption>Elenco dei giocatori per anno sportivo e squadra</figcaption></figure><figure class="sh tel"><img src="img/manuale/anagrafica-scheda.webp" alt="Scheda di un giocatore: foto, squadra e categoria per anno sportivo" loading="lazy" width="390" height="844"><figcaption>Scheda di un giocatore: foto, squadra e categoria per anno sportivo</figcaption></figure></div>
 <p>Ogni giocatore ha un <b>codice</b> interno, creato alla prima registrazione e mai più modificato. Le gare sono collegate al codice: se cambi nome, grafia o soprannome, tutte le gare e le statistiche mostrano il nome aggiornato.</p>
 <h3>Squadre</h3>
 <p>Nome, città e logo. Il logo viene inserito da solo nelle nuove gare contro quella squadra. Una squadra con giocatori associati non si può eliminare.</p>
@@ -360,7 +361,7 @@ assente
 <h2><span class="n">10</span>Controllo nomi</h2>
 <p>Serve a collegare all'anagrafica i nomi scritti nelle gare: quelle giocate prima dell'anagrafica e quelle con nomi scritti a mano. La scheda legge tutte le gare e mostra quattro contatori: collegati, riconosciuti da confermare, riconosciuti nei tornei, da sistemare.</p>
 <ol>
-  <li><span class="btn">⬇ Copia di sicurezza</span>: scarica un file con gare, giocatori e squadre. Fallo prima di cominciare.</li>
+  <li><span class="btn">⬇ Copia di sicurezza</span>: scarica un file con gare, giocatori, squadre e foto. Fallo prima di cominciare.</li>
   <li><b>Riconosciuti automaticamente:</b> nomi delle gare a squadre che corrispondono a un solo giocatore. Controlla l'elenco e premi <span class="btn g">Conferma tutti</span>.</li>
   <li><b>Da sistemare:</b> un riquadro per ogni nome, con le gare in cui compare. La tendina propone prima i giocatori con nome uguale o simile (anche con refusi), poi quelli della squadra, poi tutti. Scegli e premi <span class="btn g">Collega</span>: vale per tutte le caselle del gruppo. <span class="btn">+ Nuovo giocatore</span> crea il giocatore e collega subito il gruppo.</li>
 </ol>
@@ -377,7 +378,7 @@ assente
 <section id="statistiche">
 <h2><span class="n">11</span>Statistiche dei giocatori</h2>
 <p>Le statistiche non sono salvate a parte: si ricalcolano dalle gare ogni volta che si apre una scheda. Correggere un punteggio o collegare un nome aggiorna subito le statistiche.</p>
-<figure class="sh tel"><img src="img/manuale/giocatore.webp" alt="Scheda pubblica di un giocatore: totali, specialità e partite" loading="lazy" width="390" height="844"><figcaption>Scheda pubblica di un giocatore: totali, specialità e partite</figcaption></figure>
+<figure class="sh tel"><img src="img/manuale/giocatore.webp" alt="Scheda pubblica di un giocatore: foto, totali, specialità e partite" loading="lazy" width="390" height="844"><figcaption>Scheda pubblica di un giocatore: foto, totali, specialità e partite</figcaption></figure>
 <table>
 <tr><th>Situazione</th><th>Come conta</th></tr>
 <tr><td>Incontro di una gara a squadre</td><td>Vinta o persa, con il punteggio. In coppia compare il compagno.</td></tr>
@@ -433,8 +434,8 @@ assente
 <h3>Come è fatta l'app</h3>
 <ul>
   <li><b>Pagina:</b> pubblicata con GitHub Pages dal repository <code>github.com/biliardo2p/biliardo2p.github.io</code> (account del circolo <code>biliardo2p</code>). È divisa in più file, elencati sotto. Questo manuale è il file <code>manuale.html</code> dello stesso repository.</li>
-  <li><b>Dati:</b> database Firebase Realtime Database del progetto <code>biliardo-2p</code>. Contiene gare, elenco delle gare, cronologia dei punteggi, giocatori, squadre, comandi dell'overlay (onda), spettatori collegati e contatori delle visite.</li>
-  <li><b>Accesso alla regia:</b> utente di Firebase Authentication (email e password). Le regole del database permettono la scrittura solo a quell'utente; tutti possono leggere.</li>
+  <li><b>Dati:</b> database Firebase Realtime Database del progetto <code>biliardo-2p</code>. Contiene gare, elenco delle gare, cronologia dei punteggi, giocatori, squadre, foto dei giocatori, comandi dell'overlay (onda), spettatori collegati e contatori delle visite.</li>
+  <li><b>Accesso alla regia:</b> utente di Firebase Authentication (email e password). Le regole del database permettono la scrittura solo a quell'utente, riconosciuto dal suo <b>UID</b> (il codice fisso dell'account, in Authentication → Users); tutti possono leggere. Gli unici dati che chiunque può scrivere sono i contatori degli spettatori e delle visite, che accettano solo numeri.</li>
 </ul>
 <h3>I file dell'app</h3>
 <div class="tw"><table>
@@ -471,9 +472,18 @@ assente
 <h3>Regole del database</h3>
 <p>Il file <code>regole_database.json</code> contiene le regole complete. Per cambiarle: console di Firebase → Realtime Database → <b>Regole</b> → incolla il contenuto del file → <b>Pubblica</b>.</p>
 <h3>Copie di sicurezza</h3>
-<p>Dall'anagrafica, scheda Controllo nomi, <span class="btn">⬇ Copia di sicurezza</span> scarica gare, giocatori e squadre in un file. Dalla console di Firebase si può anche esportare l'intero database (Realtime Database → ⋮ → Esporta JSON).</p>
+<p>Dall'anagrafica, scheda Controllo nomi, <span class="btn">⬇ Copia di sicurezza</span> scarica gare, giocatori, squadre e foto in un file. Conviene farla una volta al mese e dopo le giornate importanti. Dalla console di Firebase si può anche esportare l'intero database (Realtime Database → ⋮ → Esporta JSON).</p>
 <h3>Aggiungere un utente di regia</h3>
-<p>Si crea in Firebase → Authentication → Users, e la sua email va aggiunta alle regole del database accanto a quella esistente.</p>
+<p>Si crea in Firebase → Authentication → Users (la registrazione libera è disattivata, quindi gli utenti si aggiungono solo da lì). Poi si copia il suo <b>UID</b> dalla colonna “User UID” e si aggiunge alle regole del database accanto a quello esistente, per esempio <code>auth.uid === 'UID1' || auth.uid === 'UID2'</code> in ogni riga <code>.write</code>.</p>
+<h3>Sicurezza: cose da sapere</h3>
+<ul>
+  <li><b>Chiave di Firebase visibile nel codice:</b> è normale, non è una password. La protezione la fanno le regole del database.</li>
+  <li><b>Registrazione di nuovi utenti:</b> deve restare disattivata (Authentication → Settings → User actions → togliere “Enable create (sign-up)”).</li>
+  <li><b>Regia su computer condivisi:</b> l'accesso resta memorizzato; alla fine premi sempre <span class="btn">Esci</span>.</li>
+  <li><b>Account Google del progetto Firebase:</b> è la vera chiave di tutto: proteggilo con la verifica in due passaggi.</li>
+  <li><b>Dati pubblici:</b> anagrafica, foto e statistiche sono visibili a tutti; è bene che i soci ne siano informati.</li>
+  <li><b>Limiti del piano gratuito:</b> se si superassero i dati scaricabili nel mese il sito si fermerebbe fino al mese successivo, senza costi. Le foto sono rimpicciolite e si scaricano solo aprendo la pagina del giocatore.</li>
+</ul>
 </section>
 
 <section id="faq">
@@ -498,6 +508,11 @@ assente
 
 <section id="novita" class="chg">
 <h2><span class="n">15</span>Novità</h2>
+<h3>5 novembre 2026</h3>
+<ul>
+  <li>Foto dei giocatori: si caricano dalla scheda dell'anagrafica e compaiono nella pagina pubblica del giocatore.</li>
+  <li>Regole del database più sicure (accesso alla regia legato all'UID dell'utente) e nuova sezione “Sicurezza” nel capitolo Amministrazione.</li>
+</ul>
 <h3>4 novembre 2026</h3>
 <ul>
   <li>Overlay per le dirette video in OBS dallo stesso sito (<code>?overlay&amp;live</code>), con categoria accanto ai nomi e pannello 📺 Onda nella regia.</li>

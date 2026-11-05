@@ -55,6 +55,8 @@ function giocHTML(){
   let h = `<main class="wrap">${back}<section class="phead">${sqLogo(r.sq, sq)}<div><div class="comp">${esc(tabName(p))}${r.cat ? ` <span class="pc">(${esc(r.cat)})</span>` : ""}</div>
     <div class="sub">${esc([p.nome, p.cognome].filter(Boolean).join(" "))}${p.sopr ? ` · “${esc(p.sopr)}”` : ""}</div>
     <div class="pinfo">${esc(sqName(r.sq))} · ${esc(catLabel(r.cat) || "categoria non indicata")} · ${stagLabel(anniOf(p).includes(y0) ? y0 : anniOf(p).at(-1))}</div></div></section>`;
+  if(p.foto){ const u = fotoGet(PCODE, p, ()=>{ if(mode==="gioc") render(); });
+    h += u ? `<figure class="pfoto"><img src="${esc(u)}" alt="${esc([p.nome, p.cognome].filter(Boolean).join(" "))}"></figure>` : u===null ? `<figure class="pfoto"><span></span></figure>` : ""; }
   if(allgErr) return h + `<p class="empty">Impossibile leggere le gare. Ricarica la pagina.</p></main>`;
   if(!ALLG) return h + `<p class="empty">Caricamento delle partite…</p></main>`;
   const all = allMatches().filter(e=>e.k===PCODE), ys = [...new Set(all.map(e=>e.y))].sort((a,b)=>b-a);

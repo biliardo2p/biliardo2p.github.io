@@ -20,7 +20,7 @@ const findSq = nome => { nome = String(nome||"").trim().toLowerCase(); if(!nome)
 const sqLogo = (k, s) => isClub(k) ? `<img src="${LOGO_HOME}" alt="">` : s && s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<i class="sb">${esc(String((s && s.nome) || "?").charAt(0).toUpperCase())}</i>`;
 function parseCat(t){ t = String(t||"").trim().toUpperCase(); if(/^M/.test(t)) return "M"; const n = t.match(/^[1-3]/); return n ? n[0] : ""; }
 function parseAnno(t){ const m = String(t||"").match(/(20\d\d)/); return m ? +m[1] : null; }
-const wErr = err => err && err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: aggiungi alle regole del database i nodi giocatori e squadre (vedi LEGGIMI)" : "Salvataggio non riuscito (" + ((err && (err.code||err.message)) || "?") + ")";
+const wErr = err => err && err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: controlla che le regole del database abbiano i nodi giocatori, squadre e foto (vedi LEGGIMI)" : "Salvataggio non riuscito (" + ((err && (err.code||err.message)) || "?") + ")";
 function watchAnag(){
   if(anWatch) return; anWatch = true;
   /* se la lettura viene rifiutata (regole non ancora pubblicate) si riprova da soli ogni 5 secondi */
@@ -30,6 +30,31 @@ function watchAnag(){
     ANAG = ANAG || {}; SQUADRE = SQUADRE || {}; anRepaint(); setTimeout(()=>watch(path, key, set), 5000); });
   watch("giocatori", "g", v=>ANAG = v);
   watch("squadre", "s", v=>SQUADRE = v);
+}
+/* foto dei giocatori: foto/<codice> = immagine già ridotta (data URL), giocatori/<codice>/foto = versione (data e ora del caricamento).
+   Le foto stanno in un nodo a parte e si scaricano una alla volta, solo quando servono: l'elenco dei giocatori resta leggero. */
+const FOTO = {};
+const fotoKey = (k, p) => k + "@" + ((p && p.foto) || "");
+function fotoGet(k, p, cb){
+  if(!p || !p.foto) return ""; const fk = fotoKey(k, p);
+  if(FOTO[fk]===undefined){ FOTO[fk] = null; db.ref("foto/" + k).once("value").then(s=>{ FOTO[fk] = s.val() || ""; cb && cb(); }, ()=>{ FOTO[fk] = ""; cb && cb(); }); }
+  return FOTO[fk];   /* null = in arrivo, "" = assente */
+}
+function fotoResize(f, done){
+  const rd = new FileReader();
+  rd.onload = () => { const im = new Image();
+    im.onload = () => { const M = 400, w0 = im.naturalWidth || M, h0 = im.naturalHeight || M, k = Math.min(1, M/Math.max(w0, h0));
+      const W = Math.round(w0*k), H = Math.round(h0*k);
+      let src = im, sw = w0, sh = h0;
+      while(sw > W*2){ const t = document.createElement("canvas"); t.width = Math.round(sw/2); t.height = Math.round(sh/2);   /* riduzione a passi: più nitida */
+        t.getContext("2d").drawImage(src, 0, 0, t.width, t.height); src = t; sw = t.width; sh = t.height; }
+      const c = document.createElement("canvas"); c.width = W; c.height = H;
+      const x = c.getContext("2d"); x.fillStyle = "#000"; x.fillRect(0, 0, W, H); x.imageSmoothingQuality = "high"; x.drawImage(src, 0, 0, W, H);
+      let u = c.toDataURL("image/webp", .82); if(!u.startsWith("data:image/webp")) u = c.toDataURL("image/jpeg", .85);   /* Safari vecchi: niente webp */
+      done(u); };
+    im.onerror = () => done("");
+    im.src = rd.result; };
+  rd.readAsDataURL(f);
 }
 function anRepaint(){
   if(mode==="anag"){ const ae = document.activeElement;
@@ -66,7 +91,7 @@ function anListHTML(){
   rows.sort((a,b)=>isClub(b.r.sq)-isClub(a.r.sq) || sqName(a.r.sq).localeCompare(sqName(b.r.sq)) || String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||"")));
   const g = new Map(); rows.forEach(x=>{ if(!g.has(x.r.sq)) g.set(x.r.sq, []); g.get(x.r.sq).push(x); });
   return [...g].map(([sq, xs])=>`<h3 class="ang">${esc(sqName(sq))} <span>${xs.length}</span></h3><div class="anl">` + xs.map(x=>
-    `<button class="anr" data-anp="${esc(x.k)}"><b>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}</b><span>${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))}${x.p.sopr ? ` · “${esc(x.p.sopr)}”` : ""} · ${esc(catLabel(x.r.cat) || "categoria da indicare")}</span></button>`).join("") + `</div>`).join("");
+    `<button class="anr" data-anp="${esc(x.k)}"><b>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}${x.p.foto ? ` <i class="hf" title="Ha la foto">📷</i>` : ""}</b><span>${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))}${x.p.sopr ? ` · “${esc(x.p.sopr)}”` : ""} · ${esc(catLabel(x.r.cat) || "categoria da indicare")}</span></button>`).join("") + `</div>`).join("");
 }
 function anSqHTML(){
   const cnt = {}; Object.values(ANAG).forEach(p=>{ const r = (p.anni||{})[anStag]; if(r) cnt[r.sq] = (cnt[r.sq]||0) + 1; });
@@ -162,12 +187,17 @@ function paintPlayer(){
   $("#anm .bx").innerHTML = `<h3>${anEd.k ? esc(tabName(p) || "Giocatore") : "Nuovo giocatore"}</h3>
     <div class="row"><label>Cognome<input id="an-c" value="${esc(p.cognome||"")}" autocomplete="off"></label><label>Nome<input id="an-n" value="${esc(p.nome||"")}" autocomplete="off"></label></div>
     <div class="row"><label>Soprannome<input id="an-s" value="${esc(p.sopr||"")}" placeholder="facoltativo" autocomplete="off"></label><label>Nome sul tabellone<input id="an-t" value="${esc(p.tab||"")}" placeholder="${esc(tabName(Object.assign({}, p, {tab:""})) || "automatico")}" autocomplete="off"></label></div>
+    <div class="ftr"><div id="an-fimg">${fotoBox()}</div><div class="fb2"><button class="addf" data-afo>${fotoCur() || fotoCur()===null ? "Cambia foto" : "Carica foto"}</button>${fotoCur() || fotoCur()===null ? `<button class="addf" data-afx>Togli foto</button>` : ""}
+      <p class="hint">Facoltativa: si vede nella pagina pubblica del giocatore. Viene rimpicciolita da sola (400 pixel); va bene anche quadrata, come gli avatar del circolo.</p></div></div>
     <h4>Squadra e categoria per anno sportivo</h4><div id="an-y">${ys.map(y=>yrow(y, p.anni[y])).join("")}</div>
     <button class="addf" data-ay>+ Aggiungi anno</button>
     <p class="hint">Sul tabellone: cognome e iniziale del nome, poi la categoria dell'anno della gara, per esempio “${esc(tabName(Object.assign({}, p, {tab:""})) || "Galli E.")} (${esc(rowAt(p, stagione()).cat || "2")})”. Scrivi il nome sul tabellone solo per distinguere due omonimi.</p>
     <p class="err" id="an-m"></p>
     <div class="btns">${anEd.k ? `<button class="ghost" data-adel>${delLabel()}</button>` : ""}<span class="sp1"></span><button class="ghost" data-ano>Annulla</button><button data-aok>Salva</button></div>`;
 }
+/* foto nella scheda: anEd.foto undefined = invariata, data URL = nuova, "" = da togliere */
+const fotoCur = () => anEd.foto!==undefined ? anEd.foto : anEd.k ? fotoGet(anEd.k, ANAG[anEd.k], ()=>{ const b = $("#an-fimg"); if(b && anEd && anEd.kind==="p") b.innerHTML = fotoBox(); }) : "";
+function fotoBox(){ const u = fotoCur(); return u ? `<img src="${esc(u)}" alt="Foto">` : u===null ? `<span class="fph">…</span>` : `<span class="fph">${esc(String((anEd.p.cognome||"?")).charAt(0).toUpperCase())}</span>`; }
 function readPlayer(){
   const p = anEd.p, v = id => $(id).value.trim();
   p.cognome = v("#an-c"); p.nome = v("#an-n"); p.sopr = v("#an-s"); p.tab = v("#an-t");
@@ -186,9 +216,13 @@ async function savePlayer(){
   const tn = tabName(p).toLowerCase(), ys = anniOf(p);
   const twin = Object.entries(ANAG).find(([kk,q])=>kk!==k && tabName(q).toLowerCase()===tn && anniOf(q).some(y=>ys.includes(y)));
   if(twin && anEd.twin!==tn){ anEd.twin = tn; return anMsg(`Anche ${[twin[1].nome, twin[1].cognome].filter(Boolean).join(" ")} compare come “${tabName(p)}”: scrivi un nome sul tabellone diverso, oppure premi di nuovo Salva per lasciarlo così.`); }
-  const val = {cognome:p.cognome, nome:p.nome, anni:p.anni}; if(p.sopr) val.sopr = p.sopr; if(p.tab) val.tab = p.tab; if(p.avatar) val.avatar = p.avatar;
+  const val = {cognome:p.cognome, nome:p.nome, anni:p.anni}; if(p.sopr) val.sopr = p.sopr; if(p.tab) val.tab = p.tab;
+  const fo = anEd.foto, W = {["giocatori/" + k]: val};
+  if(fo){ val.foto = Date.now(); W["foto/" + k] = fo; FOTO[fotoKey(k, val)] = fo; }
+  else if(fo===""){ if(anEd.k) W["foto/" + k] = null; }
+  else if(p.foto) val.foto = p.foto;
   const link = anEd.link, ckg = anEd.ck && CK && ckGroups(scanNames(CK)).find(x=>x.id===anEd.ck);   /* il gruppo si legge prima che il nuovo giocatore lo "riconosca" */
-  try{ await dbWrite({["giocatori/" + k]: val}); closeAn(); } catch(err){ anMsg(wErr(err)); return; }
+  try{ await dbWrite(W); closeAn(); } catch(err){ anMsg(wErr(err)); return; }
   if(ckg){ const g = ckg; ANAG = Object.assign({}, ANAG, {[k]: val});   /* creato dal controllo nomi: collega subito il gruppo */
     if(g) ckApply(g.occ.map(o=>({o, k})), `Creato ${tabName(val)} e collegato in ${g.occ.length} ${g.occ.length===1 ? "casella" : "caselle"}.`); }
   if(link && S && mode==="board"){ const [i, sd, j] = link.split("."), m = S.matches[+i];   /* aggiunto dalla gara: la casella si collega al nuovo giocatore */
@@ -222,7 +256,8 @@ async function anDelete(){
     const b = $("[data-adel]"); if(b){ b.textContent = delLabel(); b.classList.add("arm"); } setTimeout(()=>{ const b2 = $("[data-adel]"); if(b2 && anEd && !(Date.now() - anEd.del < 4000)){ b2.textContent = delLabel(); b2.classList.remove("arm"); } }, 4100); return; }
   if(anEd.kind==="s"){ const n = Object.values(ANAG).filter(p=>anniOf(p).some(y=>p.anni[y].sq===anEd.k)).length;
     if(n) return anMsg(`Non si può eliminare: ${n} ${n===1 ? "giocatore ha" : "giocatori hanno"} questa squadra in almeno un anno.`); }
-  try{ await dbWrite({[(anEd.kind==="p" ? "giocatori/" : "squadre/") + anEd.k]: null}); closeAn(); } catch(err){ anMsg(wErr(err)); }
+  const W = anEd.kind==="p" ? {["giocatori/" + anEd.k]: null, ["foto/" + anEd.k]: null} : {["squadre/" + anEd.k]: null};
+  try{ await dbWrite(W); closeAn(); } catch(err){ anMsg(wErr(err)); }
 }
 function closeAn(){ $("#anm").hidden = true; anEd = null; }
 $("#anm").addEventListener("click", e=>{
@@ -232,6 +267,8 @@ $("#anm").addEventListener("click", e=>{
   if(t.closest("[data-adel]")){ anDelete(); return; }
   if(t.closest("[data-ay]")){ readPlayer(); const p = anEd.p, ys = anniOf(p), y = ys.length ? Math.max(...ys) + 1 : stagione(); p.anni[y] = Object.assign({}, ys.length ? p.anni[Math.max(...ys)] : {sq:CLUBSQ, cat:""}); paintPlayer(); return; }
   const yx = t.closest("[data-yx]"); if(yx){ yx.closest(".yr").remove(); return; }
+  if(t.closest("[data-afo]")){ $("#anfoto").click(); return; }
+  if(t.closest("[data-afx]")){ readPlayer(); anEd.foto = ""; paintPlayer(); return; }
   if(t.closest("[data-alg]")){ readSquad(); $("#anlogo").click(); return; }
   if(t.closest("[data-alx]")){ readSquad(); delete anEd.s.logo; paintSquad(); return; }
 });
@@ -245,6 +282,12 @@ $("#anlogo").addEventListener("change", ()=>{
       c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); anEd.s.logo = c.toDataURL("image/png"); inp.value = ""; paintSquad(); };
     im.src = rd.result; };
   rd.readAsDataURL(f);
+});
+$("#anfoto").addEventListener("change", ()=>{
+  const inp = $("#anfoto"), f = inp.files[0]; inp.value = ""; if(!f || !anEd || anEd.kind!=="p") return;
+  anMsg("Preparo la foto…");
+  fotoResize(f, u=>{ if(!anEd || anEd.kind!=="p") return; if(!u){ anMsg("Non riesco a leggere questa immagine: prova con un JPG o un PNG."); return; }
+    readPlayer(); anEd.foto = u; paintPlayer(); });
 });
 /* eventi della pagina anagrafica */
 app.addEventListener("click", e=>{

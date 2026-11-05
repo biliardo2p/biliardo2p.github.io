@@ -99,8 +99,9 @@ async function ckApply(list, msg){
   catch(err){ ckMsg = wErr(err); ckErr = true; }
   await ckLoad();
 }
-function ckBackup(){
-  const data = {creato:new Date().toISOString(), gare:CK, giocatori:ANAG, squadre:SQUADRE};
+async function ckBackup(){
+  let foto = null; try{ foto = (await db.ref("foto").once("value")).val(); }catch(e){}
+  const data = {creato:new Date().toISOString(), gare:CK, giocatori:ANAG, squadre:SQUADRE, foto:foto || {}};
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type:"application/json"}));
   a.download = "biliardo2p-copia-" + today() + ".json"; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   ckMsg = "Copia di sicurezza scaricata: conservala finché non hai finito i collegamenti."; ckErr = false; render();
