@@ -51,9 +51,10 @@ function giocHTML(){
   const p = ANAG[PCODE];
   if(!p) return `<main class="wrap">${back}<p class="empty">Giocatore non trovato.</p></main>`;
   const y0 = stagione(), r = rowAt(p, y0), sq = (SQUADRE||{})[r.sq];
-  document.title = tabName(p) + " · Biliardo Seconda Passione";
-  let h = `<main class="wrap">${back}<section class="phead">${sqLogo(r.sq, sq)}<div><div class="comp">${esc(tabName(p))}${r.cat ? ` <span class="pc">(${esc(r.cat)})</span>` : ""}</div>
-    <div class="sub">${esc([p.nome, p.cognome].filter(Boolean).join(" "))}${p.sopr ? ` · “${esc(p.sopr)}”` : ""}</div>
+  const full = [p.nome, p.cognome].filter(Boolean).join(" ") || tabName(p);
+  document.title = full + " · Biliardo Seconda Passione";
+  let h = `<main class="wrap">${back}<section class="phead">${sqLogo(r.sq, sq)}<div><div class="comp">${esc(full)}</div>
+    ${p.sopr ? `<div class="sub">“${esc(p.sopr)}”</div>` : ""}
     <div class="pinfo">${esc(sqName(r.sq))} · ${esc(catLabel(r.cat) || "categoria non indicata")} · ${stagLabel(anniOf(p).includes(y0) ? y0 : anniOf(p).at(-1))}</div></div></section>`;
   if(p.foto){ const u = fotoGet(PCODE, p, ()=>{ if(mode==="gioc") render(); });
     h += u ? `<figure class="pfoto"><img src="${esc(u)}" alt="${esc([p.nome, p.cognome].filter(Boolean).join(" "))}"></figure>` : u===null ? `<figure class="pfoto"><span></span></figure>` : ""; }
