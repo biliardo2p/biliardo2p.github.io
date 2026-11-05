@@ -2,11 +2,13 @@
    I file js/ si caricano in ordine da index.html e condividono le stesse variabili (script classici, non moduli:
    così la regia funziona anche aperta dal disco). L'ordine conta. */
 /* ================= anagrafica: giocatori e squadre (giocatori/<codice>, squadre/<codice>) =================
-   giocatori/<codice> = {cognome, nome, sopr?, tab?, anni:{<anno sportivo>: {sq:<codice squadra>, cat:"M"|"1"|"2"|"3"}}}
+   giocatori/<codice> = {cognome, nome, sopr?, tab?, anni:{<anno sportivo>: {sq:<codice squadra>, cat:"NP"|"N"|"M"|"1"|"2"|"3"}}}  (NP = Nazionale Pro, N = Nazionale, M = Master)
    anno sportivo = anno di inizio (2026 = 2026/27, da settembre ad agosto). Il codice nasce alla prima registrazione e non cambia più. */
 let ANAG = null, SQUADRE = null, anErr = "", anTab = "g", anStag = null, anSq = "", anQ = "", anImp = "", anEd = null, anWatch = false;
-const CATS = ["M","1","2","3"];
-const catLabel = c => c==="M" ? "Master" : c ? c + "ª" : "";
+const CATS = ["NP","N","M","1","2","3"];
+const CATN = {NP:"Nazionale Pro", N:"Nazionale", M:"Master"};
+const catShort = c => CATN[c] || (c ? c + "ª" : "");   /* tendina della scheda */
+const catLabel = c => CATN[c] ? "cat. " + CATN[c] : c ? c + "ª cat." : "";   /* elenchi e pagine: "cat. Master", "2ª cat." */
 const stagione = d => { const x = String(d || today()), y = +x.slice(0,4), m = +x.slice(5,7); return m>=9 ? y : y-1; };
 const stagLabel = y => `${y}/${String(+y+1).slice(2)}`;
 const anniOf = p => Object.keys((p && p.anni) || {}).map(Number).sort((a,b)=>a-b);
@@ -18,7 +20,8 @@ const sqName = k => (SQUADRE && SQUADRE[k] && SQUADRE[k].nome) || k || "";
 const sqSorted = () => Object.entries(SQUADRE||{}).sort((a,b)=>isClub(b[0])-isClub(a[0]) || String(a[1].nome).localeCompare(String(b[1].nome)));
 const findSq = nome => { nome = String(nome||"").trim().toLowerCase(); if(!nome) return ""; const x = Object.entries(SQUADRE||{}).find(([k,s])=>String(s.nome||"").trim().toLowerCase()===nome); return x ? x[0] : ""; };
 const sqLogo = (k, s) => isClub(k) ? `<img src="${LOGO_HOME}" alt="">` : s && s.logo ? `<img src="${esc(s.logo)}" alt="">` : `<i class="sb">${esc(String((s && s.nome) || "?").charAt(0).toUpperCase())}</i>`;
-function parseCat(t){ t = String(t||"").trim().toUpperCase(); if(/^M/.test(t)) return "M"; const n = t.match(/^[1-3]/); return n ? n[0] : ""; }
+function parseCat(t){ t = String(t||"").trim().toUpperCase().replace(/^CAT(EGORIA)?\.?\s*/, "");
+  if(/^(NP|PRO|NAZ\w*\.?\s*PRO)/.test(t)) return "NP"; if(/^(N|NAZ)/.test(t)) return "N"; if(/^M/.test(t)) return "M"; const n = t.match(/^[1-3]/); return n ? n[0] : ""; }
 function parseAnno(t){ const m = String(t||"").match(/(20\d\d)/); return m ? +m[1] : null; }
 const wErr = err => err && err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: controlla che le regole del database abbiano i nodi giocatori, squadre e foto (vedi LEGGIMI)" : "Salvataggio non riuscito (" + ((err && (err.code||err.message)) || "?") + ")";
 function watchAnag(){
@@ -102,7 +105,7 @@ function anSqHTML(){
 }
 function anImpHTML(){
   return `<section class="panel"><h2>Importa da tabella</h2>
-    <p class="hint">Copia le righe da Excel, con la riga di intestazione, e incollale qui. Colonne: Nome, Cognome, Squadra, Città, Categoria (M, 1, 2, 3), Anno (anno sportivo: 2026 = 2026/27).
+    <p class="hint">Copia le righe da Excel, con la riga di intestazione, e incollale qui. Colonne: Nome, Cognome, Squadra, Città, Categoria (NP = Nazionale Pro, N = Nazionale, M = Master, 1, 2, 3), Anno (anno sportivo: 2026 = 2026/27).
     Le squadre che mancano vengono create; per un giocatore già presente si aggiorna solo l'anno indicato.</p>
     <textarea id="an-imp" spellcheck="false" placeholder="Nome&#9;Cognome&#9;Squadra&#9;Città&#9;Categoria&#9;Anno">${esc(anImp)}</textarea><div id="an-prev">${impPrevHTML()}</div></section>
     <section class="panel"><h2>Esporta</h2><p class="hint">Tutti i giocatori, una riga per anno sportivo, nello stesso formato: si incolla in Excel.</p>
@@ -127,7 +130,7 @@ function parseImp(t){
     if(!r.cognome) errs.push(`riga ${n}: manca il cognome`);
     else if(!r.squadra) errs.push(`riga ${n}: manca la squadra`);
     else if(!r.anno) errs.push(`riga ${n}: anno "${g(5)}" non valido`);
-    else if(g(4) && !r.cat) errs.push(`riga ${n}: categoria "${g(4)}" non riconosciuta (M, 1, 2, 3)`);
+    else if(g(4) && !r.cat) errs.push(`riga ${n}: categoria "${g(4)}" non riconosciuta (NP, N, M, 1, 2, 3)`);
     else rows.push(r);
   });
   return {rows, errs};
@@ -172,7 +175,7 @@ async function doImport(){
 const yearOpts = sel => { const s = new Set([stagione() + 1, sel]); for(let y = stagione(); y>=2015; y--) s.add(y); return [...s].filter(Boolean).sort((a,b)=>b-a).map(y=>`<option value="${y}"${y===sel ? " selected" : ""}>${stagLabel(y)}</option>`).join(""); };
 const sqOpts = sel => sqSorted().map(([k,s])=>`<option value="${esc(k)}"${k===sel ? " selected" : ""}>${esc(s.nome)}</option>`).join("") + (sel && !(SQUADRE||{})[sel] ? `<option value="${esc(sel)}" selected>${esc(sel)}</option>` : "");
 const yrow = (y, r) => `<div class="row yr"><label>Anno sportivo<select data-yy>${yearOpts(y)}</select></label><label class="ys">Squadra<select data-ys>${sqOpts(r.sq)}</select></label>
-  <label>Categoria<select data-yc><option value="">—</option>${CATS.map(c=>`<option value="${c}"${c===r.cat ? " selected" : ""}>${catLabel(c)}</option>`).join("")}</select></label><button class="yx" data-yx title="Togli questo anno" aria-label="Togli questo anno">✕</button></div>`;
+  <label>Categoria<select data-yc><option value="">—</option>${CATS.map(c=>`<option value="${c}"${c===r.cat ? " selected" : ""}>${catShort(c)}</option>`).join("")}</select></label><button class="yx" data-yx title="Togli questo anno" aria-label="Togli questo anno">✕</button></div>`;
 const anMsg = t => { const m = $("#an-m"); if(m) m.textContent = t; };
 const delLabel = () => anEd.del && Date.now() - anEd.del < 4000 ? "Conferma: elimina" : "Elimina";
 function openPlayer(k, pre){
