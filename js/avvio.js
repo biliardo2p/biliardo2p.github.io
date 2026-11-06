@@ -6,17 +6,24 @@
 let viewers = 0, visits = 0;
 function viewersHTML(){ return (S && S.stato==="live" && viewers>0) ? `👁 ${viewers} in diretta` : ""; }
 function paintViewers(){ const el = document.getElementById("viewers"); if(el) el.innerHTML = viewersHTML(); if(editor) renderBar(); }
+/* &diag nell'indirizzo: riquadro con lo stato del contatore spettatori (per controllarlo dal telefono, senza console) */
+function diag(t){ if(!P.has("diag")) return; let d = document.getElementById("diag");
+  if(!d){ d = document.createElement("div"); d.id = "diag"; d.style.cssText = "position:fixed;left:8px;right:8px;bottom:8px;z-index:99;background:#111c;color:#fff;font:13px/1.4 monospace;padding:8px 10px;border:1px solid #f6c853;border-radius:8px;white-space:pre-wrap;max-height:40vh;overflow:auto";
+    document.body.appendChild(d); d.textContent = "gara: " + GARA + " (" + GARA.length + " caratteri)\nversione: " + ((document.querySelector('script[src*="avvio.js"]')||{}).src||"").split("v=")[1]; }
+  d.textContent += "\n" + new Date().toLocaleTimeString() + " " + t; }
 function trackPresence(){
   const list = db.ref("presenza/" + GARA);
   if(!REGIA){
     const me = list.push();
     db.ref(".info/connected").on("value", s=>{
-      if(s.val()) me.onDisconnect().remove().then(()=>me.set(firebase.database.ServerValue.TIMESTAMP)).catch(e=>console.warn("Spettatori: segnalino non scritto", GARA.length, e && e.code));
+      diag("collegato: " + (s.val() ? "sì" : "no"));
+      if(s.val()) me.onDisconnect().remove().then(()=>{ diag("onDisconnect ok"); return me.set(firebase.database.ServerValue.TIMESTAMP); }).then(()=>diag("segnalino scritto ✓ (" + me.key + ")"))
+        .catch(e=>{ diag("ERRORE: " + ((e && (e.code || e.message)) || e)); console.warn("Spettatori: segnalino non scritto", GARA.length, e && e.code); });
     });
     let seen = false; try{ seen = sessionStorage.getItem("b2p_visto_" + GARA)==="1"; }catch(e){}
     if(!seen){ db.ref("visite/" + GARA).transaction(v=>(v||0)+1).catch(e=>console.warn("Visite: contatore non aggiornato", e && e.code)); try{ sessionStorage.setItem("b2p_visto_" + GARA, "1"); }catch(e){} }
   }
-  list.on("value", s=>{ viewers = s.numChildren(); paintViewers(); }, ()=>{});
+  list.on("value", s=>{ viewers = s.numChildren(); diag("spettatori letti: " + viewers); paintViewers(); }, e=>diag("ERRORE lettura: " + (e && (e.code || e.message))));
   if(REGIA) db.ref("visite/" + GARA).on("value", s=>{ visits = +s.val()||0; paintViewers(); }, ()=>{});
 }
 function watchGara(){
