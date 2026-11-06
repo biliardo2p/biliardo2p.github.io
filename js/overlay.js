@@ -2,8 +2,11 @@
    Sorgente Browser di OBS a 1280×720. Legge la gara pubblicata (gare/<id>) e i comandi di presentazione (onda/<id>):
    v = "tab" (tabellone) | "fascia" (incontro in primo piano) | "off" (nascosto); bga = opacità dello sfondo;
    primo = indice dell'incontro in primo piano (-1 = automatico); pag = pagina del tabellone dei tornei; ciclo = secondi di rotazione delle pagine.
-   I comandi si danno dalla regia (pannello 📺 Onda) e valgono subito, senza PUBBLICA. Il sito pubblico non li usa. */
-const OVERLAY = P.has("overlay");
+   I comandi si danno dalla regia (pannello 📺 Onda) e valgono subito, senza PUBBLICA. Il sito pubblico non li usa.
+   ?overlay&mini&live = mini-overlay per le dirette con telecamera: sempre la fascia in basso (mai il tabellone a tutto schermo), sfondo trasparente;
+   con più incontri in corso e incontro in primo piano "Automatico" li alterna ogni &rot=<secondi> (12 se non indicato). */
+const OVERLAY = P.has("overlay"), OVMINI = OVERLAY && P.has("mini"), OVROT = Math.max(4, +P.get("rot") || 12);
+let ovRotI = 0, ovRotT = 0, ovLastPrimo = -2;
 let O = null, ovId = "", ovOff = null, ovPrev = null, ovCycT = 0, ovCycOff = 0, ovPage = "";
 const ovO = () => Object.assign({v:"tab", bga:.55, primo:-1, pag:"", ciclo:0}, O || {});
 function ovStart(){
@@ -34,6 +37,7 @@ function ovFollow(id){
   ovOff = () => { try{ r1.off("value", f1); r2.off("value", f2); }catch(e){} };
 }
 function ovTick(){
+  if(mode==="overlay" && S && ovRotList().length>1 && ++ovRotT >= OVROT){ ovRotT = 0; ovRotI++; render(); }
   const o = ovO(); if(mode!=="overlay" || !S || !isTab() || o.v!=="tab" || !(o.ciclo>0) || o.pag){ ovCycT = 0; return; }
   if(++ovCycT >= o.ciclo){ ovCycT = 0; ovCycOff++; render(); }
 }
@@ -65,9 +69,14 @@ function ovBars(m, x, y){
   return `<div class="bars"><div><i class="${x}" style="width:${pc(ix(x))}%"></i></div><div><i class="${y}" style="width:${pc(ix(y))}%"></i></div></div>`;
 }
 /* incontro in primo piano: scelto dalla regia, altrimenti l'ultimo segnato "in corso" (tornei: il primo seguito in diretta non concluso) */
+/* incontri da alternare nella fascia: quelli in corso, se la regia non ne ha scelto uno */
+function ovRotList(){ const o = ovO(); if(o.primo>=0 && S.matches[o.primo]) return [];
+  const v = o.v==="off" ? "off" : OVMINI || o.v==="fascia" ? "fascia" : "board"; if(v!=="fascia") return [];
+  return (S.inCorso||[]).filter(i=>S.matches[i]).slice().sort((a,b)=>a-b); }
 function ovPrimo(){
   const o = ovO(); if(o.primo>=0 && S.matches[o.primo]) return o.primo;
-  const ic = (S.inCorso||[]).filter(i=>S.matches[i]); if(ic.length) return ic[ic.length-1];
+  const ic = (S.inCorso||[]).filter(i=>S.matches[i]); if(ic.length>1){ const L = ovRotList(); if(L.length>1) return L[ovRotI % L.length]; }
+  if(ic.length) return ic[ic.length-1];
   if(isTorneo()){ const i = S.matches.findIndex(m=>!winner(m) && hasPts(m)); if(i>=0) return i; const j = S.matches.findIndex(m=>!winner(m)); if(j>=0) return j; }
   return -1;
 }
@@ -192,29 +201,42 @@ function ovTree(TB, pg){
 }
 /* ---- fascia dell'incontro in primo piano ---- */
 function ovFasciaHTML(){
-  const chip = `<div class="chip"><img src="${LOGO_HOME}" alt="">${esc(S.title)}${S.subtitle ? `<span class="t2">${esc(S.subtitle)}</span>` : ""}</div>`;
-  const i = ovPrimo(), m = S.matches[i]; if(!m) return chip;
+  const lv = OVMINI && S.stato==="live" ? `<span class="live"><i></i>LIVE</span>` : "";
+  const chip = `<div class="chip"><img src="${LOGO_HOME}" alt="">${esc(S.title)}${S.subtitle ? `<span class="t2">${esc(S.subtitle)}</span>` : ""}${lv}</div>`;
+  const i = ovPrimo(), m = S.matches[i]; if(!m) return chip + (OVMINI && !isTorneo() ? ovTeamBand() : "");
+  const L = ovRotList(), dots = L.length>1 ? `<div class="rot">${L.map(j=>`<i class="${j===i ? "on" : ""}"></i>`).join("")}</div>` : "";
   const [x, y] = SDS(), ix = sd => sd==="h" ? 0 : 1, w = winner(m), tor = isTorneo(), yy = gYear();
   const club = (sd) => { if(!tor) return esc((sd==="h" ? S.home : S.away).short || (sd==="h" ? S.home : S.away).name);
     const k = (m[sd + "c"] || [])[0] || resolveName(m[sd][0], "", yy); return k && ANAG[k] ? esc(sqName(rowAt(ANAG[k], yy).sq)) : ""; };
-  const names = sd => { const ns = m[sd].map((_,j)=>ovName(m, sd, j)).filter(Boolean); return ns.length ? ns.join(" · ") : "—"; };
+  const names = sd => { const ns = m[sd].map((_,j)=>ovName(m, sd, j)).filter(Boolean); return ns.length ? ns.map(n=>`<span>${n}</span>`).join("") : "—"; };   /* coppie: un nome per riga */
   const side = sd => `<div class="side ${sd} ${sd===x ? "L" : "R"}"><div class="tm">${club(sd)}</div><div class="p${m[sd].length>1 && m.kind!=="Staffetta" ? " two" : ""}">${m.kind==="Staffetta" ? ovName(m, sd, Math.min(relayIdx(m), m[sd].length-1)) || "—" : names(sd)}</div></div>`;
   const sc = sd => `<div class="lsc ${sd}${w===sd ? " w" : ""}" data-sc="${i}.${sd}">${m.s[ix(sd)]}</div>`;
   const t = totals();
-  const k = tor ? [m.turno || "", m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ") : [`Incontro ${i+1}`, m.kind + (m.kind==="Staffetta" ? ` · ${relayIdx(m)+1}ª frazione` : ""), m.bil ? "Biliardo " + esc(m.bil) : ""].join(" · ");
+  const k = tor ? [m.turno || "", m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ") : [`Incontro ${i+1}`, m.kind + (m.kind==="Staffetta" ? ` · ${relayIdx(m)+1}ª frazione` : ""), m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ");
   const extra = tor ? (m.defs && m.defs.length>1 ? `<div class="tot">${setLabel(m.sk, m.defs.length)} · SET <b>${m.sw[ix(x)]}</b>–<b>${m.sw[ix(y)]}</b></div>` : "")
                     : `<div class="tot">PUNTI SQUADRA <b class="${x}">${t[ix(x)]}</b>–<b class="${y}">${t[ix(y)]}</b></div>`;
-  return chip + `<div class="lt${x==="a" ? " sw" : ""}">${side(x)}${sc(x)}<div class="mid"><div class="k">${k}</div>${ovSpec(m)}${ovBars(m, x, y)}${extra}</div>${sc(y)}${side(y)}</div>`;
+  const fresh = i!==ovLastPrimo && ovLastPrimo!==-2; ovLastPrimo = i;
+  return chip + `<div class="lt${x==="a" ? " sw" : ""}${fresh ? " in" : ""}${dots ? " rotn" : ""}">${dots}${side(x)}${sc(x)}<div class="mid"><div class="k">${k}</div>${ovSpec(m)}${ovBars(m, x, y)}${extra}</div>${sc(y)}${side(y)}</div>`;
+}
+/* mini-overlay, campionati a squadre, nessun incontro in corso: squadre e punti */
+function ovTeamBand(){
+  const t = totals(), [x, y] = SDS(), ix = sd => sd==="h" ? 0 : 1, done = S.matches.filter(m=>winner(m)).length, n = S.matches.length;
+  const side = sd => { const o = sd==="h" ? S.home : S.away; return `<div class="side ${sd} ${sd===x ? "L" : "R"}"><div class="tm">${esc(o.city || "")}</div><div class="p">${esc(o.short || o.name)}</div></div>`; };
+  const nx = S.matches.findIndex(m=>!winner(m));
+  const k = S.stato==="finita" ? "Risultato finale" : done ? `${done} incontr${done>1 ? "i" : "o"} su ${n}` : "Si comincia";
+  const sub = S.stato!=="finita" && nx>=0 ? `<div class="tot">PROSSIMO · ${nx+1} ${esc(S.matches[nx].kind)}</div>` : "";
+  ovLastPrimo = -1;
+  return `<div class="lt team${x==="a" ? " sw" : ""}">${side(x)}<div class="lsc ${x}" data-tot="${x}">${t[ix(x)]}</div><div class="mid"><div class="k">${k}</div><div class="s">Punti squadra</div>${sub}</div><div class="lsc ${y}" data-tot="${y}">${t[ix(y)]}</div>${side(y)}</div>`;
 }
 /* ---- disegno ---- */
 function ovRender(){
   const app = $("#app"), o = ovO();
   if(!S){ app.innerHTML = `<div id="ov" class="off"></div>`; ovScale(); return; }
-  const v = o.v==="off" ? "off" : o.v==="fascia" ? "fascia" : "board";
+  const v = o.v==="off" ? "off" : OVMINI || o.v==="fascia" ? "fascia" : "board";
   const body = v==="off" ? "" : v==="fascia" ? ovFasciaHTML() : isTorneo() ? (isTab() ? ovTabHTML() : ovTorneoHTML()) : ovSquadreHTML();
-  app.innerHTML = `<div id="ov" class="${v}" style="--bga:${o.bga ?? .55}">${body}</div>`;
+  app.innerHTML = `<div id="ov" class="${v}${OVMINI ? " mini" : ""}" style="--bga:${o.bga ?? .55}">${body}</div>`;
   const el = $("#ov");
-  el.querySelectorAll(".tn .n,.pl .p,.rl .nm,.hdr .t1,.hdr .t2,.card .n,.lt .p,.lt .tm,.nav .pg").forEach(e=>{   /* nomi lunghi: si stringe il carattere */
+  el.querySelectorAll(".tn .n,.pl .p,.rl .nm,.hdr .t1,.hdr .t2,.card .n,.lt .p,.lt .tm,.lt .mid .k,.nav .pg").forEach(e=>{   /* nomi lunghi: si stringe il carattere */
     e.style.fontSize = ""; let fs = parseFloat(getComputedStyle(e).fontSize), min = fs*.6;
     while(e.scrollWidth > e.clientWidth + 1 && fs > min){ fs -= 1; e.style.fontSize = fs + "px"; } });
   if(ovPrev && ovPrev.id===ovId) S.matches.forEach((m,i)=>{ const q = ovPrev.st.matches[i]; if(!q) return;
@@ -243,13 +265,15 @@ function ondaPaint(){
   p.hidden = false;
   p.innerHTML = `<div class="oh"><b>📺 Onda</b><span>comandi immediati per l'overlay di OBS</span><button class="ox" data-o="x" aria-label="Chiudi">✕</button></div>
     <div class="og"><span>In onda</span><div class="seg">${[["tab","Tabellone"],["fascia","Fascia incontro"],["off","Nascosto"]].map(([k,t])=>`<button data-o="v:${k}" class="${o.v===k ? "on" : ""}">${t}</button>`).join("")}</div></div>
-    <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (l'ultimo segnato in corso)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
+    <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (in corso; nella fascia a rotazione)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
     ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
       <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
     <div class="og"><span>Sfondo del tabellone</span><div class="two"><input type="range" min="0" max="1" step="0.05" value="${o.bga ?? .55}" data-o="bga"><b>${Math.round((o.bga ?? .55)*100)}%</b></div></div>
     <div class="og lk"><span>Sorgente Browser in OBS (1280×720)</span>
       <div class="two"><code>${esc(pub)}?overlay&amp;live</code><button data-o="copy:live">Copia</button></div>
-      <div class="two"><code>${esc(pub)}?overlay&amp;gara=${esc(GARA)}</code><button data-o="copy:gara">Copia</button></div></div>
+      <div class="two"><code>${esc(pub)}?overlay&amp;gara=${esc(GARA)}</code><button data-o="copy:gara">Copia</button></div>
+      <div class="two"><code>${esc(pub)}?overlay&amp;mini&amp;live</code><button data-o="copy:mini">Copia</button></div>
+      <small>L'ultimo è il mini-overlay per le dirette con telecamera: solo la fascia in basso, con gli incontri in corso a rotazione.</small></div>
     ${ondaErr ? `<p class="err">${esc(ondaErr)}</p>` : ""}
     <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
 }
@@ -260,7 +284,7 @@ function ondaToggle(){
     p.addEventListener("click", e=>{ const b = e.target.closest("[data-o]"); if(!b || b.tagName==="SELECT" || b.tagName==="INPUT") return; const [k, v] = b.dataset.o.split(":");
       if(k==="x"){ ondaToggle(); renderBar(); }
       else if(k==="v") ondaSet({v});
-      else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : "?overlay&gara=" + GARA);
+      else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : v==="mini" ? "?overlay&mini&live" : "?overlay&gara=" + GARA);
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
       if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value}); });

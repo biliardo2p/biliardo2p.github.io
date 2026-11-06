@@ -180,12 +180,15 @@ body.ovm > *:not(#app){display:none!important}
 #ov .lt .tm{font-size:16px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;overflow:hidden;min-height:19px}
 #ov .lt .side.h .tm{color:var(--home)} #ov .lt .side.a .tm{color:var(--away)}
 #ov .lt .p{font-size:27px;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;line-height:1.08}
-#ov .lt .p.two{font-size:23px}
+#ov .lt .p.two{font-size:23px;display:flex;flex-direction:column;line-height:1.05}
+#ov .lt .side.R .p.two{align-items:flex-end}
+#ov .lt .p>span{white-space:nowrap}
 #ov .lt .lsc{font-family:var(--fh);font-weight:700;font-size:56px;line-height:1;display:grid;place-items:center;font-variant-numeric:tabular-nums}
 #ov .lt .lsc.h{color:#dff6ff;background:linear-gradient(180deg,rgba(60,200,255,.20),rgba(60,200,255,.06))}
 #ov .lt .lsc.a{color:#ffe9de;background:linear-gradient(180deg,rgba(255,122,61,.20),rgba(255,122,61,.06))}
 #ov .lt .lsc.w{color:var(--gold);text-shadow:0 0 16px rgba(246,200,83,.5)}
-#ov .lt .mid{gap:5px}
+#ov .lt .mid{gap:5px;width:100%}
+#ov .lt .mid .k{max-width:100%;overflow:hidden}
 #ov .lt .tot{font-size:15px;font-weight:700;letter-spacing:.14em;color:var(--mute);white-space:nowrap}
 #ov .lt .tot b{font-family:var(--fh);font-size:20px;letter-spacing:0;margin:0 3px}
 #ov .lt .tot b.h{color:var(--home)} #ov .lt .tot b.a{color:var(--away)}
@@ -193,6 +196,15 @@ body.ovm > *:not(#app){display:none!important}
 #ov .chip{position:absolute;left:24px;top:22px;display:flex;align-items:center;gap:10px;padding:6px 14px;border-radius:8px;background:rgba(7,13,24,.88);
   border:1px solid rgba(255,255,255,.14);font-family:var(--fh);font-size:17px;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
 #ov .chip img{height:28px}
+#ov .chip .live{position:static;margin-left:6px;font-family:var(--fc);font-size:15px;padding:2px 9px 2px 8px}
+#ov .lt.in{animation:ovin .45s ease-out}
+@keyframes ovin{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:none}}
+#ov .lt.rotn .mid{padding-bottom:12px}
+#ov .lt .rot{position:absolute;left:50%;bottom:6px;transform:translateX(-50%);display:flex;gap:6px}
+#ov .lt .rot i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25)}
+#ov .lt .rot i.on{background:var(--gold)}
+#ov .lt.team .p{font-size:25px}
+#ov .lt.team .lsc{font-size:62px}
 #ov .chip .t2{color:var(--gold)}
 #ov .wait{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--fh);font-size:24px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
   background:rgba(7,13,24,.7);padding:12px 22px;border-radius:10px}
@@ -215,6 +227,7 @@ body.ovm > *:not(#app){display:none!important}
 #ondap .two b{min-width:3em;text-align:right}
 #ondap code{flex:1;min-width:0;font:12px ui-monospace,Consolas,monospace;background:#0b1424;border:1px solid #26385a;border-radius:4px;padding:5px 6px;overflow-wrap:anywhere;color:#cfe0f5}
 #ondap .lk button{padding:5px 10px;font-size:13px}
+#ondap .lk small{color:#93a5bf;font-size:12.5px}
 #ondap .hint{color:#93a5bf;font-size:12.5px;margin:0}
 #ondap .err{color:#ff8a8a;margin:0}
 #ondap kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #3b4a63;border-bottom-width:2px;border-radius:3px;padding:0 4px}

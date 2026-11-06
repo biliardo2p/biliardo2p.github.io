@@ -418,12 +418,31 @@ assente
 <table>
 <tr><th>Comando</th><th>Tasto</th><th>Effetto</th></tr>
 <tr><td>In onda: Tabellone / Fascia incontro / Nascosto</td><td><kbd>V</kbd> · <kbd>N</kbd></td><td>V passa da tabellone a fascia; N nasconde e rimostra l'overlay.</td></tr>
-<tr><td>Incontro in primo piano</td><td><kbd>F</kbd></td><td>Quale incontro va nella fascia. Automatico = l'ultimo segnato in corso; F passa al successivo.</td></tr>
+<tr><td>Incontro in primo piano</td><td><kbd>F</kbd></td><td>Quale incontro va nella fascia. Automatico = quello in corso; se sono più d'uno la fascia li alterna ogni 12 secondi (pallini gialli in basso). Scegliendone uno resta fisso; F passa al successivo.</td></tr>
 <tr><td>Pagina del tabellone</td><td></td><td>Solo tornei con batterie: pagina fissa, automatica, oppure rotazione ogni 10–30 secondi.</td></tr>
 <tr><td>Sfondo del tabellone</td><td><kbd>[</kbd> <kbd>]</kbd></td><td>Più pieno o più trasparente.</td></tr>
 </table>
 <p>Il pannello mostra anche gli indirizzi da incollare in OBS, con il pulsante Copia.</p>
 <figure class="sh"><img src="img/manuale/regia-onda.webp" alt="Pannello Onda nella regia" loading="lazy" width="1100" height="760"><figcaption>Il pannello 📺 Onda aperto nella regia</figcaption></figure>
+<h3>Diretta improvvisata con telecamera: il mini-overlay</h3>
+<p>Per una diretta senza il PC della sala (un PC qualsiasi con webcam, oppure il telefono usato come telecamera) c'è una versione ridotta dell'overlay: solo la <b>fascia in basso</b>, con sfondo trasparente, che lascia vedere il tavolo. Indirizzo:</p>
+<p><code>https://biliardo2p.github.io/?overlay&amp;mini&amp;live</code></p>
+<ul>
+  <li>Mostra l'incontro in corso con giocatori, categoria, punteggi, specialità, numero del biliardo e (nelle gare a squadre) i punti delle squadre. In alto a sinistra il nome della gara con il bollino LIVE.</li>
+  <li>Con <b>due o più incontri in corso</b> li alterna ogni 12 secondi; i pallini sotto indicano quale si sta vedendo. Per cambiare il tempo si aggiunge <code>&amp;rot=20</code> (secondi) all'indirizzo.</li>
+  <li>Nelle gare a squadre, quando nessun incontro è in corso, mostra squadre e punti con il prossimo incontro.</li>
+  <li>Dal pannello 📺 Onda: “Incontro in primo piano” lo blocca su un incontro, “Nascosto” lo toglie. Il comando Tabellone qui non ha effetto: il mini-overlay non copre mai l'immagine.</li>
+</ul>
+<figure class="sh"><img src="img/manuale/overlay-mini.webp" alt="Mini-overlay sopra l'immagine della telecamera" loading="lazy" width="1280" height="720"><figcaption>Mini-overlay: fascia in basso con l'incontro in corso (qui due incontri a rotazione)</figcaption></figure>
+<p><b>Preparare un PC personale (una volta sola):</b></p>
+<ol>
+  <li>Installa <b>OBS Studio</b> (obsproject.com). Nella configurazione guidata scegli “Ottimizza per lo streaming”, servizio <b>YouTube - RTMPS</b> e <b>Usa chiave di streaming</b>.</li>
+  <li>La chiave si copia da YouTube Studio <b>del canale del circolo</b> (in alto a destra deve esserci il logo del circolo): Crea → Trasmetti dal vivo → Streaming → Chiave di streaming → Copia. È una password: non va mostrata né condivisa.</li>
+  <li>In OBS, Fonti → <span class="btn">+</span> → <b>Dispositivo di cattura video</b> (webcam o telefono collegato come webcam), poi <b>Ctrl+F</b> per adattarla allo schermo.</li>
+  <li>Fonti → <span class="btn">+</span> → <b>Browser</b>, sopra la telecamera: indirizzo del mini-overlay, 1280 × 720.</li>
+  <li>Nel Mixer audio spegni “Audio desktop” e lascia il microfono.</li>
+</ol>
+<p>Prima della prima diretta vera conviene una prova su YouTube in “Non in elenco”. I punteggi si aggiornano dalla regia, anche da telefono, come sempre.</p>
 <h3>Prove</h3>
 <p>Per provare senza farsi vedere dal pubblico: crea una gara con visibilità <b>Prova</b> (sezione 4) e in OBS usa <code>?overlay&amp;live&amp;prova</code> (segue la gara di prova in diretta) oppure il link della gara.</p>
 <div class="note"><b>Vecchi tabelloni OBS</b>I file degli overlay precedenti (cartelle OBS\Base, Eccellenza, Eliminazione, collegati con il WebSocket di OBS) restano disponibili come riserva finché il nuovo overlay non è collaudato in una diretta vera.</div>
@@ -508,6 +527,11 @@ assente
 
 <section id="novita" class="chg">
 <h2><span class="n">15</span>Novità</h2>
+<h3>6 novembre 2026</h3>
+<ul>
+  <li>Mini-overlay per le dirette con telecamera (<code>?overlay&amp;mini&amp;live</code>): solo la fascia in basso, con gli incontri in corso a rotazione.</li>
+  <li>Nella fascia dell'incontro le coppie hanno un nome per riga.</li>
+</ul>
 <h3>5 novembre 2026</h3>
 <ul>
   <li>Nuove categorie Nazionale (N) e Nazionale Pro (NP); negli elenchi e nelle pagine dei giocatori la categoria si legge “2ª cat.”, “cat. Master”.</li>
