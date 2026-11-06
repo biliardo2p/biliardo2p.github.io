@@ -11,10 +11,10 @@ function trackPresence(){
   if(!REGIA){
     const me = list.push();
     db.ref(".info/connected").on("value", s=>{
-      if(s.val()) me.onDisconnect().remove().then(()=>me.set(firebase.database.ServerValue.TIMESTAMP)).catch(()=>{});
+      if(s.val()) me.onDisconnect().remove().then(()=>me.set(firebase.database.ServerValue.TIMESTAMP)).catch(e=>console.warn("Spettatori: segnalino non scritto", GARA.length, e && e.code));
     });
     let seen = false; try{ seen = sessionStorage.getItem("b2p_visto_" + GARA)==="1"; }catch(e){}
-    if(!seen){ db.ref("visite/" + GARA).transaction(v=>(v||0)+1).catch(()=>{}); try{ sessionStorage.setItem("b2p_visto_" + GARA, "1"); }catch(e){} }
+    if(!seen){ db.ref("visite/" + GARA).transaction(v=>(v||0)+1).catch(e=>console.warn("Visite: contatore non aggiornato", e && e.code)); try{ sessionStorage.setItem("b2p_visto_" + GARA, "1"); }catch(e){} }
   }
   list.on("value", s=>{ viewers = s.numChildren(); paintViewers(); }, ()=>{});
   if(REGIA) db.ref("visite/" + GARA).on("value", s=>{ visits = +s.val()||0; paintViewers(); }, ()=>{});

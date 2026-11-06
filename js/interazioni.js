@@ -395,7 +395,7 @@ app.addEventListener("submit", async e=>{
       if(FORMULE[o.formula].tab) o.nbat = Math.max(1, Math.min(32, Math.round(+$("#ng-nb").value) || 4)); }
     const sg = !!FORMULE[o.formula].singole, val = x => ($(x) && !$(x).disabled ? $(x).value.trim() : "");
     const H = [val("#ng-h1"), val("#ng-h2")].slice(0, o.gioco==="Coppia" ? 2 : 1), A = [val("#ng-a1"), val("#ng-a2")].slice(0, o.gioco==="Coppia" ? 2 : 1);
-    const id = sg ? ["partita", o.data, slug(o.titolo), slug(H[0] && A[0] ? H[0] + " " + A[0] : o.fase), Date.now().toString(36).slice(-4)].filter(Boolean).join("-")
+    const id = sg ? ["partita", o.data, slug(o.titolo).slice(0, 20).replace(/-$/, ""), slug(H[0] && A[0] ? H[0] + " " + A[0] : o.fase).slice(0, 24).replace(/-$/, ""), Date.now().toString(36).slice(-4)].filter(Boolean).join("-")   /* max ~75 caratteri */
              : tor ? ["torneo", o.data, slug(o.titolo), slug(o.fase)].filter(Boolean).join("-") : [o.formula, o.data, slug(o.ospite)].filter(Boolean).join("-");
     if(INDEX && INDEX[id]){ location.search = "?regia&gara=" + id; return; }
     if(tor && dupSrc && dupSrc.formula===o.formula && dupSrc.formule) o.formule = [o.formule[0], ...dupSrc.formule.slice(1).filter(x=>x.nome.toLowerCase()!==o.formule[0].nome.toLowerCase())];
