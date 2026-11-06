@@ -144,6 +144,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <h2><span class="n">2</span>Per chi segue le gare</h2>
 <h3>Elenco delle gare</h3>
 <p>Ogni gara mostra data, stato (<b>LIVE</b>, <b>In programma</b>, <b>Finale</b>), competizione, giornata e luogo, e il punteggio delle squadre o il vincitore del torneo. Toccando una gara si apre la sua pagina. In alto a destra, <b>👥 Giocatori</b> porta all'elenco dei giocatori.</p>
+<p>Quando c'è almeno una partita in diretta, in cima all'elenco compare il riquadro rosso <b>LIVE · Partite in corso</b> con il pulsante <span class="btn">Guarda la diretta ›</span>: porta al link fisso <code>?live</code>, cioè alla gara in diretta (o all'elenco delle dirette, se sono più d'una). Vale anche per le gare “solo con il link”, mai per quelle di prova.</p>
 <div class="shs"><figure class="sh tel"><img src="img/manuale/elenco.webp" alt="Elenco delle gare (telefono)" loading="lazy" width="390" height="844"><figcaption>Elenco delle gare (telefono)</figcaption></figure><figure class="sh tel"><img src="img/manuale/gara-telefono.webp" alt="Una gara a squadre in diretta, in trasferta: gli avversari sono a sinistra" loading="lazy" width="390" height="844"><figcaption>Una gara a squadre in diretta, in trasferta: gli avversari sono a sinistra</figcaption></figure></div>
 <h3>Pagina di una gara a squadre</h3>
 <ul>
@@ -335,6 +336,7 @@ assente
   <li><b>Nome sul tabellone:</b> da scrivere solo per distinguere due omonimi con la stessa iniziale. La scheda avvisa quando due giocatori risulterebbero uguali.</li>
   <li><b>Foto</b> (facoltativa): <span class="btn">Carica foto</span> sceglie un'immagine dal telefono o dal computer; viene rimpicciolita da sola a 400 pixel prima di salvarla, quindi va bene anche l'originale grande. Compare nella pagina pubblica del giocatore. <span class="btn">Cambia foto</span> la sostituisce, <span class="btn">Togli foto</span> la elimina; la modifica vale dopo <span class="btn g">Salva</span>. Nell'elenco i giocatori con la foto hanno il simbolo 📷.</li>
   <li><b>Squadra e categoria per anno sportivo:</b> <span class="btn">+ Aggiungi anno</span> copia l'ultima riga, così basta cambiare ciò che è diverso.</li>
+  <li><b>Squadra che non c'è ancora:</b> nella tendina Squadra scegli <b>+ Nuova squadra…</b> e scrivi nome e città: la squadra viene creata insieme al giocatore, quando premi <span class="btn g">Salva</span> (se esiste già una squadra con quel nome, si usa quella). Il logo si aggiunge poi dalla scheda Squadre.</li>
 </ul>
 <div class="shs"><figure class="sh tel"><img src="img/manuale/anagrafica.webp" alt="Elenco dei giocatori per anno sportivo e squadra" loading="lazy" width="390" height="844"><figcaption>Elenco dei giocatori per anno sportivo e squadra</figcaption></figure><figure class="sh tel"><img src="img/manuale/anagrafica-scheda.webp" alt="Scheda di un giocatore: foto, squadra e categoria per anno sportivo" loading="lazy" width="390" height="844"><figcaption>Scheda di un giocatore: foto, squadra e categoria per anno sportivo</figcaption></figure></div>
 <p>Ogni giocatore ha un <b>codice</b> interno, creato alla prima registrazione e mai più modificato. Le gare sono collegate al codice: se cambi nome, grafia o soprannome, tutte le gare e le statistiche mostrano il nome aggiornato.</p>
@@ -529,6 +531,8 @@ assente
 <h2><span class="n">15</span>Novità</h2>
 <h3>6 novembre 2026</h3>
 <ul>
+  <li>Home: riquadro “Partite in corso” con il pulsante Guarda la diretta quando ci sono gare in diretta.</li>
+  <li>Scheda del giocatore: “+ Nuova squadra…” per creare la squadra insieme al giocatore.</li>
   <li>Mini-overlay per le dirette con telecamera (<code>?overlay&amp;mini&amp;live</code>): solo la fascia in basso, con gli incontri in corso a rotazione.</li>
   <li>Nella fascia dell'incontro le coppie hanno un nome per riga.</li>
 </ul>

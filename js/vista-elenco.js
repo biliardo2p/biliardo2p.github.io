@@ -2,6 +2,13 @@
    I file js/ si caricano in ordine da index.html e condividono le stesse variabili (script classici, non moduli:
    così la regia funziona anche aperta dal disco). L'ordine conta. */
 /* ================= vista elenco gare ================= */
+/* pulsante "Partite in corso" nella home pubblica: gare in diretta, anche quelle solo con il link (mai le prove); porta al link fisso ?live */
+function liveBtnHTML(idx){
+  const L = Object.values(idx||{}).filter(g=>g && g.stato==="live" && visOf(g)!=="prova");
+  if(!L.length) return "";
+  const t = L.length===1 ? [L[0].titolo, L[0].sottotitolo].filter(Boolean).join(" · ") : L.map(g=>g.titolo).filter(Boolean).join(" · ");
+  return `<a class="golive" href="?live"><span class="live"><i></i>LIVE</span><span class="gl-t"><b>${L.length===1 ? "Partita in corso" : L.length + " partite in corso"}</b><span>${esc(t)}</span></span><span class="gl-go">Guarda la diretta ›</span></a>`;
+}
 function listHTML(idx, forRegia){
   const items = Object.entries(idx||{}).map(([id,m])=>Object.assign({id}, m)).filter(g=>forRegia || visOf(g)==="pub")   /* gare "solo con il link" e di prova: solo in regia */
     .sort((a,b)=> (b.data||"").localeCompare(a.data||"") || (b.aggiornato||0)-(a.aggiornato||0));

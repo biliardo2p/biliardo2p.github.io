@@ -173,14 +173,18 @@ async function doImport(){
 }
 /* ---- scheda giocatore / squadra (finestra #anm) ---- */
 const yearOpts = sel => { const s = new Set([stagione() + 1, sel]); for(let y = stagione(); y>=2015; y--) s.add(y); return [...s].filter(Boolean).sort((a,b)=>b-a).map(y=>`<option value="${y}"${y===sel ? " selected" : ""}>${stagLabel(y)}</option>`).join(""); };
-const sqOpts = sel => sqSorted().map(([k,s])=>`<option value="${esc(k)}"${k===sel ? " selected" : ""}>${esc(s.nome)}</option>`).join("") + (sel && !(SQUADRE||{})[sel] ? `<option value="${esc(sel)}" selected>${esc(sel)}</option>` : "");
+/* NEWSQ = voce "+ Nuova squadra…": la squadra si crea insieme al giocatore, al Salva */
+const NEWSQ = "__nuova__";
+const sqOpts = sel => sqSorted().map(([k,s])=>`<option value="${esc(k)}"${k===sel ? " selected" : ""}>${esc(s.nome)}</option>`).join("") + (sel && sel!==NEWSQ && !(SQUADRE||{})[sel] ? `<option value="${esc(sel)}" selected>${esc(sel)}</option>` : "")
+  + `<option value="${NEWSQ}"${sel===NEWSQ ? " selected" : ""}>+ Nuova squadra…</option>`;
 const yrow = (y, r) => `<div class="row yr"><label>Anno sportivo<select data-yy>${yearOpts(y)}</select></label><label class="ys">Squadra<select data-ys>${sqOpts(r.sq)}</select></label>
-  <label>Categoria<select data-yc><option value="">—</option>${CATS.map(c=>`<option value="${c}"${c===r.cat ? " selected" : ""}>${catShort(c)}</option>`).join("")}</select></label><button class="yx" data-yx title="Togli questo anno" aria-label="Togli questo anno">✕</button></div>`;
+  <label>Categoria<select data-yc><option value="">—</option>${CATS.map(c=>`<option value="${c}"${c===r.cat ? " selected" : ""}>${catShort(c)}</option>`).join("")}</select></label><button class="yx" data-yx title="Togli questo anno" aria-label="Togli questo anno">✕</button>
+  <div class="nsq"${r.sq===NEWSQ ? "" : " hidden"}><label>Nome della nuova squadra<input data-nsn value="${esc(r.nsn||"")}" autocomplete="off"></label><label>Città<input data-nsc value="${esc(r.nsc||"")}" placeholder="es. Ferrara (FE)" autocomplete="off"></label></div></div>`;
 const anMsg = t => { const m = $("#an-m"); if(m) m.textContent = t; };
 const delLabel = () => anEd.del && Date.now() - anEd.del < 4000 ? "Conferma: elimina" : "Elimina";
 function openPlayer(k, pre){
-  if(!SQUADRE || !Object.keys(SQUADRE).length){ anErr = "Prima crea almeno una squadra (scheda Squadre) o importa una tabella."; render(); return; }
-  const y = pre ? pre.y : (anStag ?? stagione()), sq0 = pre && pre.sq && SQUADRE[pre.sq] ? pre.sq : anSq || (SQUADRE[CLUBSQ] ? CLUBSQ : sqSorted()[0][0]);
+  const SQ = SQUADRE || {}, y = pre ? pre.y : (anStag ?? stagione());
+  const sq0 = pre && pre.sq && SQ[pre.sq] ? pre.sq : anSq && SQ[anSq] ? anSq : SQ[CLUBSQ] ? CLUBSQ : sqSorted().length ? sqSorted()[0][0] : NEWSQ;
   const p = k ? clone(ANAG[k]) : {cognome:pre ? pre.cognome : "", nome:pre ? pre.nome : "", anni:{[y]: {sq:sq0, cat:""}}};
   anEd = {kind:"p", k, p, del:0, link:pre && pre.link, ck:pre && pre.ck}; paintPlayer(); $("#anm").hidden = false;
   if(!k) setTimeout(()=>{ const x = pre && pre.cognome ? $("#an-n") : $("#an-c"); if(x) x.focus(); }, 30);
@@ -206,7 +210,8 @@ function readPlayer(){
   p.cognome = v("#an-c"); p.nome = v("#an-n"); p.sopr = v("#an-s"); p.tab = v("#an-t");
   const anni = {}, dup = [];
   $("#anm").querySelectorAll(".yr").forEach(r=>{ const y = +r.querySelector("[data-yy]").value; if(anni[y]) dup.push(stagLabel(y));
-    anni[y] = {sq:r.querySelector("[data-ys]").value, cat:r.querySelector("[data-yc]").value}; });
+    anni[y] = {sq:r.querySelector("[data-ys]").value, cat:r.querySelector("[data-yc]").value};
+    if(anni[y].sq===NEWSQ){ anni[y].nsn = r.querySelector("[data-nsn]").value.trim(); anni[y].nsc = r.querySelector("[data-nsc]").value.trim(); } });
   p.anni = anni; return dup;
 }
 async function savePlayer(){
@@ -214,6 +219,15 @@ async function savePlayer(){
   if(!p.cognome) return anMsg("Scrivi almeno il cognome");
   if(dup.length) return anMsg("Anno sportivo ripetuto: " + dup.join(", "));
   if(!anniOf(p).length) return anMsg("Aggiungi almeno un anno sportivo con la squadra");
+  /* squadre nuove scritte nella scheda: se il nome esiste già si usa quella, altrimenti si crea (una sola volta anche se ripetuta in più anni) */
+  const NS = {}, SQ = SQUADRE || {};
+  for(const y of anniOf(p)){ const r = p.anni[y]; if(r.sq!==NEWSQ) continue;
+    if(!r.nsn){ anMsg(`Scrivi il nome della nuova squadra (${stagLabel(y)})`); const i = $("#anm [data-nsn]"); if(i) i.focus(); return; }
+    const ex = findSq(r.nsn), key = ex || Object.keys(NS).find(kk=>NS[kk].nome.toLowerCase()===r.nsn.toLowerCase());
+    if(key){ r.sq = key; continue; }
+    const b = slug(r.nsn) || "squadra"; let kk = b, n = 2; while(SQ[kk] || NS[kk]) kk = b + "-" + n++;
+    NS[kk] = {nome:r.nsn, citta:r.nsc || ""}; r.sq = kk; }
+  for(const y of anniOf(p)){ delete p.anni[y].nsn; delete p.anni[y].nsc; }
   let k = anEd.k;
   if(!k){ const b = slug(p.cognome) + "-" + (p.nome ? slug(p.nome) : rowAt(p, stagione()).sq); k = b; let n = 2; while(ANAG[k]) k = b + "-" + n++; }
   const tn = tabName(p).toLowerCase(), ys = anniOf(p);
@@ -221,6 +235,7 @@ async function savePlayer(){
   if(twin && anEd.twin!==tn){ anEd.twin = tn; return anMsg(`Anche ${[twin[1].nome, twin[1].cognome].filter(Boolean).join(" ")} compare come “${tabName(p)}”: scrivi un nome sul tabellone diverso, oppure premi di nuovo Salva per lasciarlo così.`); }
   const val = {cognome:p.cognome, nome:p.nome, anni:p.anni}; if(p.sopr) val.sopr = p.sopr; if(p.tab) val.tab = p.tab;
   const fo = anEd.foto, W = {["giocatori/" + k]: val};
+  for(const kk in NS) W["squadre/" + kk] = NS[kk];
   if(fo){ val.foto = Date.now(); W["foto/" + k] = fo; FOTO[fotoKey(k, val)] = fo; }
   else if(fo===""){ if(anEd.k) W["foto/" + k] = null; }
   else if(p.foto) val.foto = p.foto;
@@ -274,6 +289,11 @@ $("#anm").addEventListener("click", e=>{
   if(t.closest("[data-afx]")){ readPlayer(); anEd.foto = ""; paintPlayer(); return; }
   if(t.closest("[data-alg]")){ readSquad(); $("#anlogo").click(); return; }
   if(t.closest("[data-alx]")){ readSquad(); delete anEd.s.logo; paintSquad(); return; }
+});
+$("#anm").addEventListener("change", e=>{
+  const s = e.target.closest("[data-ys]"); if(!s || !anEd) return;
+  const box = s.closest(".yr").querySelector(".nsq"), on = s.value===NEWSQ; box.hidden = !on;
+  if(on){ const i = box.querySelector("[data-nsn]"); if(i) i.focus(); }
 });
 $("#anm").addEventListener("keydown", e=>{ if(e.key==="Escape") closeAn(); if(e.key==="Enter" && e.target.tagName==="INPUT"){ e.preventDefault(); anEd && (anEd.kind==="p" ? savePlayer() : saveSquad()); } });
 $("#anlogo").addEventListener("change", ()=>{

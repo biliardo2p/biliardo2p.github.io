@@ -139,7 +139,7 @@ function render(){
         e.textContent = a[k]; setTimeout(()=>{ if(e.isConnected){ e.textContent = b[k]; e.classList.add("bump"); } }, 2600); }); }
     prev = clone(S);
   }
-  else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div><a class="lk" href="?giocatori">👥 Giocatori</a></div>${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna · <a href="manuale.html">Manuale</a></div></main>`;
+  else if(mode==="list") app.innerHTML = `<main class="wrap"><div class="top"><div><div class="comp">Biliardo Seconda Passione</div><div class="sub">Risultati in diretta</div></div><a class="lk" href="?giocatori">👥 Giocatori</a></div>${liveBtnHTML(INDEX)}${listHTML(INDEX,false)}<div class="foot">Biliardo Seconda Passione · Bologna · <a href="manuale.html">Manuale</a></div></main>`;
   else if(mode==="overlay"){ ovRender(); return; }
   else if(mode==="gioc") app.innerHTML = giocHTML();
   else if(mode==="giocs") app.innerHTML = giocsHTML();
