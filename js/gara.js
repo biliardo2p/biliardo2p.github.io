@@ -80,13 +80,17 @@ function buildTab(st){
   const lw = lastId && nodes.get(lastId) && nodes.get(lastId).w;
   return {nodes, pages, live, champ: lw && !lw.abs ? lw.name : ""};
 }
-/* vincitore: l'ultimo incontro di un turno "Finale" (anche "Batteria · Finale": allora è il vincitore della batteria) */
+/* vincitore: l'ultimo incontro di un turno "Finale" (anche "Batteria · Finale": allora è il vincitore della batteria).
+   Non valgono "Quarti di finale", "Ottavi di finale" ecc. Il nome si mostra per esteso ("Mario Manduzio") se il giocatore è nell'anagrafica. */
+const isFinale = t => { t = String(t||"").trim(); return /(^|[\s·\-–])finale$/i.test(t) && !/\b(di|de|della)\s+finale$/i.test(t); };
+const fullNames = t => String(t||"").split(" / ").map(n=>{ const k = typeof resolveName==="function" ? resolveName(n, "", stagione(S && S.data)) : "", p = k && ANAG && ANAG[k];
+  return p ? [p.nome, p.cognome].filter(Boolean).join(" ") : n; }).join(" / ");
 function champion(st=S){
-  if(isTab(st)){ const c = buildTab(st).champ; return c ? {n:c, coppia:st.gioco==="Coppia", label:st.gioco==="Coppia" ? "Vincitori" : "Vincitore"} : null; }
-  const fin = st.matches.filter(m=>/(^|[\s·\-–])finale$/i.test((m.turno||"").trim())).pop(); if(!fin) return null;
+  if(isTab(st)){ const c = buildTab(st).champ; return c ? {n:fullNames(c), coppia:st.gioco==="Coppia", label:st.gioco==="Coppia" ? "Vincitori" : "Vincitore"} : null; }
+  const fin = st.matches.filter(m=>isFinale(m.turno)).pop(); if(!fin) return null;
   const w = winner(fin); if(!w) return null;
   const pre = (fin.turno||"").trim().replace(/[\s·\-–]*finale$/i, "").trim(), cp = fin.kind==="Coppia";
-  return {n: namesOf(fin, w), coppia: cp, label: (pre ? pre + " · " : "") + (cp ? "Vincitori" : "Vincitore")};
+  return {n: fullNames(namesOf(fin, w)), coppia: cp, label: (pre ? pre + " · " : "") + (cp ? "Vincitori" : "Vincitore")};
 }
 /* ---- torneo: formula della partita ("Italiana a 100", "2 su 3 Italiana a 100", "A a x + B a y + bella a scelta") ---- */
 /* formule del torneo, compilate col modulo: {nome, n: 1|3|5, sets:[{spec, target} | {scelta:true}]} */

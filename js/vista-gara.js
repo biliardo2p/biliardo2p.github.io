@@ -126,7 +126,7 @@ function tabPagesHTML(TB){
 }
 function tabBoardHTML(){
   const TB = buildTab(S);
-  let html = TB.champ ? `<section class="champ"><span class="k">🏆 ${S.gioco==="Coppia" ? "Vincitori" : "Vincitore"}</span><span class="n">${esc(TB.champ)}</span></section>` : "";
+  let html = TB.champ ? `<section class="champ"><span class="k">🏆 ${S.gioco==="Coppia" ? "Vincitori" : "Vincitore"}</span><span class="n">${esc(fullNames(TB.champ))}</span></section>` : "";
   html += `<div class="upd">${updText()}</div>`;
   const card = i => `<div class="mlab">${esc(S.matches[i].turno)}</div>` + matchHTML(S.matches[i], i);
   const ids = S.matches.map((_,i)=>i), open = ids.filter(i=>!winner(S.matches[i])), done = ids.filter(i=>winner(S.matches[i]));
