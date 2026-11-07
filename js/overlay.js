@@ -42,6 +42,11 @@ function ovTick(){
   if(++ovCycT >= o.ciclo){ ovCycT = 0; ovCycOff++; render(); }
 }
 function ovScale(){ const el = document.getElementById("ov"); if(!el) return;
+  if(OVMINI){   /* mini-overlay: riempie qualsiasi riquadro (es. widget di PRISM non 16:9): fascia a tutta larghezza, attaccata in basso */
+    const W = innerWidth || 1280, H = innerHeight || 720; let k = W/1280;
+    if(H/k < 112) k = H/112;   /* riquadro basso (solo una striscia): comanda l'altezza */
+    el.style.width = W/k + "px"; el.style.height = H/k + "px"; el.classList.toggle("strip", H/k < 200);
+    el.style.transform = Math.abs(k-1)<.001 ? "" : `scale(${k})`; return; }
   const k = Math.min(innerWidth/1280, innerHeight/720) || 1; el.style.transform = Math.abs(k-1)<.001 ? "" : `scale(${k})`; }
 
 /* ---- pezzi comuni ---- */
