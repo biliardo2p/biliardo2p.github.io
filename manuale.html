@@ -430,9 +430,10 @@ assente
 <p>Per una diretta senza il PC della sala (un PC qualsiasi con webcam, oppure il telefono usato come telecamera) c'è una versione ridotta dell'overlay: solo la <b>fascia in basso</b>, con sfondo trasparente, che lascia vedere il tavolo. Indirizzo:</p>
 <p><code>https://biliardo2p.github.io/?overlay&amp;mini&amp;live</code></p>
 <ul>
-  <li>Mostra l'incontro in corso con giocatori, categoria, punteggi, specialità, numero del biliardo e (nelle gare a squadre) i punti delle squadre. In alto a sinistra il nome della gara con il bollino LIVE.</li>
+  <li>Mostra l'incontro in corso con giocatori, categoria, punteggi, specialità, numero del biliardo e (nelle gare a squadre) i punti delle squadre. La squadra di appartenenza dei giocatori compare solo nei campionati a squadre. In alto a sinistra il nome della gara con il bollino LIVE.</li>
   <li>Con <b>due o più incontri in corso</b> li alterna ogni 12 secondi; i pallini sotto indicano quale si sta vedendo. Per cambiare il tempo si aggiunge <code>&amp;rot=20</code> (secondi) all'indirizzo.</li>
   <li>Nelle gare a squadre, quando nessun incontro è in corso, mostra squadre e punti con il prossimo incontro.</li>
+  <li>Con <b>PRISM Live Studio</b> sul telefono: modalità Camera, poi Widget → Web con l'indirizzo del mini-overlay (per le prove <code>&amp;prova</code> in fondo), riquadro a tutto schermo e livello bloccato. Lo sfondo è trasparente.</li>
   <li>Dal pannello 📺 Onda: “Incontro in primo piano” lo blocca su un incontro, “Nascosto” lo toglie. Il comando Tabellone qui non ha effetto: il mini-overlay non copre mai l'immagine.</li>
 </ul>
 <figure class="sh"><img src="img/manuale/overlay-mini.webp" alt="Mini-overlay sopra l'immagine della telecamera" loading="lazy" width="1280" height="720"><figcaption>Mini-overlay: fascia in basso con l'incontro in corso (qui due incontri a rotazione)</figcaption></figure>
@@ -529,6 +530,11 @@ assente
 
 <section id="novita" class="chg">
 <h2><span class="n">15</span>Novità</h2>
+<h3>7 novembre 2026</h3>
+<ul>
+  <li>Mini-overlay più basso e compatto (meno spazio vuoto intorno ai punti), per le dirette dal telefono con PRISM Live.</li>
+  <li>Fascia dell'incontro (overlay e mini-overlay): nei tornei e nelle partite singole non compare più la squadra dei giocatori, solo nei campionati a squadre.</li>
+</ul>
 <h3>6 novembre 2026</h3>
 <ul>
   <li>Tornei: il riquadro 🏆 Vincitore compare solo per il turno “Finale” (non più per “Quarti di finale”, “Ottavi di finale” ecc.) e mostra nome e cognome per esteso dei giocatori dell'anagrafica.</li>

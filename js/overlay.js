@@ -206,10 +206,9 @@ function ovFasciaHTML(){
   const i = ovPrimo(), m = S.matches[i]; if(!m) return chip + (OVMINI && !isTorneo() ? ovTeamBand() : "");
   const L = ovRotList(), dots = L.length>1 ? `<div class="rot">${L.map(j=>`<i class="${j===i ? "on" : ""}"></i>`).join("")}</div>` : "";
   const [x, y] = SDS(), ix = sd => sd==="h" ? 0 : 1, w = winner(m), tor = isTorneo(), yy = gYear();
-  const club = (sd) => { if(!tor) return esc((sd==="h" ? S.home : S.away).short || (sd==="h" ? S.home : S.away).name);
-    const k = (m[sd + "c"] || [])[0] || resolveName(m[sd][0], "", yy); return k && ANAG[k] ? esc(sqName(rowAt(ANAG[k], yy).sq)) : ""; };
+  const club = (sd) => tor ? "" : esc((sd==="h" ? S.home : S.away).short || (sd==="h" ? S.home : S.away).name);   /* squadra solo nei campionati a squadre */
   const names = sd => { const ns = m[sd].map((_,j)=>ovName(m, sd, j)).filter(Boolean); return ns.length ? ns.map(n=>`<span>${n}</span>`).join("") : "—"; };   /* coppie: un nome per riga */
-  const side = sd => `<div class="side ${sd} ${sd===x ? "L" : "R"}"><div class="tm">${club(sd)}</div><div class="p${m[sd].length>1 && m.kind!=="Staffetta" ? " two" : ""}">${m.kind==="Staffetta" ? ovName(m, sd, Math.min(relayIdx(m), m[sd].length-1)) || "—" : names(sd)}</div></div>`;
+  const side = sd => `<div class="side ${sd} ${sd===x ? "L" : "R"}">${tor ? "" : `<div class="tm">${club(sd)}</div>`}<div class="p${m[sd].length>1 && m.kind!=="Staffetta" ? " two" : ""}">${m.kind==="Staffetta" ? ovName(m, sd, Math.min(relayIdx(m), m[sd].length-1)) || "—" : names(sd)}</div></div>`;
   const sc = sd => `<div class="lsc ${sd}${w===sd ? " w" : ""}" data-sc="${i}.${sd}">${m.s[ix(sd)]}</div>`;
   const t = totals();
   const k = tor ? [m.turno || "", m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ") : [`Incontro ${i+1}`, m.kind + (m.kind==="Staffetta" ? ` · ${relayIdx(m)+1}ª frazione` : ""), m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ");

@@ -206,6 +206,25 @@ body.ovm > *:not(#app){display:none!important}
 #ov .lt.team .p{font-size:25px}
 #ov .lt.team .lsc{font-size:62px}
 #ov .chip .t2{color:var(--gold)}
+/* mini-overlay (PRISM, telecamera): fascia più bassa e compatta */
+#ov.mini .lt{bottom:14px;height:82px;grid-template-columns:1fr 100px 280px 100px 1fr;border-radius:12px}
+#ov.mini .lt .side{gap:1px;padding:0 18px}
+#ov.mini .lt .tm{font-size:13px;min-height:0;letter-spacing:.14em}
+#ov.mini .lt .p{font-size:26px}
+#ov.mini .lt .p.two{font-size:20px}
+#ov.mini .lt .lsc{font-size:48px}
+#ov.mini .lt .mid{gap:3px}
+#ov.mini .mid .k{font-size:12.5px}
+#ov.mini .mid .s{font-size:19px}
+#ov.mini .mid .s small{font-size:15px}
+#ov.mini .lt .bars{width:240px;height:4px}
+#ov.mini .lt .tot{font-size:12.5px}
+#ov.mini .lt .tot b{font-size:17px}
+#ov.mini .lt.rotn .mid{padding-bottom:9px}
+#ov.mini .lt .rot{bottom:4px}
+#ov.mini .lt.team .p{font-size:24px}
+#ov.mini .lt.team .lsc{font-size:52px}
+#ov.mini .chip{top:14px;left:24px}
 #ov .wait{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:var(--fh);font-size:24px;letter-spacing:.1em;text-transform:uppercase;color:var(--mute);
   background:rgba(7,13,24,.7);padding:12px 22px;border-radius:10px}
 
