@@ -4,7 +4,8 @@
    primo = indice dell'incontro in primo piano (-1 = automatico); pag = pagina del tabellone dei tornei; ciclo = secondi di rotazione delle pagine.
    I comandi si danno dalla regia (pannello 📺 Onda) e valgono subito, senza PUBBLICA. Il sito pubblico non li usa.
    ?overlay&mini&live = mini-overlay per le dirette con telecamera: sempre la fascia in basso (mai il tabellone a tutto schermo), sfondo trasparente;
-   con più incontri in corso e incontro in primo piano "Automatico" li alterna ogni &rot=<secondi> (12 se non indicato). */
+   con più incontri in corso e incontro in primo piano "Automatico" li alterna ogni &rot=<secondi> (12 se non indicato);
+   &alza solleva la fascia dal fondo (13% dell'altezza, oppure &alza=<percentuale>), per lasciare libero il logo di PRISM in basso a destra. */
 const OVERLAY = P.has("overlay"), OVMINI = OVERLAY && P.has("mini"), OVROT = Math.max(4, +P.get("rot") || 12);
 let ovRotI = 0, ovRotT = 0, ovLastPrimo = -2;
 let O = null, ovId = "", ovOff = null, ovPrev = null, ovCycT = 0, ovCycOff = 0, ovPage = "";
@@ -46,6 +47,7 @@ function ovScale(){ const el = document.getElementById("ov"); if(!el) return;
     const W = innerWidth || 1280, H = innerHeight || 720; let k = W/1280;
     if(H/k < 112) k = H/112;   /* riquadro basso (solo una striscia): comanda l'altezza */
     el.style.width = W/k + "px"; el.style.height = H/k + "px"; el.classList.toggle("strip", H/k < 200);
+    if(P.has("alza")){ const a = Math.min(60, Math.max(0, +P.get("alza") || 13)); el.querySelectorAll(".lt").forEach(x=>x.style.bottom = a + "%"); }   /* &alza[=%]: fascia sollevata (es. sopra il logo di PRISM) */
     el.style.transform = Math.abs(k-1)<.001 ? "" : `scale(${k})`; return; }
   const k = Math.min(innerWidth/1280, innerHeight/720) || 1; el.style.transform = Math.abs(k-1)<.001 ? "" : `scale(${k})`; }
 
