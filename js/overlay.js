@@ -3,13 +3,21 @@
    v = "tab" (tabellone) | "fascia" (incontro in primo piano) | "off" (nascosto); bga = opacità dello sfondo;
    primo = indice dell'incontro in primo piano (-1 = automatico); pag = pagina del tabellone dei tornei; ciclo = secondi di rotazione delle pagine.
    I comandi si danno dalla regia (pannello 📺 Onda) e valgono subito, senza PUBBLICA. Il sito pubblico non li usa.
-   ?overlay&mini&live = mini-overlay per le dirette con telecamera: sempre la fascia in basso (mai il tabellone a tutto schermo), sfondo trasparente;
+   ?overlay&mini&live = mini-overlay per le dirette con telecamera: la fascia in basso, sfondo trasparente; sparisce quando la regia manda in onda il Tabellone;
    con più incontri in corso e incontro in primo piano "Automatico" li alterna ogni &rot=<secondi> (12 se non indicato);
-   &alza solleva la fascia dal fondo (13% dell'altezza, oppure &alza=<percentuale>), per lasciare libero il logo di PRISM in basso a destra. */
-const OVERLAY = P.has("overlay"), OVMINI = OVERLAY && P.has("mini"), OVROT = Math.max(4, +P.get("rot") || 12);
+   &alza solleva la fascia dal fondo (13% dell'altezza, oppure &alza=<percentuale>), per lasciare libero il logo di PRISM in basso a destra.
+   ?overlay&riepilogo&live = riepilogo della gara a tutto schermo per le dirette con telecamera (secondo widget di PRISM, accanto al mini-overlay):
+   compare solo quando la regia manda in onda il Tabellone (tasto V nel pannello 📺 Onda), altrimenti è vuoto e trasparente;
+   si adatta a qualsiasi riquadro restando 16:9 e centrato. Mini-overlay e riepilogo senza comandi della regia: fascia sì, riepilogo no. */
+const OVERLAY = P.has("overlay"), OVMINI = OVERLAY && P.has("mini"), OVRIEP = OVERLAY && !OVMINI && P.has("riepilogo"), OVROT = Math.max(4, +P.get("rot") || 12);
 let ovRotI = 0, ovRotT = 0, ovLastPrimo = -2;
 let O = null, ovId = "", ovOff = null, ovPrev = null, ovCycT = 0, ovCycOff = 0, ovPage = "";
-const ovO = () => Object.assign({v:"tab", bga:.55, primo:-1, pag:"", ciclo:0}, O || {});
+const ovO = () => Object.assign({v: OVMINI || OVRIEP ? "fascia" : "tab", bga:.55, primo:-1, pag:"", ciclo:0}, O || {});
+/* cosa mostra questa pagina: "board" (tabellone/riepilogo), "fascia" o "off". Mini: fascia, nascosta col Tabellone. Riepilogo: solo col Tabellone. */
+function ovView(o){ if(o.v==="off") return "off";
+  if(OVMINI) return o.v==="tab" ? "off" : "fascia";
+  if(OVRIEP) return o.v==="tab" ? "board" : "off";
+  return o.v==="fascia" ? "fascia" : "board"; }
 function ovStart(){
   mode = "overlay"; document.body.classList.add("ovm"); document.title = "Overlay · Tabellone Live";
   document.querySelectorAll('link[rel="stylesheet"]').forEach(l=>{ const h = l.getAttribute("href") || ""; if(/^css\//.test(h) && !/overlay\.css/.test(h)) l.disabled = true; });
@@ -49,6 +57,9 @@ function ovScale(){ const el = document.getElementById("ov"); if(!el) return;
     el.style.width = W/k + "px"; el.style.height = H/k + "px"; el.classList.toggle("strip", H/k < 200);
     if(P.has("alza")){ const a = Math.min(60, Math.max(0, +P.get("alza") || 13)); el.querySelectorAll(".lt").forEach(x=>x.style.bottom = a + "%"); }   /* &alza[=%]: fascia sollevata (es. sopra il logo di PRISM) */
     el.style.transform = Math.abs(k-1)<.001 ? "" : `scale(${k})`; return; }
+  if(OVRIEP){   /* riepilogo: 16:9 centrato in qualsiasi riquadro */
+    const W = innerWidth || 1280, H = innerHeight || 720, k = Math.min(W/1280, H/720) || 1;
+    el.style.transform = `translate(${((W - 1280*k)/2).toFixed(1)}px,${((H - 720*k)/2).toFixed(1)}px) scale(${k})`; return; }
   const k = Math.min(innerWidth/1280, innerHeight/720) || 1; el.style.transform = Math.abs(k-1)<.001 ? "" : `scale(${k})`; }
 
 /* ---- pezzi comuni ---- */
@@ -78,7 +89,7 @@ function ovBars(m, x, y){
 /* incontro in primo piano: scelto dalla regia, altrimenti l'ultimo segnato "in corso" (tornei: il primo seguito in diretta non concluso) */
 /* incontri da alternare nella fascia: quelli in corso, se la regia non ne ha scelto uno */
 function ovRotList(){ const o = ovO(); if(o.primo>=0 && S.matches[o.primo]) return [];
-  const v = o.v==="off" ? "off" : OVMINI || o.v==="fascia" ? "fascia" : "board"; if(v!=="fascia") return [];
+  if(ovView(o)!=="fascia") return [];
   return (S.inCorso||[]).filter(i=>S.matches[i]).slice().sort((a,b)=>a-b); }
 function ovPrimo(){
   const o = ovO(); if(o.primo>=0 && S.matches[o.primo]) return o.primo;
@@ -238,7 +249,7 @@ function ovTeamBand(){
 function ovRender(){
   const app = $("#app"), o = ovO();
   if(!S){ app.innerHTML = `<div id="ov" class="off"></div>`; ovScale(); return; }
-  const v = o.v==="off" ? "off" : OVMINI || o.v==="fascia" ? "fascia" : "board";
+  const v = ovView(o);
   const body = v==="off" ? "" : v==="fascia" ? ovFasciaHTML() : isTorneo() ? (isTab() ? ovTabHTML() : ovTorneoHTML()) : ovSquadreHTML();
   app.innerHTML = `<div id="ov" class="${v}${OVMINI ? " mini" : ""}" style="--bga:${o.bga ?? .55}">${body}</div>`;
   const el = $("#ov");
@@ -279,7 +290,8 @@ function ondaPaint(){
       <div class="two"><code>${esc(pub)}?overlay&amp;live</code><button data-o="copy:live">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;gara=${esc(GARA)}</code><button data-o="copy:gara">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;mini&amp;live</code><button data-o="copy:mini">Copia</button></div>
-      <small>L'ultimo è il mini-overlay per le dirette con telecamera: solo la fascia in basso, con gli incontri in corso a rotazione.</small></div>
+      <div class="two"><code>${esc(pub)}?overlay&amp;riepilogo&amp;live</code><button data-o="copy:riep">Copia</button></div>
+      <small>Gli ultimi due sono per le dirette con telecamera (due widget di PRISM): la fascia con gli incontri in corso, e il riepilogo a tutto schermo che compare al posto della fascia quando è in onda il Tabellone (tasto V).</small></div>
     ${ondaErr ? `<p class="err">${esc(ondaErr)}</p>` : ""}
     <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
 }
@@ -290,7 +302,7 @@ function ondaToggle(){
     p.addEventListener("click", e=>{ const b = e.target.closest("[data-o]"); if(!b || b.tagName==="SELECT" || b.tagName==="INPUT") return; const [k, v] = b.dataset.o.split(":");
       if(k==="x"){ ondaToggle(); renderBar(); }
       else if(k==="v") ondaSet({v});
-      else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : v==="mini" ? "?overlay&mini&live" : "?overlay&gara=" + GARA);
+      else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : v==="mini" ? "?overlay&mini&live" : v==="riep" ? "?overlay&riepilogo&live" : "?overlay&gara=" + GARA);
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
       if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value}); });

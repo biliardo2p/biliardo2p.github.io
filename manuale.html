@@ -434,7 +434,15 @@ assente
   <li>Con <b>due o più incontri in corso</b> li alterna ogni 12 secondi; i pallini sotto indicano quale si sta vedendo. Per cambiare il tempo si aggiunge <code>&amp;rot=20</code> (secondi) all'indirizzo.</li>
   <li>Nelle gare a squadre, quando nessun incontro è in corso, mostra squadre e punti con il prossimo incontro.</li>
   <li>Con <b>PRISM Live Studio</b> sul telefono: modalità Camera, poi Widget → Web con l'indirizzo del mini-overlay (per le prove <code>&amp;prova</code> in fondo), riquadro a tutto schermo e livello bloccato. Lo sfondo è trasparente. La fascia si adatta da sola alla forma del riquadro: occupa sempre tutta la larghezza e sta in basso; il riquadro si può anche disegnare come una striscia bassa sul fondo (in quel caso il titolo della gara in alto non compare). Lo zoom del widget va lasciato a 100%. Con la versione gratuita di PRISM il logo “PRISM Live” in basso a destra non si può togliere: aggiungendo <code>&amp;alza</code> all'indirizzo la fascia si solleva e lo lascia libero sotto (<code>&amp;alza=20</code> per sollevarla di più). Per ricaricare il widget dopo un aggiornamento del sito si aggiunge in fondo all'indirizzo <code>&amp;r=2</code>, poi <code>&amp;r=3</code> e così via.</li>
-  <li>Dal pannello 📺 Onda: “Incontro in primo piano” lo blocca su un incontro, “Nascosto” lo toglie. Il comando Tabellone qui non ha effetto: il mini-overlay non copre mai l'immagine.</li>
+  <li>Dal pannello 📺 Onda: “Incontro in primo piano” lo blocca su un incontro, “Nascosto” lo toglie. Con “Tabellone” la fascia sparisce e al suo posto compare il riepilogo (vedi sotto).</li>
+</ul>
+<p><b>Riepilogo della gara a tutto schermo.</b> Per mostrare ogni tanto il quadro completo della gara (tutti gli incontri e i punti delle squadre, oppure gli incontri del torneo) si aggiunge in PRISM un <b>secondo widget Web</b>, a tutto schermo, con l'indirizzo</p>
+<p><code>https://biliardo2p.github.io/?overlay&amp;riepilogo&amp;live</code> (per le prove <code>&amp;prova</code> in fondo)</p>
+<ul>
+  <li>Di norma è vuoto e trasparente: si vede la telecamera con la fascia.</li>
+  <li>Dal pannello 📺 Onda della regia, <kbd>V</kbd> (o “Tabellone”) manda in onda il riepilogo e nasconde la fascia; un altro <kbd>V</kbd> (o “Fascia incontro”) torna alla fascia. <kbd>N</kbd> nasconde tutto.</li>
+  <li>Il riepilogo resta 16:9 e centrato qualunque sia la forma del widget; lo sfondo semitrasparente si regola con <kbd>[</kbd> <kbd>]</kbd> o con “Sfondo del tabellone”.</li>
+  <li>I due widget sono indipendenti: si possono posizionare come si vuole (ad esempio la fascia in alto e il riepilogo a tutto schermo).</li>
 </ul>
 <figure class="sh"><img src="img/manuale/overlay-mini.webp" alt="Mini-overlay sopra l'immagine della telecamera" loading="lazy" width="1280" height="720"><figcaption>Mini-overlay: fascia in basso con l'incontro in corso (qui due incontri a rotazione)</figcaption></figure>
 <p><b>Preparare un PC personale (una volta sola):</b></p>
@@ -532,6 +540,7 @@ assente
 <h2><span class="n">15</span>Novità</h2>
 <h3>7 novembre 2026</h3>
 <ul>
+  <li>Dirette con telecamera: nuovo <b>riepilogo della gara a tutto schermo</b> (<code>?overlay&amp;riepilogo&amp;live</code>, secondo widget di PRISM). Dal pannello 📺 Onda il tasto V alterna riepilogo e fascia del mini-overlay.</li>
   <li>Mini-overlay più basso e compatto (meno spazio vuoto intorno ai punti), per le dirette dal telefono con PRISM Live.</li>
   <li>Mini-overlay: con <code>&amp;alza</code> nell'indirizzo la fascia si solleva dal fondo, sopra il logo di PRISM.</li>
   <li>Mini-overlay: si adatta a qualsiasi forma del riquadro (widget di PRISM a tutto schermo o a striscia), con la fascia sempre a tutta larghezza e in basso.</li>
