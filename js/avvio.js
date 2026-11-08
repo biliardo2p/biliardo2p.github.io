@@ -77,3 +77,15 @@ else if(PCODE){ mode = "gioc"; render(); watchAnag(); loadAllGare(); }
 else if(P.has("giocatori")){ document.title = "Giocatori · Biliardo Seconda Passione"; mode = "giocs"; render(); watchAnag(); }
 else { mode = "list"; render(); watchIndex(); }
 })();
+
+/* regia: schermo sempre acceso (08/11/2026). Con la regia aperta il telefono non si spegne da solo, anche se nelle impostazioni
+   lo spegnimento automatico arriva al massimo a 30 minuti (es. Realme). Screen Wake Lock: Chrome/Edge su Android e computer,
+   Safari da iOS 16.4; il blocco cade quando la pagina va in secondo piano e viene ripreso al ritorno. Senza supporto: niente. */
+if(P.has("regia") && "wakeLock" in navigator){
+  let wl = null;
+  const keep = async () => { if(document.visibilityState!=="visible" || wl) return;
+    try{ wl = await navigator.wakeLock.request("screen"); wl.addEventListener("release", ()=>{ wl = null; }); }catch(e){ wl = null; } };
+  document.addEventListener("visibilitychange", keep);
+  ["click","touchend","keydown"].forEach(ev=>document.addEventListener(ev, keep, {passive:true}));
+  keep();
+}
