@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Regia · Tabellone Live 2P</title>
+<!-- App installabile "solo regia" (08/11/2026). Ha un ambito tutto suo (/regia/), quindi le pagine pubbliche del sito
+     non vengono mai aperte dentro quest'app e l'app non le "cattura" da Chrome. La regia vera è la pagina principale
+     (../?regia...), caricata qui dentro a tutto schermo: nessun codice duplicato. All'avvio riapre l'ultima pagina di regia usata. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#070d18">
+<link rel="icon" href="../img/icona-192.png">
+<link rel="apple-touch-icon" href="../img/icona-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Regia 2P">
+<style>
+  html,body{margin:0;height:100%;background:#070d18;overflow:hidden}
+  iframe{position:fixed;inset:0;width:100%;height:100%;border:0;display:block;background:#070d18}
+</style>
+</head>
+<body>
+<iframe id="r" title="Regia" allow="clipboard-read; clipboard-write; fullscreen"></iframe>
+<script>
+(function(){
+  var KEY = "regia2p.ultima", f = document.getElementById("r");
+  function ok(q){ return typeof q === "string" && /^\?regia(&|=|$)/.test(q); }
+  var q = location.search, last = "";
+  try{ last = localStorage.getItem(KEY) || ""; }catch(e){}
+  f.src = "../" + (ok(q) ? q : ok(last) ? last : "?regia");
+  f.addEventListener("load", function(){
+    try{ var s = f.contentWindow.location.search;
+      if(ok(s)) localStorage.setItem(KEY, s);
+      document.title = f.contentDocument.title || document.title; }catch(e){}
+  });
+})();
+</script>
+</body>
+</html>

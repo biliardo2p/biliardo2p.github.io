@@ -135,7 +135,8 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <li><b>iPhone (Safari):</b> apri <code>biliardo2p.github.io</code> → pulsante <b>Condividi</b> → <b>Aggiungi alla schermata Home</b>.</li>
   <li><b>Computer (Chrome o Edge):</b> icona di installazione nella barra dell'indirizzo.</li>
 </ul>
-<p>L'icona si chiama <b>Live 2P</b> e apre l'elenco delle gare. Per la regia c'è un'icona separata, <b>Regia 2P</b>: si installa allo stesso modo partendo da <code>biliardo2p.github.io/?regia</code> e si apre direttamente sulla regia.</p>
+<p>L'icona si chiama <b>Live 2P</b> e apre l'elenco delle gare. Per la regia c'è un'app separata, <b>Regia 2P</b>, che fa <b>solo regia</b>: si installa allo stesso modo partendo da <code>biliardo2p.github.io/regia/</code> (con la barra finale). Si apre sempre sulla regia, riprendendo l'ultima gara aperta, e non si mescola con le pagine pubbliche aperte in Chrome.</p>
+<p class="note">Chi aveva installato la vecchia “Regia 2P” partendo da <code>?regia</code> deve disinstallarla (tieni premuta l'icona → Disinstalla) e installare quella nuova da <code>biliardo2p.github.io/regia/</code>: la vecchia, aprendo una pagina pubblica in Chrome, passava anche lei alla pagina pubblica.</p>
 <div class="tip"><b>Senza rete</b>L'app non funziona senza connessione: i risultati arrivano in diretta dal database, come nel sito.</div>
 <div class="note"><b>Vecchio indirizzo</b>Fino al 3 novembre 2026 l'app stava su <code>excelswissknife.github.io/Biliardo2P</code>: chi apre un vecchio link viene portato in automatico al nuovo indirizzo.</div>
 </section>
@@ -472,7 +473,8 @@ assente
 <tr><th>File</th><th>Contenuto</th></tr>
 <tr><td><code>index.html</code></td><td>Scheletro della pagina ed elenco dei file da caricare, nell'ordine giusto.</td></tr>
 <tr><td><code>img/logo.png</code></td><td>Logo del circolo (anche icona della pagina).</td></tr>
-<tr><td><code>img/icona-*.png</code>, <code>manifest.webmanifest</code>, <code>manifest-regia.webmanifest</code></td><td>Icone e descrizione dell'app installabile (pubblico e regia).</td></tr>
+<tr><td><code>img/icona-*.png</code>, <code>manifest.webmanifest</code>, <code>manifest-regia.webmanifest</code></td><td>Icone e descrizione dell'app installabile (pubblico e vecchia regia).</td></tr>
+<tr><td><code>regia/index.html</code>, <code>regia/manifest.webmanifest</code></td><td>App “solo regia”: ambito separato (<code>/regia/</code>), carica la regia della pagina principale a tutto schermo e ricorda l'ultima pagina di regia aperta.</td></tr>
 <tr><td><code>img/manuale/</code></td><td>Immagini di questo manuale.</td></tr>
 <tr><td><code>css/base.css</code></td><td>Colori, caratteri, impaginazione, punteggio, schede degli incontri, animazioni.</td></tr>
 <tr><td><code>css/elenco-regia.css</code></td><td>Barra di regia, elenco delle gare, moduli e pulsanti.</td></tr>
@@ -538,6 +540,10 @@ assente
 
 <section id="novita" class="chg">
 <h2><span class="n">15</span>Novità</h2>
+<h3>8 novembre 2026</h3>
+<ul>
+  <li>Nuova app <b>Regia 2P</b> “solo regia”, da installare da <code>biliardo2p.github.io/regia/</code>: resta sempre in regia anche se si aprono pagine pubbliche in Chrome, e alla riapertura riprende l'ultima gara. La vecchia va disinstallata.</li>
+</ul>
 <h3>7 novembre 2026</h3>
 <ul>
   <li>Dirette con telecamera: nuovo <b>riepilogo della gara a tutto schermo</b> (<code>?overlay&amp;riepilogo&amp;live</code>, secondo widget di PRISM). Dal pannello 📺 Onda il tasto V alterna riepilogo e fascia del mini-overlay.</li>
