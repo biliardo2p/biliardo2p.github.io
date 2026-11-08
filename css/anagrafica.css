@@ -141,3 +141,6 @@ a.anr{text-decoration:none}
 #anm .oc{font-style:normal;font-weight:500;font-size:.85em;color:var(--mute)}
 #anm .ysq select{flex:0 1 auto;padding:5px 8px}
 #anm [data-rosx]{align-self:flex-start;max-width:100%}
+/* spunte delle squadre: non spuntato = attenuato e tratteggiato, spuntato = verde pieno */
+#anm label.chk:not(:has(input:checked)){border-style:dashed;background:transparent;color:var(--mute);font-weight:500}
+#anm label.chk:has(input:checked){color:#fff}

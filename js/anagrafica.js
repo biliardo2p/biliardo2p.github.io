@@ -332,7 +332,7 @@ function paintPlayer(){
       <p class="hint">Facoltativa: si vede nella pagina pubblica del giocatore. Viene rimpicciolita da sola (400 pixel); va bene anche quadrata, come gli avatar del circolo.</p></div></div>
     <h4>Circolo, categoria e squadre per anno sportivo</h4><div id="an-y">${ys.map(y=>yrow(y, p.anni[y])).join("")}</div>
     <button class="addf" data-ay>+ Aggiungi anno</button>
-    <p class="hint">Il circolo è quello che il giocatore rappresenta nelle gare singole e a coppie; le squadre (facoltative) sono quelle dei campionati a squadre in cui gioca quell'anno, anche di un altro circolo.
+    <p class="hint">Il circolo è quello che il giocatore rappresenta nelle gare singole e a coppie; le squadre (facoltative) sono quelle dei campionati a squadre in cui gioca quell'anno, anche di un altro circolo: spuntate = ci gioca; per toglierlo da una squadra togli la spunta e premi Salva.
     Sul tabellone: cognome e iniziale del nome, poi la categoria dell'anno della gara, per esempio “${esc(tabName(Object.assign({}, p, {tab:""})) || "Galli E.")} (${esc(rowAt(p, stagione()).cat || "2")})”. Scrivi il nome sul tabellone solo per distinguere due omonimi.</p>
     <p class="err" id="an-m"></p>
     <div class="btns">${anEd.k ? `<button class="ghost" data-adel>${delLabel()}</button>` : ""}<span class="sp1"></span><button class="ghost" data-ano>Annulla</button><button data-aok>Salva</button></div>`;
@@ -432,7 +432,7 @@ function paintSquad(){
     ${club ? `<p class="hint">Il logo del circolo è già nella pagina.</p>` : `<div class="lgr">${logoImg(s.logo || (csbObj(s.csb) || {}).logo, s.nome)}<button class="addf" data-alg>${s.logo ? "Cambia logo" : "Carica logo"}</button>${s.logo ? `<button class="addf" data-alx>Togli logo</button>` : ""}</div>
       <p class="hint">Facoltativo: senza un logo proprio si usa quello del circolo. Logo e città vengono messi da soli nelle nuove gare contro questa squadra.</p>`}
     <h4>Giocatori della squadra nel ${stagLabel(anStag)}</h4>${rosaHTML()}
-    <p class="hint">Servono per i suggerimenti dei nomi nelle gare. Un giocatore può stare in più squadre (per esempio Base ed Eccellenza) e anche in una squadra di un circolo diverso dal suo: aggiungilo dalla tendina.
+    <p class="hint">Spunta = nella squadra; per togliere un giocatore togli la spunta e premi Salva. Servono per i suggerimenti dei nomi nelle gare. Un giocatore può stare in più squadre (per esempio Base ed Eccellenza) e anche in una squadra di un circolo diverso dal suo: aggiungilo dalla tendina.
     Mancano i giocatori senza una riga per il ${stagLabel(anStag)}: aggiungila dalla scheda Giocatori.</p>
     <p class="err" id="an-m"></p>
     <div class="btns">${anEd.k ? `<button class="ghost" data-adel>${delLabel()}</button>` : ""}<span class="sp1"></span><button class="ghost" data-ano>Annulla</button><button data-aok>Salva</button></div>`;
