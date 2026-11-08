@@ -6,7 +6,8 @@
      (NP = Nazionale Pro, N = Nazionale, M = Master). Nelle gare singole e a coppie il giocatore rappresenta il suo circolo;
      "squadre" = squadre dei campionati in cui gioca quell'anno (anche più d'una, per esempio Base ed Eccellenza; facoltativo).
    circoli/<codice> = {nome, citta, logo?}
-   squadre/<codice> = {nome, csb:<codice circolo>, camp?:"base"|"eccellenza", logo?}: squadre dei campionati a squadre, ognuna rappresenta un circolo.
+   squadre/<codice> = {nome, csb:<codice circolo>, camp?:"base"|"eccellenza", logo?}: squadre dei campionati a squadre, ognuna rappresenta un circolo
+     ma può schierare anche giocatori iscritti ad altri circoli (l'iscrizione sta sul giocatore: anni.squadre).
      Il nome può essere quello di uno sponsor (es. "Minerva 2000" per il circolo Time Out). Senza logo si usa quello del circolo.
    Prima dell'8/11/2026 c'erano solo le squadre (che erano i circoli) e anni.sq = codice squadra: la separazione si fa una volta
    con il pulsante della regia (anMigrate); finché non è fatta, le funzioni qui sotto leggono i dati vecchi allo stesso modo.
@@ -290,11 +291,19 @@ const yearOpts = sel => { const s = new Set([stagione() + 1, sel]); for(let y = 
 const NEWCSB = "__nuovo__";
 const csbOpts = sel => csbSorted().map(([k,c])=>`<option value="${esc(k)}"${k===sel ? " selected" : ""}>${esc(c.nome)}</option>`).join("") + (sel && sel!==NEWCSB && !circoliAll()[sel] ? `<option value="${esc(sel)}" selected>${esc(sel)}</option>` : "")
   + `<option value="${NEWCSB}"${sel===NEWCSB ? " selected" : ""}>+ Nuovo circolo…</option>`;
-/* squadre del circolo da spuntare nella riga di un anno */
+/* squadre da spuntare nella riga di un anno: quelle del circolo, quelle già scelte e, dalla tendina, una squadra di un altro circolo
+   (una squadra può schierare anche giocatori iscritti ad altri circoli, es. Carmelo Albano nell'Eccellenza di Seconda Passione) */
+const sqChip = (k, on) => `<label class="chk"><input type="checkbox" data-ysq="${esc(k)}"${on ? " checked" : ""}>${esc(sqLabel(k))}${sqCsb(k)!==anEd.curCsb && low(csbName(sqCsb(k)))!==low(sqName(k)) ? ` <i class="oc">${esc(csbName(sqCsb(k)))}</i>` : ""}</label>`;
 function teamChecks(csb, map){
-  const L = sqSorted().filter(([k])=>sqCsb(k)===csb), extra = Object.keys(map||{}).filter(k=>map[k] && sqCsb(k)!==csb);
-  if(!L.length && !extra.length) return "";
-  return `<span class="ysl">Squadre</span>` + [...L.map(([k])=>k), ...extra].map(k=>`<label class="chk"><input type="checkbox" data-ysq="${esc(k)}"${map && map[k] ? " checked" : ""}>${esc(sqLabel(k))}</label>`).join("");
+  anEd.curCsb = csb;
+  const L = sqSorted().filter(([k])=>sqCsb(k)===csb).map(([k])=>k), extra = Object.keys(map||{}).filter(k=>map[k] && sqCsb(k)!==csb), shown = new Set([...L, ...extra]);
+  const others = sqSorted().filter(([k])=>!shown.has(k));
+  if(!shown.size && !others.length) return "";
+  return `<span class="ysl">Squadre</span>` + [...shown].map(k=>sqChip(k, map && map[k])).join("") + (others.length ? `<select data-ysx aria-label="Squadra di un altro circolo"><option value="">+ squadra di un altro circolo…</option>${sqOptGroups(others)}</select>` : "");
+}
+function sqOptGroups(list){
+  const G = new Map(); list.forEach(([k])=>{ const c = sqCsb(k); if(!G.has(c)) G.set(c, []); G.get(c).push(k); });
+  return [...G].map(([c, ks])=>`<optgroup label="${esc(csbName(c))}">${ks.map(k=>`<option value="${esc(k)}">${esc(sqLabel(k))}</option>`).join("")}</optgroup>`).join("");
 }
 const yrow = (y, r) => { const c = r.csb ?? csbOf(r); return `<div class="row yr"><label>Anno sportivo<select data-yy>${yearOpts(y)}</select></label><label class="ys">Circolo<select data-ycs>${csbOpts(c)}</select></label>
   <label>Categoria<select data-yc><option value="">—</option>${CATS.map(x=>`<option value="${x}"${x===r.cat ? " selected" : ""}>${catShort(x)}</option>`).join("")}</select></label><button class="yx" data-yx title="Togli questo anno" aria-label="Togli questo anno">✕</button>
@@ -323,7 +332,7 @@ function paintPlayer(){
       <p class="hint">Facoltativa: si vede nella pagina pubblica del giocatore. Viene rimpicciolita da sola (400 pixel); va bene anche quadrata, come gli avatar del circolo.</p></div></div>
     <h4>Circolo, categoria e squadre per anno sportivo</h4><div id="an-y">${ys.map(y=>yrow(y, p.anni[y])).join("")}</div>
     <button class="addf" data-ay>+ Aggiungi anno</button>
-    <p class="hint">Il circolo è quello che il giocatore rappresenta nelle gare singole e a coppie; le squadre (facoltative) sono quelle dei campionati a squadre in cui gioca quell'anno.
+    <p class="hint">Il circolo è quello che il giocatore rappresenta nelle gare singole e a coppie; le squadre (facoltative) sono quelle dei campionati a squadre in cui gioca quell'anno, anche di un altro circolo.
     Sul tabellone: cognome e iniziale del nome, poi la categoria dell'anno della gara, per esempio “${esc(tabName(Object.assign({}, p, {tab:""})) || "Galli E.")} (${esc(rowAt(p, stagione()).cat || "2")})”. Scrivi il nome sul tabellone solo per distinguere due omonimi.</p>
     <p class="err" id="an-m"></p>
     <div class="btns">${anEd.k ? `<button class="ghost" data-adel>${delLabel()}</button>` : ""}<span class="sp1"></span><button class="ghost" data-ano>Annulla</button><button data-aok>Salva</button></div>`;
@@ -403,11 +412,16 @@ function openSquad(k){
   const rosa = new Set(k ? Object.keys(ANAG).filter(pk=>inTeam((ANAG[pk].anni||{})[anStag], k)) : []);
   anEd = {kind:"s", k, s, rosa, rosa0:new Set(rosa), del:0}; paintSquad(); $("#anm").hidden = false; if(!k) setTimeout(()=>{ const x = $("#as-n"); if(x) x.focus(); }, 30);
 }
+/* giocatori della squadra: si propongono quelli del circolo; dalla tendina si aggiungono giocatori di altri circoli */
 function rosaHTML(){
-  const s = anEd.s, L = Object.entries(ANAG).map(([k,p])=>({k, p, r:(p.anni||{})[anStag]})).filter(x=>x.r && (csbOf(x.r)===s.csb || anEd.rosa.has(x.k)))
-    .sort((a,b)=>anEd.rosa0.has(b.k) - anEd.rosa0.has(a.k) || String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||"")));
-  if(!L.length) return `<p class="hint">Nessun giocatore di ${esc(csbName(s.csb))} nel ${stagLabel(anStag)}: aggiungili dalla scheda Giocatori.</p>`;
-  return `<div class="rosa">${L.map(x=>`<label class="chk"><input type="checkbox" data-ros="${esc(x.k)}"${anEd.rosa.has(x.k) ? " checked" : ""}>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}</label>`).join("")}</div>`;
+  const s = anEd.s, all = Object.entries(ANAG).map(([k,p])=>({k, p, r:(p.anni||{})[anStag]})).filter(x=>x.r);
+  const byName = (a,b) => String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||""));
+  const L = all.filter(x=>csbOf(x.r)===s.csb || anEd.rosa.has(x.k) || anEd.rosa0.has(x.k)).sort((a,b)=>(csbOf(a.r)!==s.csb) - (csbOf(b.r)!==s.csb) || byName(a,b));
+  const rest = all.filter(x=>!L.includes(x)).sort((a,b)=>csbName(csbOf(a.r)).localeCompare(csbName(csbOf(b.r))) || byName(a,b));
+  const G = new Map(); rest.forEach(x=>{ const c = csbOf(x.r); if(!G.has(c)) G.set(c, []); G.get(c).push(x); });
+  const add = rest.length ? `<select data-rosx aria-label="Giocatore di un altro circolo"><option value="">+ giocatore di un altro circolo…</option>${[...G].map(([c, xs])=>`<optgroup label="${esc(csbName(c))}">${xs.map(x=>`<option value="${esc(x.k)}">${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""} · ${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))}</option>`).join("")}</optgroup>`).join("")}</select>` : "";
+  return (L.length ? `<div class="rosa">${L.map(x=>`<label class="chk"><input type="checkbox" data-ros="${esc(x.k)}"${anEd.rosa.has(x.k) ? " checked" : ""}>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}${csbOf(x.r)!==s.csb ? ` <i class="oc">${esc(csbName(csbOf(x.r)))}</i>` : ""}</label>`).join("")}</div>`
+    : `<p class="hint">Nessun giocatore di ${esc(csbName(s.csb))} nel ${stagLabel(anStag)}.</p>`) + add;
 }
 function paintSquad(){
   const s = anEd.s, club = isClub(s.csb);
@@ -418,7 +432,8 @@ function paintSquad(){
     ${club ? `<p class="hint">Il logo del circolo è già nella pagina.</p>` : `<div class="lgr">${logoImg(s.logo || (csbObj(s.csb) || {}).logo, s.nome)}<button class="addf" data-alg>${s.logo ? "Cambia logo" : "Carica logo"}</button>${s.logo ? `<button class="addf" data-alx>Togli logo</button>` : ""}</div>
       <p class="hint">Facoltativo: senza un logo proprio si usa quello del circolo. Logo e città vengono messi da soli nelle nuove gare contro questa squadra.</p>`}
     <h4>Giocatori della squadra nel ${stagLabel(anStag)}</h4>${rosaHTML()}
-    <p class="hint">Servono per i suggerimenti dei nomi nelle gare. Un giocatore può stare in più squadre (per esempio Base ed Eccellenza).</p>
+    <p class="hint">Servono per i suggerimenti dei nomi nelle gare. Un giocatore può stare in più squadre (per esempio Base ed Eccellenza) e anche in una squadra di un circolo diverso dal suo: aggiungilo dalla tendina.
+    Mancano i giocatori senza una riga per il ${stagLabel(anStag)}: aggiungila dalla scheda Giocatori.</p>
     <p class="err" id="an-m"></p>
     <div class="btns">${anEd.k ? `<button class="ghost" data-adel>${delLabel()}</button>` : ""}<span class="sp1"></span><button class="ghost" data-ano>Annulla</button><button data-aok>Salva</button></div>`;
 }
@@ -470,9 +485,14 @@ $("#anm").addEventListener("change", e=>{
   if(!anEd) return;
   const s = e.target.closest("[data-ycs]");
   if(s){ const row = s.closest(".yr"), box = row.querySelector(".nsq"), on = s.value===NEWCSB; box.hidden = !on;
-    row.querySelector(".ysq").innerHTML = on ? "" : teamChecks(s.value, {});
+    const keep = {}; row.querySelectorAll("[data-ysq]").forEach(x=>{ if(x.checked) keep[x.dataset.ysq] = true; });   /* le squadre già spuntate restano */
+    row.querySelector(".ysq").innerHTML = on ? "" : teamChecks(s.value, keep);
     if(on){ const i = box.querySelector("[data-ncn]"); if(i) i.focus(); } return; }
   if(e.target.id==="as-cs" && anEd.kind==="s"){ readSquad(); paintSquad(); }
+  if(e.target.matches("[data-rosx]") && e.target.value){ readSquad(); anEd.rosa.add(e.target.value); paintSquad(); }
+  const x = e.target.closest("[data-ysx]");
+  if(x && x.value){ const csb = x.closest(".yr").querySelector("[data-ycs]").value; anEd.curCsb = csb; x.insertAdjacentHTML("beforebegin", sqChip(x.value, true)); x.querySelector(`option[value="${CSS.escape(x.value)}"]`).remove(); x.value = "";
+    if(!x.querySelectorAll("option[value]:not([value=''])").length) x.remove(); }
 });
 $("#anm").addEventListener("keydown", e=>{ if(e.key==="Escape") closeAn(); if(e.key==="Enter" && e.target.tagName==="INPUT" && e.target.type!=="checkbox"){ e.preventDefault(); anEd && anSave(); } });
 $("#anlogo").addEventListener("change", ()=>{

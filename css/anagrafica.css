@@ -137,3 +137,7 @@ a.anr{text-decoration:none}
 #anm .rosa{display:flex;flex-wrap:wrap;gap:6px 8px}
 .anr .tsq{font-style:normal;color:var(--gold)}
 #anm #an-y .yr+.yr{border-top:1px solid var(--line);padding-top:10px}
+/* giocatori e squadre di altri circoli (08/11/2026) */
+#anm .oc{font-style:normal;font-weight:500;font-size:.85em;color:var(--mute)}
+#anm .ysq select{flex:0 1 auto;padding:5px 8px}
+#anm [data-rosx]{align-self:flex-start;max-width:100%}
