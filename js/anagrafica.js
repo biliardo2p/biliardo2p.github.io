@@ -12,7 +12,7 @@
    Prima dell'8/11/2026 c'erano solo le squadre (che erano i circoli) e anni.sq = codice squadra: la separazione si fa una volta
    con il pulsante della regia (anMigrate); finché non è fatta, le funzioni qui sotto leggono i dati vecchi allo stesso modo.
    anno sportivo = anno di inizio (2026 = 2026/27, da settembre ad agosto). Il codice del giocatore nasce alla prima registrazione e non cambia più. */
-let ANAG = null, SQUADRE = null, CIRCOLI = null, anErr = "", anTab = "g", anStag = null, anFil = "", anQ = "", anImp = "", anEd = null, anWatch = false, anMigMsg = "", anMigBusy = false;
+let ANAG = null, SQUADRE = null, CIRCOLI = null, anErr = "", anTab = "g", anStag = null, anFil = "", anCamp = "", anQ = "", anImp = "", anEd = null, anWatch = false, anMigMsg = "", anMigBusy = false;
 const CATS = ["NP","N","M","1","2","3"];
 const CATN = {NP:"Nazionale Pro", N:"Nazionale", M:"Master"};
 const catShort = c => CATN[c] || (c ? c + "ª" : "");   /* tendina della scheda */
@@ -197,11 +197,12 @@ function anCsbHTML(){
 }
 function anSqHTML(){
   const cnt = {}; Object.values(ANAG).forEach(p=>{ const r = (p.anni||{})[anStag]; sqsOf(r).forEach(k=>cnt[k] = (cnt[k]||0) + 1); });
-  const sqs = sqSorted();
-  return `<div class="anf">${stagSel()}<button class="ghost" data-snew>+ Nuova squadra</button></div>
+  const sqs = sqSorted().filter(([k,s])=>!anCamp || (anCamp==="-" ? !s.camp : s.camp===anCamp));
+  const campSel = `<select id="an-camp" aria-label="Campionato"><option value="">Tutti i campionati</option>${Object.entries(CAMPN).map(([k,t])=>`<option value="${k}"${anCamp===k ? " selected" : ""}>${t}</option>`).join("")}<option value="-"${anCamp==="-" ? " selected" : ""}>Campionato da indicare</option></select>`;
+  return `<div class="anf">${stagSel()}${campSel}<button class="ghost" data-snew>+ Nuova squadra</button></div>
     <p class="hint">Le squadre dei campionati a squadre (Base, Eccellenza). Ogni squadra rappresenta un circolo e può avere un nome diverso, per esempio quello dello sponsor.</p>` + (sqs.length ? `<div class="anl">` + sqs.map(([k,s])=>
     `<button class="anr sq" data-ans="${esc(k)}">${sqLogo(k)}<span class="t"><b>${esc(s.nome)}</b><span>${esc(csbName(sqCsb(k)))}${s.camp ? " · " + CAMPN[s.camp] : " · campionato da indicare"} · ${cnt[k] ? `${cnt[k]} ${cnt[k]===1 ? "giocatore" : "giocatori"} nel ${stagLabel(anStag)}` : "nessun giocatore indicato nel " + stagLabel(anStag)}</span></span></button>`).join("") + `</div>`
-    : `<p class="empty">Nessuna squadra.</p>`);
+    : `<p class="empty">${anCamp ? "Nessuna squadra con questo filtro." : "Nessuna squadra."}</p>`);
 }
 /* ---- importa / esporta ---- */
 function anImpHTML(){
@@ -328,8 +329,8 @@ function paintPlayer(){
   $("#anm .bx").innerHTML = `<h3>${anEd.k ? esc(tabName(p) || "Giocatore") : "Nuovo giocatore"}</h3>
     <div class="row"><label>Cognome<input id="an-c" value="${esc(p.cognome||"")}" autocomplete="off"></label><label>Nome<input id="an-n" value="${esc(p.nome||"")}" autocomplete="off"></label></div>
     <div class="row"><label>Soprannome<input id="an-s" value="${esc(p.sopr||"")}" placeholder="facoltativo" autocomplete="off"></label><label>Nome sul tabellone<input id="an-t" value="${esc(p.tab||"")}" placeholder="${esc(tabName(Object.assign({}, p, {tab:""})) || "automatico")}" autocomplete="off"></label></div>
-    <div class="ftr"><div id="an-fimg">${fotoBox()}</div><div class="fb2"><button class="addf" data-afo>${fotoCur() || fotoCur()===null ? "Cambia foto" : "Carica foto"}</button>${fotoCur() || fotoCur()===null ? `<button class="addf" data-afx>Togli foto</button>` : ""}
-      <p class="hint">Facoltativa: si vede nella pagina pubblica del giocatore. Viene rimpicciolita da sola (400 pixel); va bene anche quadrata, come gli avatar del circolo.</p></div></div>
+    <div class="ftr"><div id="an-fimg">${fotoBox()}</div><div class="fb2"><button class="addf" data-afo>${fotoCur() || fotoCur()===null ? "Cambia foto" : "Carica foto"}</button><button class="addf" data-apa title="Incolla un'immagine copiata (anche con Ctrl+V)">📋 Incolla</button>${fotoCur() || fotoCur()===null ? `<button class="addf" data-afx>Togli foto</button>` : ""}
+      <p class="hint">Facoltativa: si vede nella pagina pubblica del giocatore. Viene rimpicciolita da sola (400 pixel); va bene anche quadrata, come gli avatar del circolo. Si può anche incollare un'immagine copiata (Ctrl+V o 📋 Incolla).</p></div></div>
     <h4>Circolo, categoria e squadre per anno sportivo</h4><div id="an-y">${ys.map(y=>yrow(y, p.anni[y])).join("")}</div>
     <button class="addf" data-ay>+ Aggiungi anno</button>
     <p class="hint">Il circolo è quello che il giocatore rappresenta nelle gare singole e a coppie; le squadre (facoltative) sono quelle dei campionati a squadre in cui gioca quell'anno, anche di un altro circolo: spuntate = ci gioca; per toglierlo da una squadra togli la spunta e premi Salva.
@@ -391,8 +392,8 @@ function paintCsb(){
   const c = anEd.c, club = isClub(anEd.k);
   $("#anm .bx").innerHTML = `<h3>${anEd.k ? esc(c.nome) : "Nuovo circolo"}</h3>
     <div class="row"><label>Nome<input id="ac-n" value="${esc(c.nome||"")}" autocomplete="off"></label><label>Città<input id="ac-c" value="${esc(c.citta||"")}" placeholder="es. Ferrara (FE)" autocomplete="off"></label></div>
-    ${club ? `<p class="hint">Il logo del circolo è già nella pagina.</p>` : `<div class="lgr">${logoImg(c.logo, c.nome)}<button class="addf" data-alg>${c.logo ? "Cambia logo" : "Carica logo"}</button>${c.logo ? `<button class="addf" data-alx>Togli logo</button>` : ""}</div>
-      <p class="hint">Il logo vale anche per le squadre del circolo che non ne hanno uno proprio; la città compare nelle gare contro quelle squadre.</p>`}
+    ${club ? `<p class="hint">Il logo del circolo è già nella pagina.</p>` : `<div class="lgr">${logoImg(c.logo, c.nome)}<button class="addf" data-alg>${c.logo ? "Cambia logo" : "Carica logo"}</button><button class="addf" data-apa title="Incolla un'immagine copiata (anche con Ctrl+V)">📋 Incolla</button>${c.logo ? `<button class="addf" data-alx>Togli logo</button>` : ""}</div>
+      <p class="hint">Logo: da file con Carica, oppure copia l'immagine (da un sito: tasto destro → “Copia immagine”) e premi Ctrl+V o 📋 Incolla. Il logo vale anche per le squadre del circolo che non ne hanno uno proprio; la città compare nelle gare contro quelle squadre.</p>`}
     <p class="err" id="an-m"></p>
     <div class="btns">${anEd.k && !club ? `<button class="ghost" data-adel>${delLabel()}</button>` : ""}<span class="sp1"></span><button class="ghost" data-ano>Annulla</button><button data-aok>Salva</button></div>`;
 }
@@ -429,8 +430,8 @@ function paintSquad(){
     <div class="row"><label>Nome<input id="as-n" value="${esc(s.nome||"")}" placeholder="es. Minerva 2000" autocomplete="off"></label>
       <label>Campionato<select id="as-cp"><option value="">—</option>${Object.entries(CAMPN).map(([k,t])=>`<option value="${k}"${s.camp===k ? " selected" : ""}>${t}</option>`).join("")}</select></label></div>
     <div class="row"><label>Circolo che rappresenta<select id="as-cs">${csbSorted().map(([k,c])=>`<option value="${esc(k)}"${k===s.csb ? " selected" : ""}>${esc(c.nome)}</option>`).join("")}</select></label></div>
-    ${club ? `<p class="hint">Il logo del circolo è già nella pagina.</p>` : `<div class="lgr">${logoImg(s.logo || (csbObj(s.csb) || {}).logo, s.nome)}<button class="addf" data-alg>${s.logo ? "Cambia logo" : "Carica logo"}</button>${s.logo ? `<button class="addf" data-alx>Togli logo</button>` : ""}</div>
-      <p class="hint">Facoltativo: senza un logo proprio si usa quello del circolo. Logo e città vengono messi da soli nelle nuove gare contro questa squadra.</p>`}
+    ${club ? `<p class="hint">Il logo del circolo è già nella pagina.</p>` : `<div class="lgr">${logoImg(s.logo || (csbObj(s.csb) || {}).logo, s.nome)}<button class="addf" data-alg>${s.logo ? "Cambia logo" : "Carica logo"}</button><button class="addf" data-apa title="Incolla un'immagine copiata (anche con Ctrl+V)">📋 Incolla</button>${s.logo ? `<button class="addf" data-alx>Togli logo</button>` : ""}</div>
+      <p class="hint">Facoltativo: senza un logo proprio si usa quello del circolo. Si può caricare da file o incollare un'immagine copiata (Ctrl+V o 📋 Incolla). Logo e città vengono messi da soli nelle nuove gare contro questa squadra.</p>`}
     <h4>Giocatori della squadra nel ${stagLabel(anStag)}</h4>${rosaHTML()}
     <p class="hint">Spunta = nella squadra; per togliere un giocatore togli la spunta e premi Salva. Servono per i suggerimenti dei nomi nelle gare. Un giocatore può stare in più squadre (per esempio Base ed Eccellenza) e anche in una squadra di un circolo diverso dal suo: aggiungilo dalla tendina.
     Mancano i giocatori senza una riga per il ${stagLabel(anStag)}: aggiungila dalla scheda Giocatori.</p>
@@ -478,6 +479,7 @@ $("#anm").addEventListener("click", e=>{
   const yx = t.closest("[data-yx]"); if(yx){ yx.closest(".yr").remove(); return; }
   if(t.closest("[data-afo]")){ $("#anfoto").click(); return; }
   if(t.closest("[data-afx]")){ readPlayer(); anEd.foto = ""; paintPlayer(); return; }
+  if(t.closest("[data-apa]")){ anPasteBtn(); return; }
   if(t.closest("[data-alg]")){ anEd.kind==="c" ? readCsb() : readSquad(); $("#anlogo").click(); return; }
   if(t.closest("[data-alx]")){ anEd.kind==="c" ? readCsb() : readSquad(); delete anLogoObj().logo; anLogoPaint(); return; }
 });
@@ -495,22 +497,57 @@ $("#anm").addEventListener("change", e=>{
     if(!x.querySelectorAll("option[value]:not([value=''])").length) x.remove(); }
 });
 $("#anm").addEventListener("keydown", e=>{ if(e.key==="Escape") closeAn(); if(e.key==="Enter" && e.target.tagName==="INPUT" && e.target.type!=="checkbox"){ e.preventDefault(); anEd && anSave(); } });
-$("#anlogo").addEventListener("change", ()=>{
-  const inp = $("#anlogo"), f = inp.files[0]; if(!f || !anEd || anEd.kind==="p") return;
+/* logo (circolo o squadra): ridotto a 160 pixel, PNG */
+function anLogoFile(f){
   const rd = new FileReader();
   rd.onload = () => { const im = new Image();
-    im.onload = () => { const M = 160, k = Math.min(1, M/Math.max(im.width||M, im.height||M));
+    im.onload = () => { if(!anEd || anEd.kind==="p") return; const M = 160, k = Math.min(1, M/Math.max(im.width||M, im.height||M));
       const c = document.createElement("canvas"); c.width = Math.round((im.width||M)*k); c.height = Math.round((im.height||M)*k);
-      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); anLogoObj().logo = c.toDataURL("image/png"); inp.value = ""; anLogoPaint(); };
+      c.getContext("2d").drawImage(im, 0, 0, c.width, c.height); anEd.kind==="c" ? readCsb() : readSquad(); anLogoObj().logo = c.toDataURL("image/png"); anLogoPaint(); };
+    im.onerror = () => anMsg("Non riesco a leggere questa immagine: prova con un PNG o un JPG.");
     im.src = rd.result; };
   rd.readAsDataURL(f);
-});
-$("#anfoto").addEventListener("change", ()=>{
-  const inp = $("#anfoto"), f = inp.files[0]; inp.value = ""; if(!f || !anEd || anEd.kind!=="p") return;
+}
+function anFotoFile(f){
   anMsg("Preparo la foto…");
   fotoResize(f, u=>{ if(!anEd || anEd.kind!=="p") return; if(!u){ anMsg("Non riesco a leggere questa immagine: prova con un JPG o un PNG."); return; }
     readPlayer(); anEd.foto = u; paintPlayer(); });
+}
+$("#anlogo").addEventListener("change", ()=>{ const inp = $("#anlogo"), f = inp.files[0]; inp.value = ""; if(f && anEd && anEd.kind!=="p") anLogoFile(f); });
+$("#anfoto").addEventListener("change", ()=>{ const inp = $("#anfoto"), f = inp.files[0]; inp.value = ""; if(f && anEd && anEd.kind==="p") anFotoFile(f); });
+/* immagine dagli appunti: Ctrl+V nella scheda aperta oppure il pulsante 📋 Incolla.
+   Da un sito: tasto destro sull'immagine → "Copia immagine". Se negli appunti c'è solo l'indirizzo dell'immagine si prova a scaricarla
+   (alcuni siti non lo permettono: allora va salvata e caricata con "Carica"). */
+const anCanImg = () => anEd && (anEd.kind==="p" || !isClub(anEd.kind==="c" ? anEd.k : anEd.s.csb));
+function anImgIn(f){
+  if(!anCanImg()) return;
+  anEd.kind==="p" ? anFotoFile(f) : anLogoFile(f);
+}
+async function anImgUrl(u){
+  anMsg("Scarico l'immagine…");
+  try{ const r = await fetch(u, {mode:"cors"}); if(!r.ok) throw 0; const b = await r.blob(); if(!/^image\//.test(b.type)) throw 0; anImgIn(b); }
+  catch(e){ anMsg("Il sito non permette di prendere l'immagine dal suo indirizzo: usa “Copia immagine” (tasto destro), oppure salvala e premi Carica."); }
+}
+const imgUrlIn = (html, txt) => { const m = /<img[^>]+src=["']([^"']+)["']/i.exec(html || ""); if(m && /^(https?:|data:image\/)/.test(m[1])) return m[1].replace(/&amp;/g, "&");
+  txt = String(txt || "").trim(); return /^https?:\/\/\S+$/i.test(txt) ? txt : ""; };
+document.addEventListener("paste", e=>{
+  if(!anCanImg() || $("#anm").hidden) return; const cd = e.clipboardData; if(!cd) return;
+  const it = [...(cd.items || [])].find(i=>i.kind==="file" && /^image\//.test(i.type));
+  if(it){ e.preventDefault(); anImgIn(it.getAsFile()); return; }
+  if(/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;   /* nelle caselle di testo l'incolla resta normale */
+  const u = imgUrlIn(cd.getData("text/html"), cd.getData("text/plain")); if(u){ e.preventDefault(); anImgUrl(u); }
 });
+async function anPasteBtn(){
+  if(!navigator.clipboard || !navigator.clipboard.read){ anMsg("Questo browser non legge le immagini dagli appunti con il pulsante: premi Ctrl+V con la scheda aperta."); return; }
+  try{
+    for(const item of await navigator.clipboard.read()){
+      const t = item.types.find(x=>/^image\//.test(x)); if(t){ anImgIn(await item.getType(t)); return; }
+      if(item.types.includes("text/html") || item.types.includes("text/plain")){
+        const h = item.types.includes("text/html") ? await (await item.getType("text/html")).text() : "", p = item.types.includes("text/plain") ? await (await item.getType("text/plain")).text() : "";
+        const u = imgUrlIn(h, p); if(u){ anImgUrl(u); return; } } }
+    anMsg("Negli appunti non c'è un'immagine: sul sito usa tasto destro → “Copia immagine”, poi riprova.");
+  }catch(e){ anMsg("Il browser non ha dato il permesso di leggere gli appunti: premi Ctrl+V con la scheda aperta."); }
+}
 /* eventi della pagina anagrafica */
 app.addEventListener("click", e=>{
   if(mode!=="anag") return; const t = e.target;
@@ -530,6 +567,7 @@ app.addEventListener("change", e=>{
   if(mode!=="anag") return;
   if(e.target.id==="an-st"){ anStag = +e.target.value; e.target.blur(); render(); }
   if(e.target.id==="an-fil"){ anFil = e.target.value; e.target.blur(); render(); }
+  if(e.target.id==="an-camp"){ anCamp = e.target.value; e.target.blur(); render(); }
 });
 app.addEventListener("input", e=>{
   if(mode==="anag" && e.target.id==="an-q"){ anQ = e.target.value; $("#an-list").innerHTML = anListHTML(); }
