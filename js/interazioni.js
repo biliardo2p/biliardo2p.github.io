@@ -405,8 +405,10 @@ app.addEventListener("submit", async e=>{
       st.title = dupSrc.title || st.title; st.home = clone(dupSrc.home);
       if(dupSrc.away && dupSrc.away.name.trim().toLowerCase()===o.ospite.toLowerCase()){ st.away.badge = dupSrc.away.badge || st.away.badge; if(dupSrc.away.logo) st.away.logo = dupSrc.away.logo; }
     }
-    const sqk = tor ? "" : findSq(o.ospite);   /* squadra dell'anagrafica: codice, logo e città */
-    if(sqk){ const q = SQUADRE[sqk]; st.away.sq = sqk; if(q.logo) st.away.logo = q.logo; if(!st.away.city && q.citta) st.away.city = q.citta; }
+    const sqk = tor ? "" : findSq(o.ospite, campOf(o.formula));   /* squadra dell'anagrafica: codice, logo (della squadra o del suo circolo) e città del circolo */
+    if(sqk){ st.away.sq = sqk; const lg = sqLogoSrc(sqk); if(lg) st.away.logo = lg; if(!st.away.city) st.away.city = sqCitta(sqk); }
+    const hk = tor ? "" : ($("#ng-ns") || {}).value;   /* la nostra squadra: nome della squadra (può essere diverso da quello del circolo) */
+    if(hk && SQUADRE && SQUADRE[hk]){ const nm = SQUADRE[hk].nome; st.home = {name:nm, short:low(nm)===low(CLUB.name) ? CLUB.short : nm, city:sqCitta(hk) || CLUB.city, sq:hk}; }
     try{ await dbWrite({["gare/"+id]: st, ["indice/"+id]: metaOf(st)}); location.search = "?regia&gara=" + id; }
     catch(err){ $("#ng-msg").textContent = err.code==="PERMISSION_DENIED" ? "Firebase rifiuta la scrittura: controlla le regole del database e l'utente di regia (UID)" : "Non riesco a creare la gara (" + (err.code||err.message) + ")"; }
   }

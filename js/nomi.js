@@ -19,10 +19,14 @@ function anIndex(){
 function resolveName(t, sq, y){
   if(!ANAG || !String(t||"").trim()) return "";
   const ks = anIndex().get(nkey(t)); if(!ks || !ks.length) return ""; if(ks.length===1) return ks[0];
-  if(sq){ const f = ks.filter(k=>rowAt(ANAG[k], y).sq===sq); if(f.length===1) return f[0]; }
+  if(sq){ const t = ks.filter(k=>inTeam(rowAt(ANAG[k], y), sq)); if(t.length===1) return t[0];   /* prima chi gioca nella squadra, poi chi è del suo circolo */
+    const c = sqCsb(sq), f = ks.filter(k=>csbOf(rowAt(ANAG[k], y))===c); if(f.length===1) return f[0]; }
   return "";
 }
-const sideSq = sd => !S || isTorneo() ? "" : sd==="h" ? CLUBSQ : (S.away.sq || findSq(S.away.name));
+/* squadra di un lato nei campionati a squadre (codice in squadre/): la nostra è st.home.sq (gare vecchie: la squadra del circolo) */
+const homeSq = st => (st && st.home && st.home.sq) || CLUBSQ;
+const awaySq = st => (st && st.away && (st.away.sq || findSq(st.away.name, campOf(st.formula)))) || "";
+const sideSq = sd => !S || isTorneo() ? "" : sd==="h" ? homeSq(S) : awaySq(S);
 const gYear = () => stagione(S && S.data);
 function pInfo(m, sd, j){
   const t = m[sd][j] || "", c = (m[sd + "c"] || [])[j] || "", y = gYear();
@@ -58,11 +62,12 @@ let sugFor = null, sugI = -1, sugL = [];
 function sugCands(el){
   const sd = el.dataset.nm.split(".")[1], y = gYear(), sq = sideSq(sd), q = nkey(el.textContent).split("-").filter(Boolean);
   const L = Object.entries(ANAG||{}).map(([k,p])=>({k, p, r:rowAt(p, y), now:!!(p.anni||{})[y]})).filter(x=>{
-    if(!q.length) return x.now && (sq ? x.r.sq===sq : isClub(x.r.sq));
+    if(!q.length) return x.now && (sq ? inTeam(x.r, sq) || csbOf(x.r)===sqCsb(sq) : isClub(csbOf(x.r)));
     const hay = [x.p.cognome, x.p.nome, x.p.sopr, tabName(x.p)].map(nkey).join("-").split("-");
     return q.every(w=>hay.some(h=>h.startsWith(w)));
   });
-  L.sort((a,b)=>(sq ? (b.r.sq===sq) - (a.r.sq===sq) : 0) || isClub(b.r.sq) - isClub(a.r.sq) || b.now - a.now
+  const sc = sq ? sqCsb(sq) : "";
+  L.sort((a,b)=>(sq ? inTeam(b.r, sq) - inTeam(a.r, sq) || (csbOf(b.r)===sc) - (csbOf(a.r)===sc) : 0) || isClub(csbOf(b.r)) - isClub(csbOf(a.r)) || b.now - a.now
     || String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||"")));
   return L.slice(0, 40);
 }
@@ -71,12 +76,12 @@ function showSug(el){
   if(!ANAG || !el || !el.isConnected){ hideSug(); return; }
   const txt = el.textContent.replace(/\s+/g, " ").trim(), sd = el.dataset.nm.split(".")[1];
   sugL = sugCands(el); sugFor = el;
-  const add = txt && !resolveName(txt, sideSq(sd), gYear()) && SQUADRE && Object.keys(SQUADRE).length;
+  const add = txt && !resolveName(txt, sideSq(sd), gYear()) && SQUADRE;
   const n = sugL.length + (add ? 1 : 0);
   if(!n){ box.hidden = true; return; }
   if(sugI>=n) sugI = -1;
   const y = gYear();
-  box.innerHTML = sugL.map((x,k)=>`<button type="button" class="sg${k===sugI ? " on" : ""}" data-sg="${k}"><b>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}</b><span>${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))} · ${esc(sqName(x.r.sq))}${x.now ? "" : " (" + stagLabel(anniOf(x.p).at(-1)) + ")"}</span></button>`).join("")
+  box.innerHTML = sugL.map((x,k)=>`<button type="button" class="sg${k===sugI ? " on" : ""}" data-sg="${k}"><b>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}</b><span>${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))} · ${esc(csbName(csbOf(x.r)))}${x.now ? "" : " (" + stagLabel(anniOf(x.p).at(-1)) + ")"}</span></button>`).join("")
     + (add ? `<button type="button" class="sg add${sugI===sugL.length ? " on" : ""}" data-sg="add">+ Aggiungi “${esc(txt)}” all'elenco giocatori</button>` : "");
   box.hidden = false;
   const r = el.getBoundingClientRect(), vh = window.visualViewport ? visualViewport.height : innerHeight, w = Math.min(340, innerWidth - 16);
@@ -92,7 +97,7 @@ function pickSug(k){
   if(k==="add"){ const txt = el.textContent.replace(/\s+/g, " ").trim(), nm = el.dataset.nm, sd = nm.split(".")[1];
     hideSug(); el.blur();
     const parts = txt.split(" "), cog = parts.shift(), rest = parts.join(" ").trim();
-    openPlayer(null, {cognome:cog, nome:/^[^\s.]\.?$/.test(rest) ? "" : rest, sq:sideSq(sd) || CLUBSQ, y:gYear(), link:nm}); return; }
+    openPlayer(null, {cognome:cog, nome:/^[^\s.]\.?$/.test(rest) ? "" : rest, sq:sideSq(sd), csb:sideSq(sd) ? "" : CLUBCSB, y:gYear(), link:nm}); return; }
   const x = sugL[+k]; if(!x) return;
   el.textContent = tabName(x.p); el.dataset.pick = x.k; el.dataset.pickt = tabName(x.p); hideSug(); el.blur();
 }

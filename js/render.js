@@ -11,12 +11,13 @@ function loginHTML(msg){
 function regiaHomeHTML(idx){
   const opts = Object.entries(FORMULE).filter(([k,f])=>!f.vecchia).map(([k,f])=>`<option value="${k}">${esc(f.nome)}</option>`).join("");
   return `<main class="wrap"><div class="top"><div><div class="comp">Regia tabellone</div><div class="sub">${esc(session && session.email || "")}</div></div>
-      <div class="rtop"><a class="ghost" href="manuale.html" target="_blank" rel="noopener">📖 Manuale</a><a class="ghost" href="?regia&amp;anagrafica">👥 Giocatori e squadre</a><button class="ghost" id="logout">Esci</button></div></div>
+      <div class="rtop"><a class="ghost" href="manuale.html" target="_blank" rel="noopener">📖 Manuale</a><a class="ghost" href="?regia&amp;anagrafica">👥 Giocatori, circoli e squadre</a><button class="ghost" id="logout">Esci</button></div></div>
     <form id="newgara" class="panel grid">
       <h2>Nuova gara</h2>
       <label for="ng-f">Competizione</label><select id="ng-f">${opts}</select>
       <label for="ng-d">Data</label><input id="ng-d" type="date" value="${today()}" required>
       <div class="fs" data-fs="sq"><label for="ng-g">Giornata</label><input id="ng-g" value="Prima giornata">
+        <div class="fs" id="ng-nsw"${clubTeams().length<2 ? " hidden" : ""}><label for="ng-ns">La nostra squadra</label><select id="ng-ns">${ngTeamOpts(Object.entries(FORMULE).find(([k,f])=>!f.vecchia)[0], "")}</select></div>
         <label for="ng-cp">Campo</label><select id="ng-cp"><option value="casa">In casa (noi a sinistra)</option><option value="trasferta">In trasferta (avversari a sinistra)</option></select></div>
       <div class="fs" data-fs="to" hidden><label for="ng-t" id="ng-tl">Nome del torneo</label><input id="ng-t" required disabled placeholder="es. 1° Memorial Luca Tamburini">
         <label for="ng-fa">Fase / giornata</label><input id="ng-fa" disabled placeholder="es. Batteria 1 (facoltativo)">
@@ -34,7 +35,7 @@ function regiaHomeHTML(idx){
         <label for="ng-c">Città avversaria</label><input id="ng-c" placeholder="es. Modena · MO"></div>
       <label for="ng-vis">Visibilità</label><select id="ng-vis"><option value="pub">Pubblica: nell'elenco delle gare</option><option value="link">Solo con il link: non compare nell'elenco</option><option value="prova">Prova: solo in regia (per provare regia e OBS)</option></select>
       <button type="submit">Crea gara</button><p class="hint" id="ng-msg"></p>
-    </form><datalist id="sq-dl">${SQUADRE ? sqDatalist() : ""}</datalist><datalist id="pl-dl">${ANAG ? Object.values(ANAG).map(p=>`<option value="${esc(tabName(p))}"></option>`).join("") : ""}</datalist>
+    </form><datalist id="sq-dl">${SQUADRE ? sqDatalist(campOf(Object.entries(FORMULE).find(([k,f])=>!f.vecchia)[0])) : ""}</datalist><datalist id="pl-dl">${ANAG ? Object.values(ANAG).map(p=>`<option value="${esc(tabName(p))}"></option>`).join("") : ""}</datalist>
     <h2 class="lh">Gare</h2>${delMsg ? `<p class="${delErr ? "err" : "hint"}">${esc(delMsg)}</p>` : ""}${listHTML(idx, true)}</main>`;
 }
 
@@ -73,6 +74,7 @@ async function dupGara(id){
   } else {
     $("#ng-g").value = nextGiornata(parts[0] || ""); $("#ng-l").value = parts.slice(1).join(" · ");
     $("#ng-o").value = src.away.name || ""; $("#ng-c").value = src.away.city || ""; $("#ng-cp").value = src.trasferta ? "trasferta" : "casa";
+    const ns = $("#ng-ns"); if(ns && src.home.sq && [...ns.options].some(o=>o.value===src.home.sq)){ ns.value = src.home.sq; ns.dataset.manual = "1"; }
   }
   $("#ng-d").value = today();
   $("#ng-msg").textContent = `Dati copiati da "${[src.title, src.subtitle].filter(Boolean).join(" · ")}": controlla ${tor ? "fase, data e luogo" : "giornata, data, campo (casa/trasferta), luogo e avversario"}, poi premi Crea gara.`;

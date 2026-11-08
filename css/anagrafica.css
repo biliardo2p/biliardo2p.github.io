@@ -127,3 +127,13 @@ a.anr{text-decoration:none}
 #anm .yr .nsq{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px 10px;padding:8px 10px;border-radius:8px;background:rgba(246,200,83,.07);border:1px dashed rgba(246,200,83,.35)}
 #anm .yr .nsq[hidden]{display:none}
 #anm .yr .nsq>label{flex:1 1 160px}
+/* squadre dei campionati: spunte nella riga dell'anno e giocatori della squadra (08/11/2026) */
+#anm .yr .ysq{flex-basis:100%;display:flex;flex-wrap:wrap;gap:6px 8px;align-items:center}
+#anm .yr .ysq:empty{display:none}
+#anm .ysl{color:var(--mute);font-weight:600;margin-right:2px}
+#anm label.chk{flex-direction:row;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid #3b4a63;background:#1b2536;color:var(--ink);font-weight:600;cursor:pointer}
+#anm label.chk:has(input:checked){border-color:var(--ok);background:rgba(47,191,113,.14)}
+#anm label.chk input{margin:0;padding:0;width:16px;height:16px;accent-color:var(--ok)}
+#anm .rosa{display:flex;flex-wrap:wrap;gap:6px 8px}
+.anr .tsq{font-style:normal;color:var(--gold)}
+#anm #an-y .yr+.yr{border-top:1px solid var(--line);padding-top:10px}

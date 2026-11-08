@@ -172,7 +172,7 @@ function ovCard(TB, id, x, y, w, h, extra){
     let cls = "sd", nm;
     if(x2.tbd){ cls += " tbd"; nm = `<span class="n">${esc(x2.lab || "da definire")}</span>`; }
     else if(x2.abs){ cls += " abs"; nm = `<span class="n">${esc(x2.name)}</span>`; }
-    else { nm = `<span class="n">${ovNamesTxt(x2.name)}</span>`; const k0 = resolveName(String(x2.name).split("/")[0], "", gYear()); if(k0 && isClub(rowAt(ANAG[k0], gYear()).sq)) cls += " home"; }
+    else { nm = `<span class="n">${ovNamesTxt(x2.name)}</span>`; const k0 = resolveName(String(x2.name).split("/")[0], "", gYear()); if(k0 && isClub(csbOf(rowAt(ANAG[k0], gYear())))) cls += " home"; }
     if(wn) cls += wn.sd===sd ? " w" : " l";
     const sc = L && (hasPts(L.m) || lw) ? (multi ? L.m.sw[ix(k)] : L.m.s[ix(k)]) : "";
     return `<div class="${cls}"><div class="nm">${nm}</div><div class="cs" data-cs="${id}.${k}">${sc}</div></div>`; };

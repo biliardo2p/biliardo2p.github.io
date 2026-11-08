@@ -16,10 +16,10 @@ function scanNames(gare){
     let st; try{ st = normalize(clone(raw)); }catch(e){ return; } if(!st) return;
     const y = stagione(st.data), glab = [fmtDate(st.data), st.title, st.subtitle].filter(Boolean).join(" · ");
     if(!isTorneo(st)){
-      const asq = st.away.sq || findSq(st.away.name);
+      const asq = awaySq(st), hsq = homeSq(st);
       st.matches.forEach((m,i)=>["h","a"].forEach(sd=>m[sd].forEach((t,j)=>{ t = String(t||"").trim(); if(!t) return;
         const c = (m[sd + "c"] || [])[j] || "";
-        out.push({gid, glab, tor:false, i, sd, j, t, c:c && ANAG[c] ? c : "", sq:sd==="h" ? CLUBSQ : asq, tn:sd==="h" ? CLUB.name : st.away.name, y, mlab:`${i+1} · ${m.kind} ${m.spec || ""}`.trim()}); })));
+        out.push({gid, glab, tor:false, i, sd, j, t, c:c && ANAG[c] ? c : "", sq:sd==="h" ? hsq : asq, tn:sd==="h" ? st.home.name : st.away.name, y, mlab:`${i+1} · ${m.kind} ${m.spec || ""}`.trim()}); })));
     } else if(isTab(st)){
       st.tab.bat.forEach((bt,b)=>bt.p.forEach((t,k)=>String(t||"").split("/").forEach((n,q)=>{ n = n.trim(); if(!n || n==="?" || ASSENTE.test(n)) return;
         out.push({gid, glab, tor:true, b, k, q, t:n, c:"", sq:"", y, mlab:bt.nome}); })));
@@ -39,7 +39,7 @@ function ckCands(g){
   const key = nkey(g.t), first = key.split("-")[0], y = g.y;
   const all = Object.entries(ANAG).map(([k,p])=>{ const cg = nkey(p.cognome), r = rowAt(p, y);
     const keys = [tabName(p), p.cognome, p.nome && p.cognome + " " + p.nome, p.sopr].filter(Boolean).map(nkey);
-    const sc = keys.includes(key) ? 0 : cg===first ? 1 : Math.min(...keys.map(x=>lev(x, key)), lev(cg, first))<=2 ? 2 : g.sq && r.sq===g.sq ? 3 : 4;
+    const sc = keys.includes(key) ? 0 : cg===first ? 1 : Math.min(...keys.map(x=>lev(x, key)), lev(cg, first))<=2 ? 2 : g.sq && (inTeam(r, g.sq) || csbOf(r)===sqCsb(g.sq)) ? 3 : 4;
     return {k, p, r, sc}; });
   return all.sort((a,b)=>a.sc - b.sc || String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||"")));
 }
@@ -68,7 +68,7 @@ function ckHTML(){
   if(!G.length) return h + `<p class="empty">${occ.length ? "Tutti i nomi delle gare sono collegati all'elenco. 👍" : "Nelle gare non ci sono ancora nomi di giocatori."}</p>`;
   h += `<h3 class="ang">Da sistemare <span>${G.length}</span></h3><div class="ckg">` + G.map(g=>{
     const cs = ckCands(g), sel = ckSel[g.id] ?? (cs[0] && cs[0].sc<=2 && !(cs[1] && cs[1].sc===cs[0].sc) ? cs[0].k : "");
-    const opt = (x) => `<option value="${esc(x.k)}"${x.k===sel ? " selected" : ""}>${esc(tabName(x.p))}${x.r.cat ? " (" + esc(x.r.cat) + ")" : ""} · ${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))} · ${esc(sqName(x.r.sq))}</option>`;
+    const opt = (x) => `<option value="${esc(x.k)}"${x.k===sel ? " selected" : ""}>${esc(tabName(x.p))}${x.r.cat ? " (" + esc(x.r.cat) + ")" : ""} · ${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))} · ${esc(csbName(csbOf(x.r)))}</option>`;
     const near = cs.filter(x=>x.sc<=2), team = cs.filter(x=>x.sc===3), rest = cs.filter(x=>x.sc===4);
     const gl = [...new Set(g.occ.map(o=>o.gid))].length;
     return `<div class="ckc"><div class="ckh"><b>${esc(g.t)}</b><span>${g.tor ? "torneo" : esc(g.sq ? sqName(g.sq) : (g.tn || "avversario") + " (squadra non in elenco)")} · ${g.occ.length} ${g.occ.length===1 ? "volta" : "volte"} in ${gl} ${gl===1 ? "gara" : "gare"}${near.length>1 && near[0].sc===0 ? " · <em>nome ambiguo</em>" : ""}</span></div>
@@ -101,7 +101,8 @@ async function ckApply(list, msg){
 }
 async function ckBackup(){
   let foto = null; try{ foto = (await db.ref("foto").once("value")).val(); }catch(e){}
-  const data = {creato:new Date().toISOString(), gare:CK, giocatori:ANAG, squadre:SQUADRE, foto:foto || {}};
+  if(!CK) await ckLoad(); if(!CK) return;
+  const data = {creato:new Date().toISOString(), gare:CK, giocatori:ANAG, circoli:CIRCOLI || {}, squadre:SQUADRE, foto:foto || {}};
   const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 1)], {type:"application/json"}));
   a.download = "biliardo2p-copia-" + today() + ".json"; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1000);
   ckMsg = "Copia di sicurezza scaricata: conservala finché non hai finito i collegamenti."; ckErr = false; render();
@@ -109,7 +110,7 @@ async function ckBackup(){
 app.addEventListener("click", e=>{
   if(mode!=="anag" || anTab!=="c") return; const t = e.target;
   if(t.closest("[data-ckre]")){ ckMsg = ""; ckLoad(); return; }
-  if(t.closest("[data-ckbk]")){ if(CK) ckBackup(); return; }
+  if(t.closest("[data-ckbk]")){ if(!needMig()) ckBackup(); return; }
   if(t.closest("[data-ckall]")){ const au = scanNames(CK).filter(o=>!o.tor && o.auto); t.closest("button").disabled = true;
     ckApply(au.map(o=>({o, k:o.auto})), `Confermati ${au.length} collegamenti.`); return; }
   const l = t.closest("[data-ckl]"); if(l){ const g = ckGroups(scanNames(CK)).find(x=>x.id===l.dataset.ckl), k = $(`[data-cks="${CSS.escape(l.dataset.ckl)}"]`).value;
@@ -117,7 +118,7 @@ app.addEventListener("click", e=>{
     ckApply(g.occ.map(o=>({o, k})), `“${g.t}” collegato a ${tabName(ANAG[k])} in ${g.occ.length} ${g.occ.length===1 ? "casella" : "caselle"}.`); return; }
   const n = t.closest("[data-ckn]"); if(n){ const g = ckGroups(scanNames(CK)).find(x=>x.id===n.dataset.ckn); if(!g) return;
     const parts = g.t.split(" "), cog = parts.shift(), rest = parts.join(" ").trim();
-    openPlayer(null, {cognome:cog, nome:/^[^\s.]\.?$/.test(rest) ? "" : rest, sq:g.sq || (g.tor ? CLUBSQ : (sqSorted().find(([k])=>!isClub(k)) || [CLUBSQ])[0]), y:g.y, ck:g.id}); }
+    openPlayer(null, {cognome:cog, nome:/^[^\s.]\.?$/.test(rest) ? "" : rest, sq:g.sq, csb:g.sq ? "" : g.tor ? CLUBCSB : "", y:g.y, ck:g.id}); }
 });
 app.addEventListener("change", e=>{ if(mode==="anag" && e.target.dataset && e.target.dataset.cks!=null){ ckSel[e.target.dataset.cks] = e.target.value;
   const b = $(`[data-ckl="${CSS.escape(e.target.dataset.cks)}"]`); if(b) b.disabled = !e.target.value; } });

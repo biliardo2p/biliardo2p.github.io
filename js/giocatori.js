@@ -17,7 +17,7 @@ function allMatches(){
     let st; try{ st = normalize(clone(raw)); }catch(e){ return; } if(!st) return;
     const y = stagione(st.data), tor = isTorneo(st), base = {gid, data:st.data||"", y, tit:st.title||"", sub:st.subtitle||"", stato:st.stato};
     const who = (t, sq, c) => { t = String(t||"").trim(); const k = c && ANAG[c] ? c : resolveName(t, sq, y); return {t: k ? tabName(ANAG[k]) : t, k}; };
-    const sqOf = sd => tor ? "" : sd==="h" ? CLUBSQ : (st.away.sq || findSq(st.away.name));
+    const sqOf = sd => tor ? "" : sd==="h" ? homeSq(st) : awaySq(st), hn = st.home.short || st.home.name;
     st.matches.forEach((m,i)=>{
       const w = winner(m); if(!w && !hasPts(m)) return;
       const multi = m.defs && m.defs.length>1;
@@ -29,7 +29,7 @@ function allMatches(){
           const e = Object.assign({}, base, {k:x.k, i, kind:tor ? st.gioco : m.kind, spec, lab:tor ? (m.turno || "") : `Incontro ${i+1}`,
             mate:me.filter((_,q)=>q!==j), opp:op, res:w ? (w===sd ? "V" : "P") : "",
             score: multi ? `set ${m.sw[ix]}–${m.sw[1-ix]}` : `${m.s[ix]}–${m.s[1-ix]}`,
-            team:tor ? "" : (sd==="h" ? CLUB.short || CLUB.name : st.away.name), vs:tor ? "" : (sd==="h" ? st.away.name : CLUB.short || CLUB.name)});
+            team:tor ? "" : (sd==="h" ? hn : st.away.name), vs:tor ? "" : (sd==="h" ? st.away.name : hn)});
           if(m.kind==="Staffetta" && !tor){ const pts = (sd==="h" ? m.ph : m.pa) || []; e.extra = `${j+1}ª frazione · ${+pts[j]||0} punti`; e.mate = []; }
           out.push(e); }); });
     });
@@ -50,12 +50,13 @@ function giocHTML(){
   if(!ANAG) return `<main class="wrap">${back}<p class="empty">Caricamento…</p></main>`;
   const p = ANAG[PCODE];
   if(!p) return `<main class="wrap">${back}<p class="empty">Giocatore non trovato.</p></main>`;
-  const y0 = stagione(), r = rowAt(p, y0), sq = (SQUADRE||{})[r.sq];
+  const y0 = stagione(), r = rowAt(p, y0), c = csbOf(r), ys0 = anniOf(p).includes(y0) ? y0 : anniOf(p).at(-1);
   const full = [p.nome, p.cognome].filter(Boolean).join(" ") || tabName(p);
   document.title = full + " · Biliardo Seconda Passione";
-  let h = `<main class="wrap">${back}<section class="phead">${sqLogo(r.sq, sq)}<div><div class="comp">${esc(full)}</div>
+  let h = `<main class="wrap">${back}<section class="phead">${csbLogo(c)}<div><div class="comp">${esc(full)}</div>
     ${p.sopr ? `<div class="sub">“${esc(p.sopr)}”</div>` : ""}
-    <div class="pinfo">${esc(sqName(r.sq))} · ${esc(catLabel(r.cat) || "categoria non indicata")} · ${stagLabel(anniOf(p).includes(y0) ? y0 : anniOf(p).at(-1))}</div></div></section>`;
+    <div class="pinfo">${esc(csbName(c))} · ${esc(catLabel(r.cat) || "categoria non indicata")} · ${stagLabel(ys0)}</div>
+    ${sqsOf(r).length ? `<div class="pinfo">${sqsOf(r).length===1 ? "Squadra" : "Squadre"}: ${esc(sqsOf(r).map(sqLabel).join(", "))}</div>` : ""}</div></section>`;
   if(p.foto){ const u = fotoGet(PCODE, p, ()=>{ if(mode==="gioc") render(); });
     h += u ? `<figure class="pfoto"><img src="${esc(u)}" alt="${esc([p.nome, p.cognome].filter(Boolean).join(" "))}"></figure>` : u===null ? `<figure class="pfoto"><span></span></figure>` : ""; }
   if(allgErr) return h + `<p class="empty">Impossibile leggere le gare. Ricarica la pagina.</p></main>`;
@@ -87,11 +88,11 @@ function giocsHTML(){
 }
 function giocsList(){
   const q = gsQ.trim().toLowerCase();
-  const rows = Object.entries(ANAG).map(([k,p])=>({k, p, r:(p.anni||{})[gsSt]})).filter(x=>x.r && (!q || [x.p.cognome, x.p.nome, x.p.sopr, tabName(x.p), sqName(x.r.sq)].join(" ").toLowerCase().includes(q)));
+  const rows = Object.entries(ANAG).map(([k,p])=>({k, p, r:(p.anni||{})[gsSt]})).filter(x=>x.r && (!q || [x.p.cognome, x.p.nome, x.p.sopr, tabName(x.p), csbName(csbOf(x.r)), sqsTxt(x.r)].join(" ").toLowerCase().includes(q)));
   if(!rows.length) return `<p class="empty">Nessun giocatore.</p>`;
-  rows.sort((a,b)=>isClub(b.r.sq) - isClub(a.r.sq) || sqName(a.r.sq).localeCompare(sqName(b.r.sq)) || String(a.p.cognome).localeCompare(String(b.p.cognome)) || String(a.p.nome||"").localeCompare(String(b.p.nome||"")));
-  const g = new Map(); rows.forEach(x=>{ if(!g.has(x.r.sq)) g.set(x.r.sq, []); g.get(x.r.sq).push(x); });
-  return [...g].map(([sq, xs])=>`<h3 class="ang">${esc(sqName(sq))} <span>${xs.length}</span></h3><div class="anl">` + xs.map(x=>
+  rows.sort(sortByCsb);
+  const g = new Map(); rows.forEach(x=>{ const c = csbOf(x.r); if(!g.has(c)) g.set(c, []); g.get(c).push(x); });
+  return [...g].map(([c, xs])=>`<h3 class="ang">${esc(csbName(c))} <span>${xs.length}</span></h3><div class="anl">` + xs.map(x=>
     `<a class="anr" href="?giocatore=${esc(x.k)}"><b>${esc(tabName(x.p))}${x.r.cat ? ` (${esc(x.r.cat)})` : ""}</b><span>${esc([x.p.nome, x.p.cognome].filter(Boolean).join(" "))}${x.p.sopr ? ` · “${esc(x.p.sopr)}”` : ""} · ${esc(catLabel(x.r.cat) || "categoria non indicata")}</span></a>`).join("") + `</div>`).join("");
 }
 app.addEventListener("click", e=>{ if(mode!=="gioc") return; const b = e.target.closest("[data-gst]"); if(b){ gSt = b.dataset.gst; render(); } });
