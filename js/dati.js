@@ -10,7 +10,9 @@ function saveDraft(){ try{ localStorage.setItem(DKEY(), JSON.stringify({base:PUB
 function snapshot(){ hist.push(JSON.stringify(S)); if(hist.length>200) hist.shift(); }
 function undo(){ if(!hist.length) return; S = normalize(JSON.parse(hist.pop())); commit(); }
 function commit(){ if(editor) saveDraft(); render(); }
-const strip = o => { if(!o) return ""; const c = clone(o); delete c.rev; delete c.updatedAt; return JSON.stringify(c); };
+/* confronto regia/pubblicato indipendente dall'ordine dei campi (Firebase li restituisce in ordine alfabetico) */
+const canon = v => Array.isArray(v) ? v.map(canon) : v && typeof v==="object" ? Object.keys(v).sort().reduce((o,k)=>(o[k] = canon(v[k]), o), {}) : v;
+const strip = o => { if(!o) return ""; const c = clone(o); delete c.rev; delete c.updatedAt; return JSON.stringify(canon(c)); };
 const dirty = () => strip(S) !== strip(PUB);
 function setFlash(t){ flash = t; renderBar(); clearTimeout(flashT); flashT = setTimeout(()=>{ flash=""; renderBar(); }, 7000); }
 

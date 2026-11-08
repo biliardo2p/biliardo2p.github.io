@@ -126,7 +126,7 @@ function scoreFx(el, from, to, sd){
 }
 function render(){
   const app = $("#app");
-  if(mode===shown && app.contains(document.activeElement) && (document.activeElement.isContentEditable || /INPUT|SELECT/.test(document.activeElement.tagName))) return;
+  if(mode===shown && app.contains(document.activeElement) && (document.activeElement.isContentEditable || /INPUT|SELECT/.test(document.activeElement.tagName))){ renderBar(); return; }   /* la barra (PUBBLICA arancione/verde) si aggiorna comunque */
   shown = mode;
   document.body.classList.toggle("ed", editor);
   if(mode==="board" && S){

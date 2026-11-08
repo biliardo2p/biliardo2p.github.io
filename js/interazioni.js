@@ -220,7 +220,8 @@ app.addEventListener("change", e=>{ const w = e.target.dataset && e.target.datas
   const v = e.target.value;
   if(w==="data" && !/^\d{4}-\d{2}-\d{2}$/.test(v)){ e.target.value = S.data || ""; return; }   /* la data non si può svuotare */
   if(w==="ora" && v && !okOra(v)) return;
-  if((S[w]||"")!==v){ snapshot(); S[w] = v; commit(); }
+  e.target.blur();   /* altrimenti, con la casella attiva, la pagina non si ridisegna */
+  if((S[w]||"")!==v){ snapshot(); if(v) S[w] = v; else delete S[w]; commit(); }
 });
 app.addEventListener("change", e=>{ if(e.target.matches && e.target.matches("[data-pgsel]")){ tabPage = e.target.value; e.target.blur(); render(); } });
 app.addEventListener("toggle", e=>{ if(e.target.classList && e.target.classList.contains("dn")) doneOpen = e.target.open; }, true);

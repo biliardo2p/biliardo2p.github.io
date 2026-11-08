@@ -27,6 +27,7 @@ const arr = v => Array.isArray(v) ? v : (v && typeof v==="object" ? Object.keys(
 /* Firebase toglie le liste vuote e trasforma gli array: si ricompone lo stato */
 function normalize(st){
   if(!st || typeof st!=="object") return null;
+  if(!okOra(st.ora)) delete st.ora;   /* ora di inizio facoltativa: vuota = assente */
   const f = FORMULE[st.formula] || FORMULE.base;
   st.home = Object.assign({name:"",city:""}, st.home); st.away = Object.assign({name:"",city:"",badge:""}, st.away);
   st.inCorso = arr(st.inCorso).map(Number);
@@ -79,12 +80,12 @@ function normalize(st){
 }
 function newState(o){
   const f = FORMULE[o.formula];
-  if(f.torneo) return normalize(Object.assign({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data, ora:o.ora||"",
+  if(f.torneo) return normalize(Object.assign({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data, ora:o.ora,
     title:o.titolo, subtitle:[o.fase, o.luogo].filter(Boolean).join(" · "), gioco:o.gioco, formule:o.formule, formato:"",
     home:clone(CLUB), away:{name:"",city:"",badge:""}, inCorso:[], matches:[], nextId:1},
     f.tab ? {tab:{bat:Array.from({length:o.nbat||1}, (_,i)=>({nome:"Batteria " + (i+1), p:Array(8).fill("")})), fin:finDefault(o.nbat||1), res:{}}} : {}));
   const away = {name:o.ospite, city:o.citta, badge:(o.ospite||"?").trim().charAt(0).toUpperCase()};
-  return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data, ora:o.ora||"",
+  return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data, ora:o.ora,
     title:f.nome, subtitle:[o.giornata, o.luogo].filter(Boolean).join(" · "), trasferta:!!o.trasferta,
     home:clone(CLUB), away, inCorso:[], matches:clone(f.matches)});
 }
