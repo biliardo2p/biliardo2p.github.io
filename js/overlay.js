@@ -4,12 +4,13 @@
    primo = indice dell'incontro in primo piano (-1 = automatico); pag = pagina del tabellone dei tornei; ciclo = secondi di rotazione delle pagine.
    I comandi si danno dalla regia (pannello 📺 Onda) e valgono subito, senza PUBBLICA. Il sito pubblico non li usa.
    ?overlay&mini&live = mini-overlay per le dirette con telecamera: la fascia in basso, sfondo trasparente; sparisce quando la regia manda in onda il Tabellone;
-   con più incontri in corso e incontro in primo piano "Automatico" li alterna ogni &rot=<secondi> (12 se non indicato);
+   con più incontri in corso e incontro in primo piano "Automatico" mostra l'ultimo messo in corso (si cambia dalla regia: tasto F o menu);
+   la rotazione automatica tra gli incontri in corso c'è solo aggiungendo &rot (ogni 12 secondi) o &rot=<secondi>;
    &alza solleva la fascia dal fondo (13% dell'altezza, oppure &alza=<percentuale>), per lasciare libero il logo di PRISM in basso a destra.
    ?overlay&riepilogo&live = riepilogo della gara a tutto schermo per le dirette con telecamera (secondo widget di PRISM, accanto al mini-overlay):
    compare solo quando la regia manda in onda il Tabellone (tasto V nel pannello 📺 Onda), altrimenti è vuoto e trasparente;
    si adatta a qualsiasi riquadro restando 16:9 e centrato. Mini-overlay e riepilogo senza comandi della regia: fascia sì, riepilogo no. */
-const OVERLAY = P.has("overlay"), OVMINI = OVERLAY && P.has("mini"), OVRIEP = OVERLAY && !OVMINI && P.has("riepilogo"), OVROT = Math.max(4, +P.get("rot") || 12);
+const OVERLAY = P.has("overlay"), OVMINI = OVERLAY && P.has("mini"), OVRIEP = OVERLAY && !OVMINI && P.has("riepilogo"), OVROT = P.has("rot") ? Math.max(4, +P.get("rot") || 12) : 0;   /* rotazione della fascia: solo con &rot (dall'08/11/2026) */
 let ovRotI = 0, ovRotT = 0, ovLastPrimo = -2;
 let O = null, ovId = "", ovOff = null, ovPrev = null, ovCycT = 0, ovCycOff = 0, ovPage = "";
 const ovO = () => Object.assign({v: OVMINI || OVRIEP ? "fascia" : "tab", bga:.55, primo:-1, pag:"", ciclo:0}, O || {});
@@ -88,7 +89,7 @@ function ovBars(m, x, y){
 }
 /* incontro in primo piano: scelto dalla regia, altrimenti l'ultimo segnato "in corso" (tornei: il primo seguito in diretta non concluso) */
 /* incontri da alternare nella fascia: quelli in corso, se la regia non ne ha scelto uno */
-function ovRotList(){ const o = ovO(); if(o.primo>=0 && S.matches[o.primo]) return [];
+function ovRotList(){ const o = ovO(); if(!OVROT || (o.primo>=0 && S.matches[o.primo])) return [];
   if(ovView(o)!=="fascia") return [];
   return (S.inCorso||[]).filter(i=>S.matches[i]).slice().sort((a,b)=>a-b); }
 function ovPrimo(){
@@ -282,7 +283,7 @@ function ondaPaint(){
   p.hidden = false;
   p.innerHTML = `<div class="oh"><b>📺 Onda</b><span>comandi immediati per l'overlay di OBS</span><button class="ox" data-o="x" aria-label="Chiudi">✕</button></div>
     <div class="og"><span>In onda</span><div class="seg">${[["tab","Tabellone"],["fascia","Fascia incontro"],["off","Nascosto"]].map(([k,t])=>`<button data-o="v:${k}" class="${o.v===k ? "on" : ""}">${t}</button>`).join("")}</div></div>
-    <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (in corso; nella fascia a rotazione)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
+    <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (l'ultimo messo in corso)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
     ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
       <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
     <div class="og"><span>Sfondo del tabellone</span><div class="two"><input type="range" min="0" max="1" step="0.05" value="${o.bga ?? .55}" data-o="bga"><b>${Math.round((o.bga ?? .55)*100)}%</b></div></div>
@@ -291,7 +292,7 @@ function ondaPaint(){
       <div class="two"><code>${esc(pub)}?overlay&amp;gara=${esc(GARA)}</code><button data-o="copy:gara">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;mini&amp;live</code><button data-o="copy:mini">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;riepilogo&amp;live</code><button data-o="copy:riep">Copia</button></div>
-      <small>Gli ultimi due sono per le dirette con telecamera (due widget di PRISM): la fascia con gli incontri in corso, e il riepilogo a tutto schermo che compare al posto della fascia quando è in onda il Tabellone (tasto V).</small></div>
+      <small>Gli ultimi due sono per le dirette con telecamera (due widget di PRISM): la fascia con l'incontro in primo piano (tasto F per cambiarlo), e il riepilogo a tutto schermo che compare al posto della fascia quando è in onda il Tabellone (tasto V).</small></div>
     ${ondaErr ? `<p class="err">${esc(ondaErr)}</p>` : ""}
     <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
 }
