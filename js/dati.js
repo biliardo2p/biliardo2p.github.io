@@ -61,11 +61,11 @@ async function dbWrite(obj){
 }
 function metaOf(st){
   if(isTorneo(st)){ const c = champion(st);
-    return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", formula:st.formula, stato:st.stato, tipo:"torneo",
+    return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", ora:okOra(st.ora) ? st.ora : "", formula:st.formula, stato:st.stato, tipo:"torneo",
       fatti:isTab(st) ? [...buildTab(st).nodes.values()].filter(n=>n.w && n.w.how!=="abs").length : st.matches.filter(m=>winner(m)).length,
       totale:isTab(st) ? [...buildTab(st).nodes.values()].filter(n=>!(n.w && n.w.how==="abs")).length : st.matches.length, vincitore:c ? c.n : "", vis:visOf(st), prova:visOf(st)==="prova", aggiornato:st.updatedAt||0}; }
   const t = totals(st);
-  return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", formula:st.formula, stato:st.stato,
+  return {titolo:st.title, sottotitolo:st.subtitle||"", data:st.data||"", ora:okOra(st.ora) ? st.ora : "", formula:st.formula, stato:st.stato,
     casa:st.home.name, ospite:st.away.name, punti:t, trasferta:!!st.trasferta, vis:visOf(st), prova:visOf(st)==="prova", aggiornato:st.updatedAt||0};
 }
 /* cronologia: a ogni PUBBLICA, in storia/<gara>/r<rev>, i punteggi degli incontri cambiati; azzerando tutto si cancella */

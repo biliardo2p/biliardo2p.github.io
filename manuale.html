@@ -145,11 +145,12 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <section id="pubblico">
 <h2><span class="n">2</span>Per chi segue le gare</h2>
 <h3>Elenco delle gare</h3>
-<p>Ogni gara mostra data, stato (<b>LIVE</b>, <b>In programma</b>, <b>Finale</b>), competizione, giornata e luogo, e il punteggio delle squadre o il vincitore del torneo. Toccando una gara si apre la sua pagina. In alto a destra, <b>👥 Giocatori</b> porta all'elenco dei giocatori.</p>
+<p>Ogni gara mostra data (e, se è in programma, l'ora di inizio), stato (<b>LIVE</b>, <b>In programma</b>, <b>Finale</b>), competizione, giornata e luogo, e il punteggio delle squadre o il vincitore del torneo. Toccando una gara si apre la sua pagina. In alto a destra, <b>👥 Giocatori</b> porta all'elenco dei giocatori.</p>
 <p>Quando c'è almeno una partita in diretta, in cima all'elenco compare il riquadro rosso <b>LIVE · Partite in corso</b> con il pulsante <span class="btn">Guarda la diretta ›</span>: porta al link fisso <code>?live</code>, cioè alla gara in diretta (o all'elenco delle dirette, se sono più d'una). Vale anche per le gare “solo con il link”, mai per quelle di prova.</p>
 <div class="shs"><figure class="sh tel"><img src="img/manuale/elenco.webp" alt="Elenco delle gare (telefono)" loading="lazy" width="390" height="844"><figcaption>Elenco delle gare (telefono)</figcaption></figure><figure class="sh tel"><img src="img/manuale/gara-telefono.webp" alt="Una gara a squadre in diretta, in trasferta: gli avversari sono a sinistra" loading="lazy" width="390" height="844"><figcaption>Una gara a squadre in diretta, in trasferta: gli avversari sono a sinistra</figcaption></figure></div>
 <h3>Pagina di una gara a squadre</h3>
 <ul>
+  <li><b>Sotto il titolo</b> giorno e ora di inizio. Finché la gara è in programma la riga è in evidenza (“Inizio: giovedì 12 novembre · ore 20:30”): chi apre il link della diretta prima dell'inizio sa già quando si comincia. Vale anche per i tornei e le partite singole.</li>
   <li><b>In alto</b> le due squadre con il punteggio totale. A sinistra c'è sempre la squadra che gioca in casa; i colori restano legati alla squadra: azzurro per il nostro circolo, arancione per l'avversario.</li>
   <li><b>Sotto</b> una scheda per incontro: tipo (Singolo, Coppia, Staffetta), specialità e punti da raggiungere, giocatori con la categoria tra parentesi, per esempio “GALLI E. (2)”, e punteggio. L'incontro in corso è evidenziato; quello vinto mostra il punto assegnato alla squadra.</li>
   <li><b>Staffetta:</b> si vede la frazione in corso, a quanti punti avviene il cambio e quanto vale l'incontro.</li>
@@ -187,6 +188,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <table>
 <tr><th>Campo</th><th>Cosa scrivere</th></tr>
 <tr><td>Data</td><td>Il giorno della gara.</td></tr>
+<tr><td>Ora di inizio</td><td>Facoltativa (c'è anche per tornei e partite singole). Compare sotto il titolo nella pagina della gara e, per le gare in programma, nell'elenco.</td></tr>
 <tr><td>Giornata</td><td>Per esempio “Seconda giornata”.</td></tr>
 <tr><td>La nostra squadra</td><td>Compare solo se il circolo ha più di una squadra: viene proposta quella del campionato scelto (Base o Eccellenza). Sul tabellone va il nome della squadra.</td></tr>
 <tr><td>Campo</td><td><b>In casa</b> (noi a sinistra) oppure <b>In trasferta</b> (avversari a sinistra).</td></tr>
@@ -203,7 +205,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
 <h3>Tornei</h3>
 <p>Per i due tipi di torneo si indicano nome del torneo, fase o giornata (facoltativa), gioco (singoli o coppie) e la <b>partita</b>: set secco, 2 su 3 o 3 su 5; per ogni set specialità e punti. L'ultimo set può essere <b>a scelta all'acchito</b>. Per il torneo con batterie e finali si indica anche il numero di batterie. Vedi <a href="#tornei">Tornei</a>.</p>
 <h3>Duplica</h3>
-<p><span class="btn">⧉ Duplica</span> riempie il modulo con i dati di una gara esistente: competizione, <b>giornata successiva</b> (Prima → Seconda, 1ª → 2ª, Giornata 3 → Giornata 4), campo, luogo, avversario e città; per i tornei nome, gioco, formula e numero di batterie. La data diventa quella di oggi. Punteggi e nomi dei giocatori non vengono copiati. Controlla i campi, in particolare data e campo, e premi <span class="btn g">Crea gara</span>.</p>
+<p><span class="btn">⧉ Duplica</span> riempie il modulo con i dati di una gara esistente: competizione, <b>giornata successiva</b> (Prima → Seconda, 1ª → 2ª, Giornata 3 → Giornata 4), ora di inizio, campo, luogo, avversario e città; per i tornei nome, gioco, formula e numero di batterie. La data diventa quella di oggi. Punteggi e nomi dei giocatori non vengono copiati. Controlla i campi, in particolare data e campo, e premi <span class="btn g">Crea gara</span>.</p>
 <h3>Partite singole</h3>
 <p>Per seguire solo uno o pochi incontri di un torneo, anche organizzato da altri, senza compilare il tabellone: scegli <b>Partite singole</b>. Si indicano evento (es. “Gran Premio di Modena”), fase facoltativa, singoli o coppie, la partita e, se vuoi, i nomi del primo incontro: con <span class="btn g">Crea gara</span> sei subito in diretta. Altri incontri si aggiungono dopo con <span class="btn">Incontri…</span>, come nei tornei a incontri liberi. Sito, overlay, numero del biliardo e andamento funzionano come per le altre gare.</p>
 <p>Le partite singole nascono con visibilità <b>Solo con il link</b>. A fine diretta, <span class="btn">Termina gara</span> ricorda che la gara resta raggiungibile con il suo link; se non serve conservarla, <span class="btn">🗑 Elimina gara</span> (nella barra di regia, sotto <span class="btn">⋯</span> su telefono) la cancella con doppia conferma. Eliminandola il link smette di funzionare.</p>
@@ -246,6 +248,7 @@ footer{grid-column:1/-1;color:var(--dim);font-size:14px;text-align:center;paddin
   <li><b>Casa / trasferta:</b> il pulsante sotto il punteggio (“In casa · ⇄ cambia”) inverte i lati.</li>
   <li><b>Logo dell'avversario:</b> doppio clic sul logo o sull'iniziale per caricare un'immagine; viene salvato anche nella scheda della squadra.</li>
   <li><b>Nomi e città delle squadre, titolo e sottotitolo:</b> si correggono toccandoli.</li>
+  <li><b>Data e ora di inizio:</b> le due caselle sotto il titolo; valgono per il pubblico dopo <span class="btn g">PUBBLICA</span>. Il codice della gara (nel link) non cambia.</li>
   <li><b>Annulla:</b> <kbd>Ctrl</kbd>+<kbd>Z</kbd>.</li>
 </ul>
 </section>
@@ -548,7 +551,7 @@ assente
   <dt>Toccando un nome nella regia non si apre la scheda del giocatore.</dt>
   <dd>È voluto: in regia toccare un nome serve a modificarlo. I nomi sono link solo nelle pagine pubbliche.</dd>
   <dt>Ho creato una gara con la data o l'avversario sbagliato.</dt>
-  <dd>Titolo, sottotitolo e nomi si correggono toccandoli in regia. Per cambiare la data conviene creare una nuova gara (anche con Duplica) ed eliminare quella sbagliata.</dd>
+  <dd>Titolo, sottotitolo e nomi si correggono toccandoli in regia; data e ora di inizio con le caselle sotto il titolo, poi PUBBLICA. Il link della gara contiene ancora la data vecchia ma funziona lo stesso; se lo si vuole corretto, creare una nuova gara (anche con Duplica) ed eliminare quella sbagliata.</dd>
 </dl>
 </section>
 
@@ -556,6 +559,7 @@ assente
 <h2><span class="n">15</span>Novità</h2>
 <h3>8 novembre 2026</h3>
 <ul>
+  <li><b>Ora di inizio</b> della gara: si indica in Nuova gara (facoltativa) e si corregge in regia sotto il titolo, insieme alla data. Il pubblico vede “Inizio: giovedì 12 novembre · ore 20:30” sotto il titolo della gara in programma e l'ora nell'elenco delle gare. L'overlay non cambia.</li>
   <li>Con la regia aperta lo schermo del telefono resta sempre acceso (anche nell'app Regia 2P), senza cambiare le impostazioni del telefono. Si spegne normalmente quando si passa a un'altra app.</li>
   <li>La fascia (overlay e mini-overlay) non alterna più da sola gli incontri in corso: resta sull'ultimo messo in corso e si cambia dalla regia con F. La rotazione automatica resta disponibile aggiungendo <code>&amp;rot</code> all'indirizzo.</li>
   <li>Anagrafica: filtro per campionato nella scheda Squadre; logo e foto si possono <b>incollare</b> da un'immagine copiata (<kbd>Ctrl</kbd>+<kbd>V</kbd> o 📋 Incolla).</li>

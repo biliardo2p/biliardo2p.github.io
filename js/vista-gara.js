@@ -141,12 +141,19 @@ function goCard(i){
   if(el && el.closest("details") && !el.closest("details").open){ doneOpen = true; render(); el = app.querySelector(`[data-row="${i}"]`); }
   if(!el) return; el.scrollIntoView({behavior:"smooth", block:"center"}); el.classList.add("flash"); setTimeout(()=>el.classList.remove("flash"), 1600);
 }
+/* data e ora di inizio sotto il titolo; in regia si correggono qui (valgono dopo PUBBLICA) */
+function whenHTML(){
+  if(editor) return `<div class="when ed"><label>Data <input type="date" data-gw="data" value="${esc(S.data||"")}" required></label><label>Ora di inizio <input type="time" step="300" data-gw="ora" value="${esc(okOra(S.ora) ? S.ora : "")}"></label></div>`;
+  if(!S.data) return "";
+  const t = [fmtDateLong(S.data), fmtOra(S.ora)].filter(Boolean).join(" · ");
+  return `<div class="when${S.stato==="programmata" ? " prog" : ""}">${S.stato==="programmata" ? (okOra(S.ora) ? "Inizio: " : "In programma ") : ""}${esc(S.stato==="programmata" ? t : t.charAt(0).toUpperCase() + t.slice(1))}</div>`;
+}
 function boardHTML(){
   const t = totals();
   const badge = S.stato==="finita" ? `<span class="live fin">FINALE</span>` : S.stato==="programmata" ? `<span class="live prog">PROSSIMA</span>` : `<span class="live"><i></i>LIVE</span>`;
   return `<main class="wrap">
     ${REGIA ? "" : `<a class="back" href="${esc(pageURL("") || "?")}">← Tutte le gare</a>`}
-    <div class="top"><div>${ed("title","comp","div")}${ed("subtitle","sub","div")}</div><div class="badges">${badge}<span id="viewers" class="viewers">${viewersHTML()}</span></div></div>
+    <div class="top"><div>${ed("title","comp","div")}${ed("subtitle","sub","div")}${whenHTML()}</div><div class="badges">${badge}<span id="viewers" class="viewers">${viewersHTML()}</span></div></div>
     ${isTorneo() ? (isTab() ? tabBoardHTML() : torneoHTML()) : (()=>{ const tm = {h:`<div class="team h"><img src="${LOGO_HOME}" alt="Logo ${esc(S.home.name)}">${ed("home.name","tn","div")}${ed("home.city","tc","div")}</div>`,
         a:`<div class="team a">${awayBadge()}${ed("away.name","tn","div")}${ed("away.city","tc","div")}</div>`}, tt = {h:`<span class="h">${t[0]}</span>`, a:`<span class="a">${t[1]}</span>`}, [x,y] = SDS();
       return `<section class="score${x==="a" ? " sw" : ""}" aria-label="Punteggio squadre">${tm[x]}<div class="tot" aria-label="Punti squadra">${tt[x]}<span class="x">–</span>${tt[y]}</div>${tm[y]}</section>` +

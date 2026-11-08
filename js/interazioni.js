@@ -216,6 +216,12 @@ $("#edm").addEventListener("click", e=>{
 });
 $("#ed-x").addEventListener("input", ()=>{ if(incArm){ incArm = 0; paintIncBtn(); $("#ed-m").textContent = ""; } });
 document.addEventListener("keydown", e=>{ if(e.key==="Escape" && !$("#edm").hidden) closeInc(); });
+app.addEventListener("change", e=>{ const w = e.target.dataset && e.target.dataset.gw; if(!w || !editor || !S) return;
+  const v = e.target.value;
+  if(w==="data" && !/^\d{4}-\d{2}-\d{2}$/.test(v)){ e.target.value = S.data || ""; return; }   /* la data non si può svuotare */
+  if(w==="ora" && v && !okOra(v)) return;
+  if((S[w]||"")!==v){ snapshot(); S[w] = v; commit(); }
+});
 app.addEventListener("change", e=>{ if(e.target.matches && e.target.matches("[data-pgsel]")){ tabPage = e.target.value; e.target.blur(); render(); } });
 app.addEventListener("toggle", e=>{ if(e.target.classList && e.target.classList.contains("dn")) doneOpen = e.target.open; }, true);
 /* ---- tabellone: finestra dell'incontro (vincitore, punteggio, segui in diretta) ---- */
@@ -386,7 +392,7 @@ app.addEventListener("submit", async e=>{
     }
   }
   if(e.target.id==="newgara"){
-    const o = {formula:$("#ng-f").value, data:$("#ng-d").value, giornata:$("#ng-g").value.trim(), luogo:$("#ng-l").value.trim(), ospite:$("#ng-o").value.trim(), citta:$("#ng-c").value.trim(), trasferta:$("#ng-cp").value==="trasferta"};
+    const o = {formula:$("#ng-f").value, data:$("#ng-d").value, ora:okOra($("#ng-ora").value) ? $("#ng-ora").value : "", giornata:$("#ng-g").value.trim(), luogo:$("#ng-l").value.trim(), ospite:$("#ng-o").value.trim(), citta:$("#ng-c").value.trim(), trasferta:$("#ng-cp").value==="trasferta"};
     const tor = !!FORMULE[o.formula].torneo;
     if(tor){ const rd = readFB(e.target.querySelector(".fb"), true);
       if(rd.errs.length){ $("#ng-msg").textContent = "Partita: " + rd.errs.join(" · "); return; }

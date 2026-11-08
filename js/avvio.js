@@ -54,7 +54,7 @@ function openLive(){
     const live = all.filter(g=>g.stato==="live");
     if(live.length===1) return go(live[0]);
     if(live.length>1){ INDEX = Object.fromEntries(live.map(g=>[g.id, g])); mode = "list"; render(); return; }
-    const next = all.filter(g=>g.stato==="programmata" && (g.data||"")>=today()).sort((a,b)=>(a.data||"").localeCompare(b.data||""))[0];
+    const next = all.filter(g=>g.stato==="programmata" && (g.data||"")>=today()).sort((a,b)=>startKey(a).localeCompare(startKey(b)))[0];
     if(next) return go(next);
     const last = all.filter(g=>g.stato==="finita").sort((a,b)=>(b.data||"").localeCompare(a.data||"") || (b.aggiornato||0)-(a.aggiornato||0))[0];
     if(last) return go(last);

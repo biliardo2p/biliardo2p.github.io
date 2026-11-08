@@ -16,7 +16,7 @@ function listHTML(idx, forRegia){
     const st = (visOf(g)==="prova" ? `<span class="chip prova">PROVA</span>` : visOf(g)==="link" ? `<span class="chip prova lnk">SOLO LINK</span>` : "") + (g.stato==="live" ? `<span class="chip run">LIVE</span>` : g.stato==="finita" ? `<span class="chip wait">Finale</span>` : `<span class="chip wait">In programma</span>`);
     const p = arr(g.punti);
     const href = forRegia ? `?regia&gara=${g.id}` : `?gara=${g.id}`;
-    return (forRegia ? `<div class="gwrap">` : "") + `<a class="gcard" href="${href}"><div class="gtop"><span>${esc(fmtDate(g.data))}</span>${st}</div>
+    return (forRegia ? `<div class="gwrap">` : "") + `<a class="gcard" href="${href}"><div class="gtop"><span>${esc([fmtDate(g.data), g.stato==="programmata" ? fmtOra(g.ora) : ""].filter(Boolean).join(" · "))}</span>${st}</div>
       <div class="gtit">${esc(g.titolo)}</div><div class="gsub">${esc(g.sottotitolo)}</div>
       ${g.tipo==="torneo" ? `<div class="gvs t">${g.vincitore ? `🏆 <b>${esc(g.vincitore)}</b>` : `${+g.fatti||0} incontri conclusi su ${+g.totale||0}`}</div>`
         : g.trasferta ? `<div class="gvs"><span class="a">${esc(g.ospite)}</span><b>${+p[1]||0} – ${+p[0]||0}</b><span class="h">${esc(g.casa)}</span></div>`

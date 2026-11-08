@@ -12,6 +12,11 @@ const pageURL = q => (PUBLIC_URL || (/^https?:/.test(location.protocol) ? locati
 const slug = t => String(t||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,30);
 const fmtTime = ts => new Date(ts).toLocaleTimeString("it-IT",{hour:"2-digit",minute:"2-digit",timeZone:"Europe/Rome"});
 const fmtDate = d => { try{ return new Date(d+"T12:00:00").toLocaleDateString("it-IT",{weekday:"short",day:"numeric",month:"short"}); }catch(e){ return d; } };
+/* data e ora di inizio della gara (st.ora = "HH:MM", facoltativa): "sabato 14 novembre · ore 20:30" */
+const fmtDateLong = d => { try{ return new Date(d+"T12:00:00").toLocaleDateString("it-IT",{weekday:"long",day:"numeric",month:"long"}); }catch(e){ return d; } };
+const okOra = o => /^([01]\d|2[0-3]):[0-5]\d$/.test(String(o||""));
+const fmtOra = o => okOra(o) ? "ore " + String(o).replace(/^0(?=\d:)/, "") : "";
+const startKey = g => (g.data||"") + " " + (okOra(g.ora) ? g.ora : "99:99");
 const today = () => new Date().toLocaleDateString("sv-SE",{timeZone:"Europe/Rome"});
 /* visibilità di una gara (o della sua voce nell'indice): "pub" = nell'elenco pubblico, "link" = solo con il link, "prova" = solo in regia.
    Le gare create con la vecchia spunta "prova" valgono come "prova". */
@@ -74,12 +79,12 @@ function normalize(st){
 }
 function newState(o){
   const f = FORMULE[o.formula];
-  if(f.torneo) return normalize(Object.assign({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data,
+  if(f.torneo) return normalize(Object.assign({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data, ora:o.ora||"",
     title:o.titolo, subtitle:[o.fase, o.luogo].filter(Boolean).join(" · "), gioco:o.gioco, formule:o.formule, formato:"",
     home:clone(CLUB), away:{name:"",city:"",badge:""}, inCorso:[], matches:[], nextId:1},
     f.tab ? {tab:{bat:Array.from({length:o.nbat||1}, (_,i)=>({nome:"Batteria " + (i+1), p:Array(8).fill("")})), fin:finDefault(o.nbat||1), res:{}}} : {}));
   const away = {name:o.ospite, city:o.citta, badge:(o.ospite||"?").trim().charAt(0).toUpperCase()};
-  return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data,
+  return normalize({v:1, formula:o.formula, rev:0, updatedAt:0, stato:"programmata", data:o.data, ora:o.ora||"",
     title:f.nome, subtitle:[o.giornata, o.luogo].filter(Boolean).join(" · "), trasferta:!!o.trasferta,
     home:clone(CLUB), away, inCorso:[], matches:clone(f.matches)});
 }

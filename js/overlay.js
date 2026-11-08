@@ -32,7 +32,7 @@ function ovAuto(){
   db.ref("indice").on("value", snap=>{
     const all = Object.entries(snap.val() || {}).map(([id,m])=>Object.assign({id}, m)).filter(g=>P.has("prova") ? visOf(g)==="prova" : visOf(g)!=="prova");
     const live = all.filter(g=>g.stato==="live").sort((a,b)=>(b.aggiornato||0) - (a.aggiornato||0));
-    const next = all.filter(g=>g.stato==="programmata" && (g.data||"")>=today()).sort((a,b)=>(a.data||"").localeCompare(b.data||""));
+    const next = all.filter(g=>g.stato==="programmata" && (g.data||"")>=today()).sort((a,b)=>startKey(a).localeCompare(startKey(b)));
     const last = all.filter(g=>g.stato==="finita").sort((a,b)=>(b.data||"").localeCompare(a.data||"") || (b.aggiornato||0) - (a.aggiornato||0));
     const g = live[0] || next[0] || last[0];
     if(g && g.id!==ovId) ovFollow(g.id);

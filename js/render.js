@@ -16,6 +16,7 @@ function regiaHomeHTML(idx){
       <h2>Nuova gara</h2>
       <label for="ng-f">Competizione</label><select id="ng-f">${opts}</select>
       <label for="ng-d">Data</label><input id="ng-d" type="date" value="${today()}" required>
+      <label for="ng-ora">Ora di inizio <span class="opz">(facoltativa)</span></label><input id="ng-ora" type="time" step="300">
       <div class="fs" data-fs="sq"><label for="ng-g">Giornata</label><input id="ng-g" value="Prima giornata">
         <div class="fs" id="ng-nsw"${clubTeams().length<2 ? " hidden" : ""}><label for="ng-ns">La nostra squadra</label><select id="ng-ns">${ngTeamOpts(Object.entries(FORMULE).find(([k,f])=>!f.vecchia)[0], "")}</select></div>
         <label for="ng-cp">Campo</label><select id="ng-cp"><option value="casa">In casa (noi a sinistra)</option><option value="trasferta">In trasferta (avversari a sinistra)</option></select></div>
@@ -76,8 +77,8 @@ async function dupGara(id){
     $("#ng-o").value = src.away.name || ""; $("#ng-c").value = src.away.city || ""; $("#ng-cp").value = src.trasferta ? "trasferta" : "casa";
     const ns = $("#ng-ns"); if(ns && src.home.sq && [...ns.options].some(o=>o.value===src.home.sq)){ ns.value = src.home.sq; ns.dataset.manual = "1"; }
   }
-  $("#ng-d").value = today();
-  $("#ng-msg").textContent = `Dati copiati da "${[src.title, src.subtitle].filter(Boolean).join(" · ")}": controlla ${tor ? "fase, data e luogo" : "giornata, data, campo (casa/trasferta), luogo e avversario"}, poi premi Crea gara.`;
+  $("#ng-d").value = today(); $("#ng-ora").value = okOra(src.ora) ? src.ora : "";
+  $("#ng-msg").textContent = `Dati copiati da "${[src.title, src.subtitle].filter(Boolean).join(" · ")}": controlla ${tor ? "fase, data, ora e luogo" : "giornata, data, ora, campo (casa/trasferta), luogo e avversario"}, poi premi Crea gara.`;
   f.classList.add("dupl"); f.scrollIntoView({behavior:"smooth", block:"start"});
   setTimeout(()=>{ const x = tor ? $("#ng-fa") : $("#ng-g"); if(x){ x.focus(); x.select && x.select(); } }, 350);
 }
