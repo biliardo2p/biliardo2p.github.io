@@ -441,6 +441,7 @@ assente
 <tr><td>Incontro in primo piano</td><td><kbd>F</kbd></td><td>Quale incontro va nella fascia. Automatico = quello in corso; se sono più d'uno, l'ultimo messo in corso. Scegliendone uno resta fisso; F passa al successivo tra quelli in corso (è il modo per mostrare gli altri biliardi).</td></tr>
 <tr><td>Pagina del tabellone</td><td></td><td>Solo tornei con batterie: pagina fissa, automatica, oppure rotazione ogni 10–30 secondi.</td></tr>
 <tr><td>Sfondo del tabellone</td><td><kbd>[</kbd> <kbd>]</kbd></td><td>Più pieno o più trasparente.</td></tr>
+<tr><td>📷 Telefono con B2P Camera</td><td></td><td>Comandi per il telefono che trasmette con l'app B2P Camera: microfono, immagine, overlay, zoom, fuoco, cambio fotocamera (vedi più sotto).</td></tr>
 </table>
 <p>Il pannello mostra anche gli indirizzi da incollare in OBS, con il pulsante Copia.</p>
 <figure class="sh"><img src="img/manuale/regia-onda.webp" alt="Pannello Onda nella regia" loading="lazy" width="1100" height="760"><figcaption>Il pannello 📺 Onda aperto nella regia</figcaption></figure>
@@ -463,6 +464,20 @@ assente
   <li>I due widget sono indipendenti: si possono posizionare come si vuole (ad esempio la fascia in alto e il riepilogo a tutto schermo).</li>
 </ul>
 <figure class="sh"><img src="img/manuale/overlay-mini.webp" alt="Mini-overlay sopra l'immagine della telecamera" loading="lazy" width="1280" height="720"><figcaption>Mini-overlay: fascia in basso con l'incontro in corso (qui due incontri a rotazione, con <code>&amp;rot</code>)</figcaption></figure>
+<h3>Diretta dal telefono con l'app B2P Camera</h3>
+<p><b>B2P Camera</b> è l'app Android del circolo per trasmettere dalla fotocamera del telefono a YouTube o Facebook, senza pubblicità né watermark (si installa a mano; istruzioni e codice nella cartella <code>App B2P Camera</code>). Fa in un'app sola quello che con PRISM richiedeva due widget:</p>
+<ul>
+  <li><span class="btn">🏷 Overlay</span> mette sopra il video la fascia (<code>?overlay&amp;mini&amp;live</code>) e il riepilogo (<code>?overlay&amp;riepilogo&amp;live</code>), già impostati in ⚙. Il tasto <kbd>V</kbd> del pannello 📺 Onda li alterna come in PRISM. In ⚙ la spunta “Segui le gare di prova” aggiunge <code>&amp;prova</code> e salvando la pagina si ricarica (niente più <code>&amp;r=N</code>).</li>
+  <li>Sul telefono: microfono e immagine accesi/spenti (spenta = in diretta va il nero, l'audio continua), zoom, fuoco automatico (tocca l'immagine) o manuale, cambio fotocamera.</li>
+</ul>
+<p><b>Telefono comandato dalla regia.</b> Nel pannello 📺 Onda c'è la sezione <b>📷 Telefono con B2P Camera</b>: microfono, immagine/nero, overlay, zoom, fuoco automatico o manuale e cambio fotocamera. Il telefono riceve il comando in 1–2 secondi, da qualunque rete (anche con i dati mobili); in alto a sinistra sullo schermo del telefono compare “📡 Regia collegata” e l'ultimo comando ricevuto.</p>
+<ul>
+  <li>Il pannello mostra gli ultimi comandi inviati, non lo stato del telefono: se sul telefono si preme un pulsante, quello vale finché dalla regia non si cambia la stessa voce.</li>
+  <li>All'accensione il telefono non ripete i comandi vecchi: parte con le sue impostazioni e segue solo i comandi nuovi.</li>
+  <li>Non c'è un'anteprima: per zoom e fuoco si guarda la diretta, che arriva con qualche secondo di ritardo. Meglio muovere i cursori a piccoli passi.</li>
+  <li>I comandi si possono spegnere sul telefono: ⚙ → “Accetta comandi dalla regia”.</li>
+</ul>
+<figure class="sh"><img src="img/manuale/regia-onda-camera.webp" alt="Sezione Telefono con B2P Camera nel pannello Onda" loading="lazy" width="1100" height="760"><figcaption>Pannello 📺 Onda: i comandi per il telefono con B2P Camera</figcaption></figure>
 <p><b>Preparare un PC personale (una volta sola):</b></p>
 <ol>
   <li>Installa <b>OBS Studio</b> (obsproject.com). Nella configurazione guidata scegli “Ottimizza per lo streaming”, servizio <b>YouTube - RTMPS</b> e <b>Usa chiave di streaming</b>.</li>
@@ -544,6 +559,8 @@ assente
   <dd>Mancano i nodi <code>giocatori</code>, <code>circoli</code> e <code>squadre</code> nelle regole del database, oppure le regole sono state pubblicate con la pagina già aperta. La pagina riprova da sola ogni 5 secondi; altrimenti ricarica.</dd>
   <dt>“Pubblicazione rifiutata”.</dt>
   <dd>L'utente non è autorizzato dalle regole, oppure la sessione è scaduta: torna a Tutte le gare, premi Esci e rientra.</dd>
+  <dt>Pannello Onda: “Comando non inviato: Firebase lo rifiuta. Aggiungi il nodo camera…”.</dt>
+  <dd>Le regole del database pubblicate non hanno ancora il nodo <code>camera</code>: incolla in Firebase il file <code>regole_database.json</code> aggiornato e premi Pubblica (sezione Amministrazione). Se invece il telefono mostra “📡 Regia: non collegata”, controlla che abbia la rete.</dd>
   <dt>Il pubblico non vede un punteggio che ho inserito.</dt>
   <dd>Controlla la barra di regia: se dice “Modifiche NON ancora pubblicate”, premi PUBBLICA.</dd>
   <dt>Un nome è sottolineato in arancione.</dt>
@@ -557,6 +574,11 @@ assente
 
 <section id="novita" class="chg">
 <h2><span class="n">15</span>Novità</h2>
+<h3>9 novembre 2026</h3>
+<ul>
+  <li>Nuova app Android <b>B2P Camera</b> per le dirette dal telefono, con fascia e riepilogo del sito sopra il video, senza pubblicità né watermark.</li>
+  <li>Pannello 📺 Onda: nuova sezione <b>📷 Telefono con B2P Camera</b> per comandare il telefono dalla regia (microfono, immagine, overlay, zoom, fuoco, cambio fotocamera). Richiede il nodo <code>camera</code> nelle regole del database.</li>
+</ul>
 <h3>8 novembre 2026</h3>
 <ul>
   <li>Corretto: dopo aver cambiato data o ora di inizio in regia, il pulsante PUBBLICA restava arancione anche dopo la pubblicazione.</li>

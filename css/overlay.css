@@ -250,5 +250,10 @@ body.ovm > *:not(#app){display:none!important}
 #ondap .lk small{color:#93a5bf;font-size:12.5px}
 #ondap .hint{color:#93a5bf;font-size:12.5px;margin:0}
 #ondap .err{color:#ff8a8a;margin:0}
+#ondap .cam .two small{color:#93a5bf;font-size:12.5px}
+#ondap .cam .two>small:first-child{min-width:3.2em}
+#ondap .cam>small{color:#93a5bf;font-size:12.5px}
+#ondap .cam .two button.on{background:#f6c853;border-color:#f6c853;color:#1a1205}
+#ondap input[type=range]:disabled{opacity:.4}
 #ondap kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #3b4a63;border-bottom-width:2px;border-radius:3px;padding:0 4px}
 #rbar button.ondab.on{background:#f6c853;border-color:#f6c853;color:#1a1205}

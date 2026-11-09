@@ -287,6 +287,7 @@ function ondaPaint(){
     ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
       <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
     <div class="og"><span>Sfondo del tabellone</span><div class="two"><input type="range" min="0" max="1" step="0.05" value="${o.bga ?? .55}" data-o="bga"><b>${Math.round((o.bga ?? .55)*100)}%</b></div></div>
+    ${camHTML()}
     <div class="og lk"><span>Sorgente Browser in OBS (1280×720)</span>
       <div class="two"><code>${esc(pub)}?overlay&amp;live</code><button data-o="copy:live">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;gara=${esc(GARA)}</code><button data-o="copy:gara">Copia</button></div>
@@ -297,19 +298,55 @@ function ondaPaint(){
     <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
 }
 function ondaToggle(){
-  ondaOpen = !ondaOpen; ondaWatch();
+  ondaOpen = !ondaOpen; ondaWatch(); camWatch();
   let p = document.getElementById("ondap");
   if(!p){ p = document.createElement("div"); p.id = "ondap"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Comandi dell'overlay"); document.body.appendChild(p);
     p.addEventListener("click", e=>{ const b = e.target.closest("[data-o]"); if(!b || b.tagName==="SELECT" || b.tagName==="INPUT") return; const [k, v] = b.dataset.o.split(":");
       if(k==="x"){ ondaToggle(); renderBar(); }
       else if(k==="v") ondaSet({v});
+      else if(k==="cam") camClick(v);
       else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : v==="mini" ? "?overlay&mini&live" : v==="riep" ? "?overlay&riepilogo&live" : "?overlay&gara=" + GARA);
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
-      if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value}); });
-    p.addEventListener("input", e=>{ if(e.target.dataset.o==="bga"){ const b = e.target.parentNode.querySelector("b"); if(b) b.textContent = Math.round(e.target.value*100) + "%"; } });
+      if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value});
+      else if(k==="camz" || k==="camf"){ camDrag = false; camSet(k==="camz" ? "zoom" : "fuoco", +e.target.value); } });
+    p.addEventListener("input", e=>{ const k = e.target.dataset.o;
+      if(k==="bga"){ const b = e.target.parentNode.querySelector("b"); if(b) b.textContent = Math.round(e.target.value*100) + "%"; }
+      else if(k==="camz" || k==="camf") camInput(k==="camz" ? "zoom" : "fuoco", e.target); });
   }
   ondaPaint();
+}
+/* ================= regia: telefono con l'app B2P Camera (nodo camera, uno solo per tutte le gare) =================
+   L'app Android ascolta il nodo camera e applica solo il comando indicato da k (con t nuovo): così all'avvio non riprende
+   comandi vecchi e i pulsanti premuti sul telefono restano validi finché la regia non manda un comando su quella voce.
+   camera = {mic, cam, ov, af: true/false, zoom, fuoco: 0-100, gira: contatore, k: ultima voce cambiata, t: ora}.
+   Il pannello mostra gli ultimi comandi inviati, non lo stato reale del telefono. Dal 09/11/2026. */
+let C = null, camOn = false, camErr = "", camLast = 0, camDrag = false;   /* camDrag: cursore in movimento, niente ridisegno del pannello */
+const CAM0 = {mic:true, cam:true, ov:false, af:true, zoom:0, fuoco:0, gira:0};
+const camO = () => Object.assign({}, CAM0, C || {});
+function camWatch(){ if(camOn || !db) return; camOn = true;
+  db.ref("camera").on("value", s=>{ C = s.val() || null; if(!camDrag) ondaPaint(); }, ()=>{ camErr = "Non riesco a leggere il nodo camera: aggiungilo alle regole del database."; ondaPaint(); }); }
+async function camSet(k, val, paint = true){
+  const n = Object.assign(camO(), {[k]: val, k, t: Date.now()}); C = n;
+  try{ await dbWrite({camera: n}); camErr = ""; }
+  catch(err){ camErr = err && err.code==="PERMISSION_DENIED" ? "Comando non inviato: Firebase lo rifiuta. Aggiungi il nodo camera alle regole del database (vedi manuale, Dirette video)." : "Comando non inviato: controlla la connessione."; }
+  if(paint) ondaPaint(); if(camErr) setFlash(camErr);
+}
+function camClick(v){ const c = camO();
+  if(v==="mic" || v==="cam" || v==="ov" || v==="af") camSet(v, !c[v]);
+  else if(v==="gira") camSet("gira", (+c.gira || 0) + 1); }
+/* cursori: mentre si trascina, un comando ogni 300 ms (il valore finale lo manda "change") */
+function camInput(k, el){ const b = el.parentNode.querySelector("b"); if(b) b.textContent = el.value + "%";
+  camDrag = true; const now = Date.now();
+  if(now - camLast > 300){ camLast = now; camSet(k, +el.value, false); } }
+function camHTML(){ const c = camO(), sw = (k, on, t1, t0) => `<button data-o="cam:${k}" class="${on ? "on" : ""}">${on ? t1 : t0}</button>`;
+  return `<div class="og cam"><span>📷 Telefono con B2P Camera</span>
+      <div class="seg">${sw("mic", c.mic, "🎤 Microfono ON", "🎤 Microfono OFF")}${sw("cam", c.cam, "📷 Immagine ON", "📷 Nero")}${sw("ov", c.ov, "🏷 Overlay ON", "🏷 Overlay OFF")}</div>
+      <div class="two"><small>Zoom</small><input type="range" min="0" max="100" step="1" value="${+c.zoom || 0}" data-o="camz"><b>${+c.zoom || 0}%</b></div>
+      <div class="two"><button data-o="cam:af" class="${c.af ? "" : "on"}">${c.af ? "Fuoco AUTO" : "Fuoco MAN"}</button><input type="range" min="0" max="100" step="1" value="${+c.fuoco || 0}" data-o="camf"${c.af ? " disabled" : ""}><b>${+c.fuoco || 0}%</b></div>
+      <div class="two"><button data-o="cam:gira">🔄 Cambia fotocamera</button><small>Fuoco: 0 = lontano, 100 = vicino. Ritardo 1–2 s.</small></div>
+      ${camErr ? `<p class="err">${esc(camErr)}</p>` : ""}
+      <small>Mostra gli ultimi comandi inviati, non lo stato del telefono: i pulsanti premuti sul telefono valgono finché da qui non si cambia la stessa voce.</small></div>`;
 }
 document.addEventListener("keydown", e=>{
   if(!editor || mode!=="board" || e.ctrlKey || e.metaKey || e.altKey) return;
