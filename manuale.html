@@ -469,12 +469,15 @@ assente
 <ul>
   <li><span class="btn">🏷 Overlay</span> mette sopra il video la fascia (<code>?overlay&amp;mini&amp;live</code>) e il riepilogo (<code>?overlay&amp;riepilogo&amp;live</code>), già impostati in ⚙. Il tasto <kbd>V</kbd> del pannello 📺 Onda li alterna come in PRISM. In ⚙ la spunta “Segui le gare di prova” aggiunge <code>&amp;prova</code> e salvando la pagina si ricarica (niente più <code>&amp;r=N</code>).</li>
   <li>Sul telefono: microfono e immagine accesi/spenti (spenta = in diretta va il nero, l'audio continua), zoom, fuoco automatico (tocca l'immagine) o manuale, cambio fotocamera.</li>
+  <li><b>Bolla</b>: se il telefono è un po' storto, il pulsante con il righello lo raddrizza da solo leggendo il sensore di gravità (fino a 10°); il cursore accanto corregge a mano, una pressione lunga sul pulsante torna a 0°. L'immagine viene ruotata e leggermente ingrandita (circa 9% per 3°), l'overlay resta dritto.</li>
+  <li><b>Qualità</b> in ⚙: 540p (1,2 Mbit/s, rete debole), 720p (2,5 Mbit/s) o 1080p (4,5 Mbit/s, testo dell'overlay più nitido). Cambiandola l'app si riavvia. La spunta “Abbassa la qualità da sola se la rete rallenta” (accesa di norma) riduce i Mbit/s quando la rete non ce la fa.</li>
+  <li><b>YouTube e Facebook</b>: titolo, privacy e dove pubblicare (canale, profilo, Pagina) non si scelgono nell'app ma dove si prende la chiave: YouTube Studio → Trasmetti dal vivo; per Facebook <b>Live Producer</b> dal computer (Crea diretta → Software di streaming), dove si copiano server e chiave, si scelgono titolo e pubblico e, dopo aver premuto LIVE nell'app, si preme <b>Trasmetti/Vai in diretta</b> anche su Facebook.</li>
 </ul>
-<p><b>Telefono comandato dalla regia.</b> Nel pannello 📺 Onda c'è la sezione <b>📷 Telefono con B2P Camera</b>: microfono, immagine/nero, overlay, zoom, fuoco automatico o manuale e cambio fotocamera. Il telefono riceve il comando in 1–2 secondi, da qualunque rete (anche con i dati mobili); in alto a sinistra sullo schermo del telefono compare “📡 Regia collegata” e l'ultimo comando ricevuto.</p>
+<p><b>Telefono comandato dalla regia.</b> Nel pannello 📺 Onda c'è la sezione <b>📱 Telefono con B2P Camera</b>: anteprima, stato del telefono, microfono, immagine/nero, overlay, zoom, fuoco automatico o manuale, bolla e cambio fotocamera. Il telefono riceve il comando in 1–2 secondi, da qualunque rete (anche con i dati mobili); in alto a sinistra sullo schermo del telefono compare “📡 Regia collegata” e l'ultimo comando ricevuto.</p>
 <ul>
-  <li>Il pannello mostra gli ultimi comandi inviati, non lo stato del telefono: se sul telefono si preme un pulsante, quello vale finché dalla regia non si cambia la stessa voce.</li>
+  <li><b>Anteprima e stato</b>: con il pannello aperto il telefono manda una piccola foto ogni 2 secondi (con overlay e bolla, anche quando in diretta va il nero) e il suo stato: in diretta o no, Mbit/s, qualità, batteria. I pulsanti mostrano allora lo stato vero del telefono. Serve un utente di Firebase per il telefono (una volta sola: console di Firebase → Authentication → Users → Aggiungi utente, con un'email anche inventata, es. <code>telefono@biliardo2p.it</code>, e una password), da scrivere nell'app in ⚙ → Regia. Senza, i comandi funzionano lo stesso e il pannello mostra gli ultimi comandi inviati.</li>
+  <li>L'anteprima parte solo mentre il pannello 📺 Onda è aperto (circa 20–30 KB ogni 2 secondi) e si ferma da sola una quarantina di secondi dopo la chiusura.</li>
   <li>All'accensione il telefono non ripete i comandi vecchi: parte con le sue impostazioni e segue solo i comandi nuovi.</li>
-  <li>Non c'è un'anteprima: per zoom e fuoco si guarda la diretta, che arriva con qualche secondo di ritardo. Meglio muovere i cursori a piccoli passi.</li>
   <li>I comandi si possono spegnere sul telefono: ⚙ → “Accetta comandi dalla regia”.</li>
 </ul>
 <figure class="sh"><img src="img/manuale/regia-onda-camera.webp" alt="Sezione Telefono con B2P Camera nel pannello Onda" loading="lazy" width="1100" height="760"><figcaption>Pannello 📺 Onda: i comandi per il telefono con B2P Camera</figcaption></figure>
@@ -561,6 +564,8 @@ assente
   <dd>L'utente non è autorizzato dalle regole, oppure la sessione è scaduta: torna a Tutte le gare, premi Esci e rientra.</dd>
   <dt>Pannello Onda: “Comando non inviato: Firebase lo rifiuta. Aggiungi il nodo camera…”.</dt>
   <dd>Le regole del database pubblicate non hanno ancora il nodo <code>camera</code>: incolla in Firebase il file <code>regole_database.json</code> aggiornato e premi Pubblica (sezione Amministrazione). Se invece il telefono mostra “📡 Regia: non collegata”, controlla che abbia la rete.</dd>
+  <dt>Nel pannello Onda non compare l'anteprima del telefono.</dt>
+  <dd>Sul telefono, in alto a sinistra, la riga sotto lo stato dice cosa non va: “accesso non riuscito” = email o password sbagliate in ⚙ → Regia; “la regia rifiuta i dati” = regole del database senza il nodo <code>telefono</code>; “rete assente” = il telefono non ha internet. Serve anche la regia con l'accesso fatto (l'anteprima si legge solo da utenti autenticati).</dd>
   <dt>Il pubblico non vede un punteggio che ho inserito.</dt>
   <dd>Controlla la barra di regia: se dice “Modifiche NON ancora pubblicate”, premi PUBBLICA.</dd>
   <dt>Un nome è sottolineato in arancione.</dt>
@@ -577,7 +582,8 @@ assente
 <h3>9 novembre 2026</h3>
 <ul>
   <li>Nuova app Android <b>B2P Camera</b> per le dirette dal telefono, con fascia e riepilogo del sito sopra il video, senza pubblicità né watermark.</li>
-  <li>Pannello 📺 Onda: nuova sezione <b>📷 Telefono con B2P Camera</b> per comandare il telefono dalla regia (microfono, immagine, overlay, zoom, fuoco, cambio fotocamera). Richiede il nodo <code>camera</code> nelle regole del database.</li>
+  <li>B2P Camera 0.6: <b>anteprima e stato del telefono</b> nel pannello 📺 Onda, <b>bolla</b> (raddrizza l'immagine se il telefono è storto), scelta della <b>qualità</b> (540p, 720p, 1080p), icone nuove. Richiede il nodo <code>telefono</code> nelle regole del database e un utente di Firebase per il telefono.</li>
+  <li>Pannello 📺 Onda: nuova sezione <b>📱 Telefono con B2P Camera</b> per comandare il telefono dalla regia (microfono, immagine, overlay, zoom, fuoco, cambio fotocamera). Richiede il nodo <code>camera</code> nelle regole del database.</li>
 </ul>
 <h3>8 novembre 2026</h3>
 <ul>

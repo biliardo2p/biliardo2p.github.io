@@ -298,7 +298,7 @@ function ondaPaint(){
     <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
 }
 function ondaToggle(){
-  ondaOpen = !ondaOpen; ondaWatch(); camWatch();
+  ondaOpen = !ondaOpen; ondaWatch(); camWatch(); if(ondaOpen) telStart(); else telStop();
   let p = document.getElementById("ondap");
   if(!p){ p = document.createElement("div"); p.id = "ondap"; p.setAttribute("role", "dialog"); p.setAttribute("aria-label", "Comandi dell'overlay"); document.body.appendChild(p);
     p.addEventListener("click", e=>{ const b = e.target.closest("[data-o]"); if(!b || b.tagName==="SELECT" || b.tagName==="INPUT") return; const [k, v] = b.dataset.o.split(":");
@@ -309,21 +309,28 @@ function ondaToggle(){
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
       if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value});
-      else if(k==="camz" || k==="camf"){ camDrag = false; camSet(k==="camz" ? "zoom" : "fuoco", +e.target.value); } });
+      else if(k==="camz" || k==="camf" || k==="camr"){ camDrag = false; camSet(({camz:"zoom", camf:"fuoco", camr:"rot"})[k], +e.target.value); } });
     p.addEventListener("input", e=>{ const k = e.target.dataset.o;
       if(k==="bga"){ const b = e.target.parentNode.querySelector("b"); if(b) b.textContent = Math.round(e.target.value*100) + "%"; }
-      else if(k==="camz" || k==="camf") camInput(k==="camz" ? "zoom" : "fuoco", e.target); });
+      else if(k==="camz" || k==="camf" || k==="camr") camInput(({camz:"zoom", camf:"fuoco", camr:"rot"})[k], e.target); });
   }
   ondaPaint();
 }
 /* ================= regia: telefono con l'app B2P Camera (nodo camera, uno solo per tutte le gare) =================
-   L'app Android ascolta il nodo camera e applica solo il comando indicato da k (con t nuovo): così all'avvio non riprende
-   comandi vecchi e i pulsanti premuti sul telefono restano validi finché la regia non manda un comando su quella voce.
-   camera = {mic, cam, ov, af: true/false, zoom, fuoco: 0-100, gira: contatore, k: ultima voce cambiata, t: ora}.
-   Il pannello mostra gli ultimi comandi inviati, non lo stato reale del telefono. Dal 09/11/2026. */
+   Comandi: l'app ascolta il nodo camera e applica solo la voce k (con t nuovo): all'avvio non riprende comandi vecchi.
+   camera = {mic, cam, ov, af: true/false, zoom, fuoco: 0-100, rot: gradi -10..10, gira e bolla: contatori, k, t, guarda}.
+   Ritorno (dal 09/11/2026, app 0.6 con account in ⚙): il telefono scrive telefono/stato (ogni 3 s) e telefono/foto
+   (anteprima JPEG ogni 2 s, solo finché la regia "guarda": camera/guarda cambia ogni 15 s col pannello aperto).
+   telefono si legge solo da utenti autenticati: fetch REST con idToken ogni 2 s. Con lo stato fresco (cambiato
+   negli ultimi 12 s) i pulsanti mostrano lo stato vero del telefono, altrimenti gli ultimi comandi inviati. */
 let C = null, camOn = false, camErr = "", camLast = 0, camDrag = false;   /* camDrag: cursore in movimento, niente ridisegno del pannello */
-const CAM0 = {mic:true, cam:true, ov:false, af:true, zoom:0, fuoco:0, gira:0};
+let TEL = null, telVisto = 0, telT = 0, telTimer = 0, telGuarda = 0, telFirma = "";
+const CAM0 = {mic:true, cam:true, ov:false, af:true, zoom:0, fuoco:0, rot:0, gira:0, bolla:0};
 const camO = () => Object.assign({}, CAM0, C || {});
+const telFresco = () => TEL && TEL.stato && Date.now() - telVisto < 12000;
+/* stato mostrato: quello vero del telefono se fresco, altrimenti gli ultimi comandi */
+const camV = () => { const c = camO(); if(!telFresco()) return c; const st = TEL.stato;
+  ["mic","cam","ov","af","zoom","fuoco","rot"].forEach(k=>{ if(st[k]!==undefined) c[k] = st[k]; }); return c; };
 function camWatch(){ if(camOn || !db) return; camOn = true;
   db.ref("camera").on("value", s=>{ C = s.val() || null; if(!camDrag) ondaPaint(); }, ()=>{ camErr = "Non riesco a leggere il nodo camera: aggiungilo alle regole del database."; ondaPaint(); }); }
 async function camSet(k, val, paint = true){
@@ -332,21 +339,47 @@ async function camSet(k, val, paint = true){
   catch(err){ camErr = err && err.code==="PERMISSION_DENIED" ? "Comando non inviato: Firebase lo rifiuta. Aggiungi il nodo camera alle regole del database (vedi manuale, Dirette video)." : "Comando non inviato: controlla la connessione."; }
   if(paint) ondaPaint(); if(camErr) setFlash(camErr);
 }
-function camClick(v){ const c = camO();
+function camClick(v){ const c = camV();
   if(v==="mic" || v==="cam" || v==="ov" || v==="af") camSet(v, !c[v]);
-  else if(v==="gira") camSet("gira", (+c.gira || 0) + 1); }
+  else if(v==="gira" || v==="bolla") camSet(v, (+camO()[v] || 0) + 1);
+  else if(v==="dritto") camSet("rot", 0); }
 /* cursori: mentre si trascina, un comando ogni 300 ms (il valore finale lo manda "change") */
-function camInput(k, el){ const b = el.parentNode.querySelector("b"); if(b) b.textContent = el.value + "%";
+const camFmt = (k, v) => k==="rot" ? (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + "°" : v + "%";
+function camInput(k, el){ const b = el.parentNode.querySelector("b"); if(b) b.textContent = camFmt(k, el.value);
   camDrag = true; const now = Date.now();
   if(now - camLast > 300){ camLast = now; camSet(k, +el.value, false); } }
-function camHTML(){ const c = camO(), sw = (k, on, t1, t0) => `<button data-o="cam:${k}" class="${on ? "on" : ""}">${on ? t1 : t0}</button>`;
-  return `<div class="og cam"><span>📷 Telefono con B2P Camera</span>
-      <div class="seg">${sw("mic", c.mic, "🎤 Microfono ON", "🎤 Microfono OFF")}${sw("cam", c.cam, "📷 Immagine ON", "📷 Nero")}${sw("ov", c.ov, "🏷 Overlay ON", "🏷 Overlay OFF")}</div>
+/* pannello aperto: "guardo" ogni 15 s (il telefono manda l'anteprima) e lettura del telefono ogni 2 s */
+function telStart(){ if(telTimer) return; telTick(); telTimer = setInterval(telTick, 2000); }
+function telStop(){ clearInterval(telTimer); telTimer = 0; }
+async function telTick(){
+  if(!ondaOpen){ telStop(); return; }
+  const now = Date.now();
+  if(now - telGuarda > 15000){ telGuarda = now; try{ await dbWrite({"camera/guarda": now}); }catch(e){} }
+  let j = null;
+  try{ const r = await fetch(FIREBASE.databaseURL + "/telefono.json?auth=" + encodeURIComponent(await idToken())); if(r.ok) j = await r.json(); }catch(e){ return; }
+  TEL = j; const t = j && j.stato && +j.stato.t || 0; if(t && t!==telT){ telT = t; telVisto = Date.now(); }
+  const img = document.getElementById("camfoto"); if(img && j && j.foto && img.getAttribute("src")!==j.foto) img.setAttribute("src", j.foto);
+  const st = document.getElementById("camst"); if(st) st.innerHTML = telStatoHTML();
+  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,telFresco(),!!(j && j.foto)].join();
+  if(firma!==telFirma && !camDrag){ telFirma = firma; ondaPaint(); }
+}
+function telStatoHTML(){
+  if(!TEL || !TEL.stato) return "Telefono: nessuna notizia (serve l'app 0.6 con l'account in ⚙ → Regia).";
+  const s = TEL.stato, fresco = telFresco();
+  return `${fresco ? "" : "⚠ non risponde da un po' · "}${s.live ? `<b class="rec">● IN DIRETTA</b> ${String(s.mbit ?? "").replace(".", ",")} Mbit/s` : "fuori onda"} · ${esc(s.q || "")} · 🔋 ${+s.batt || 0}%`;
+}
+function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="cam:${k}" class="${on ? "on" : ""}">${on ? t1 : t0}</button>`;
+  const rot = +c.rot || 0, foto = TEL && TEL.foto;
+  return `<div class="og cam"><span>📱 Telefono con B2P Camera</span>
+      <div class="foto">${foto ? `<img id="camfoto" src="${foto}" alt="Anteprima del telefono">` : `<img id="camfoto" alt="" hidden><p>Anteprima: compare qui quando il telefono ha l'account in ⚙ → Regia (circa una foto ogni 2 secondi, con l'overlay).</p>`}</div>
+      <small id="camst">${telStatoHTML()}</small>
+      <div class="seg">${sw("mic", c.mic, "🎤 Microfono ON", "🎤 Microfono OFF")}${sw("cam", c.cam, "🎥 Immagine ON", "🎥 Nero")}${sw("ov", c.ov, "🏷 Overlay ON", "🏷 Overlay OFF")}</div>
       <div class="two"><small>Zoom</small><input type="range" min="0" max="100" step="1" value="${+c.zoom || 0}" data-o="camz"><b>${+c.zoom || 0}%</b></div>
       <div class="two"><button data-o="cam:af" class="${c.af ? "" : "on"}">${c.af ? "Fuoco AUTO" : "Fuoco MAN"}</button><input type="range" min="0" max="100" step="1" value="${+c.fuoco || 0}" data-o="camf"${c.af ? " disabled" : ""}><b>${+c.fuoco || 0}%</b></div>
-      <div class="two"><button data-o="cam:gira">🔄 Cambia fotocamera</button><small>Fuoco: 0 = lontano, 100 = vicino. Ritardo 1–2 s.</small></div>
+      <div class="two"><button data-o="cam:bolla" title="Il telefono legge il suo sensore e si raddrizza da solo">📐 In bolla</button><input type="range" min="-10" max="10" step="0.5" value="${rot}" data-o="camr" title="Raddrizza a mano: gradi"><b>${camFmt("rot", rot)}</b></div>
+      <div class="two"><button data-o="cam:gira">🔄 Cambia fotocamera</button><button data-o="cam:dritto" title="Toglie la correzione della bolla">Bolla a 0°</button></div>
       ${camErr ? `<p class="err">${esc(camErr)}</p>` : ""}
-      <small>Mostra gli ultimi comandi inviati, non lo stato del telefono: i pulsanti premuti sul telefono valgono finché da qui non si cambia la stessa voce.</small></div>`;
+      <small>Fuoco: 0 = lontano, 100 = vicino. I comandi arrivano in 1–2 s. ${telFresco() ? "I pulsanti mostrano lo stato del telefono." : "Senza notizie dal telefono i pulsanti mostrano gli ultimi comandi inviati."}</small></div>`;
 }
 document.addEventListener("keydown", e=>{
   if(!editor || mode!=="board" || e.ctrlKey || e.metaKey || e.altKey) return;

@@ -253,6 +253,11 @@ body.ovm > *:not(#app){display:none!important}
 #ondap .cam .two small{color:#93a5bf;font-size:12.5px}
 #ondap .cam .two>small:first-child{min-width:3.2em}
 #ondap .cam>small{color:#93a5bf;font-size:12.5px}
+#ondap .cam .foto{aspect-ratio:16/9;background:#0b1424;border:1px solid #26385a;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center}
+#ondap .cam .foto img{width:100%;height:100%;object-fit:contain;display:block}
+#ondap .cam .foto p{margin:0;padding:10px 14px;color:#93a5bf;font-size:12.5px;text-align:center}
+#ondap .cam .rec{color:#ff5a5a}
+#ondap .cam .two button{white-space:nowrap}
 #ondap .cam .two button.on{background:#f6c853;border-color:#f6c853;color:#1a1205}
 #ondap input[type=range]:disabled{opacity:.4}
 #ondap kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #3b4a63;border-bottom-width:2px;border-radius:3px;padding:0 4px}
