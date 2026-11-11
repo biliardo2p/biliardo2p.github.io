@@ -71,9 +71,12 @@ function ovNamesTxt(t){ /* tornei: "Galli / Tamburini" con categoria */
   return String(t||"").split("/").map(n=>n.trim()).filter(Boolean).map(n=>{ const k = resolveName(n, "", y), c = k ? rowAt(ANAG[k], y).cat : "";
     return esc(k ? tabName(ANAG[k]) : n) + ovCat(c); }).join(`<i class="dot">·</i>`);
 }
+/* logo del circolo già ridotto per l'overlay: nella WebView del telefono (disegno software) il logo grande (186 px)
+   ridotto a 28 px veniva seghettato. logo-56 per il chip (28 px), logo-96 per l'intestazione (46 px). Dal 11/11/2026. */
+const LOGO_56 = "img/logo-56.png", LOGO_96 = "img/logo-96.png";
 function ovHdr(logo){
   const lv = S.stato==="live" ? `<span class="live"><i></i>LIVE</span>` : S.stato==="finita" ? `<span class="live fin">FINALE</span>` : "";
-  return `<div class="hdr">${logo ? `<img class="lg" src="${LOGO_HOME}" alt="">` : ""}<div class="t1">${esc(S.title)}</div>${S.subtitle ? `<i class="sep"></i><div class="t2">${esc(S.subtitle)}</div>` : ""}${lv}</div>`;
+  return `<div class="hdr">${logo ? `<img class="lg" src="${LOGO_96}" alt="">` : ""}<div class="t1">${esc(S.title)}</div>${S.subtitle ? `<i class="sep"></i><div class="t2">${esc(S.subtitle)}</div>` : ""}${lv}</div>`;
 }
 const ovBil = m => m.bil ? ` · BILIARDO ${esc(m.bil)}` : "";
 function ovSpec(m){
@@ -221,7 +224,7 @@ function ovTree(TB, pg){
 /* ---- fascia dell'incontro in primo piano ---- */
 function ovFasciaHTML(){
   const lv = OVMINI && S.stato==="live" ? `<span class="live"><i></i>LIVE</span>` : "";
-  const chip = `<div class="chip"><img src="${LOGO_HOME}" alt="">${esc(S.title)}${S.subtitle ? `<span class="t2">${esc(S.subtitle)}</span>` : ""}${lv}</div>`;
+  const chip = `<div class="chip"><img src="${LOGO_56}" alt="">${esc(S.title)}${S.subtitle ? `<span class="t2">${esc(S.subtitle)}</span>` : ""}${lv}</div>`;
   const i = ovPrimo(), m = S.matches[i]; if(!m) return chip + (OVMINI && !isTorneo() ? ovTeamBand() : "");
   const L = ovRotList(), dots = L.length>1 ? `<div class="rot">${L.map(j=>`<i class="${j===i ? "on" : ""}"></i>`).join("")}</div>` : "";
   const [x, y] = SDS(), ix = sd => sd==="h" ? 0 : 1, w = winner(m), tor = isTorneo(), yy = gYear();
@@ -318,7 +321,7 @@ function ondaToggle(){
 }
 /* ================= regia: telefono con l'app B2P Camera (nodo camera, uno solo per tutte le gare) =================
    Comandi: l'app ascolta il nodo camera e applica solo la voce k (con t nuovo): all'avvio non riprende comandi vecchi.
-   camera = {mic, cam, ov, af: true/false, zoom, fuoco: 0-100, rot: gradi -10..10, gira e bolla: contatori, k, t, guarda}.
+   camera = {mic, cam, ov, af: true/false, zoom, fuoco: 0-100, rot: gradi -10..10, q: "540"/"720"/"1080", gira e bolla: contatori, k, t, guarda}.
    Ritorno (dal 09/11/2026, app 0.6 con account in ⚙): il telefono scrive telefono/stato (ogni 3 s) e telefono/foto
    (anteprima JPEG ogni 2 s, solo finché la regia "guarda": camera/guarda cambia ogni 15 s col pannello aperto).
    telefono si legge solo da utenti autenticati: fetch REST con idToken ogni 2 s. Con lo stato fresco (cambiato
@@ -342,7 +345,8 @@ async function camSet(k, val, paint = true){
 function camClick(v){ const c = camV();
   if(v==="mic" || v==="cam" || v==="ov" || v==="af") camSet(v, !c[v]);
   else if(v==="gira" || v==="bolla") camSet(v, (+camO()[v] || 0) + 1);
-  else if(v==="dritto") camSet("rot", 0); }
+  else if(v==="dritto") camSet("rot", 0);
+  else if(/^q\d+$/.test(v)) camSet("q", v.slice(1)); }
 /* cursori: mentre si trascina, un comando ogni 300 ms (il valore finale lo manda "change") */
 const camFmt = (k, v) => k==="rot" ? (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + "°" : v + "%";
 function camInput(k, el){ const b = el.parentNode.querySelector("b"); if(b) b.textContent = camFmt(k, el.value);
@@ -360,13 +364,21 @@ async function telTick(){
   TEL = j; const t = j && j.stato && +j.stato.t || 0; if(t && t!==telT){ telT = t; telVisto = Date.now(); }
   const img = document.getElementById("camfoto"); if(img && j && j.foto && img.getAttribute("src")!==j.foto) img.setAttribute("src", j.foto);
   const st = document.getElementById("camst"); if(st) st.innerHTML = telStatoHTML();
-  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,telFresco(),!!(j && j.foto)].join();
+  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,telFresco(),!!(j && j.foto),j && j.stato && j.stato.q,j && j.stato && j.stato.live].join();
   if(firma!==telFirma && !camDrag){ telFirma = firma; ondaPaint(); }
 }
 function telStatoHTML(){
   if(!TEL || !TEL.stato) return "Telefono: nessuna notizia (serve l'app 0.6 con l'account in ⚙ → Regia).";
   const s = TEL.stato, fresco = telFresco();
   return `${fresco ? "" : "⚠ non risponde da un po' · "}${s.live ? `<b class="rec">● IN DIRETTA</b> ${String(s.mbit ?? "").replace(".", ",")} Mbit/s` : "fuori onda"} · ${esc(s.q || "")} · 🔋 ${+s.batt || 0}%`;
+}
+/* qualità del telefono (540/720/1080): l'app si riavvia per cambiarla, quindi solo fuori diretta (dall'11/11/2026) */
+function camQualHTML(){
+  const st = telFresco() ? TEL.stato : null, live = !!(st && st.live);
+  const cur = st && st.q ? String(st.q).replace("p", "") : String(camO().q || "720");
+  const b = q => `<button data-o="cam:q${q}" class="${cur===q ? "on" : ""}"${live ? " disabled" : ""}>${q}p</button>`;
+  return `<div class="two"><small>Qualità</small><div class="seg">${b("540")}${b("720")}${b("1080")}</div></div>
+      ${live ? `<small>La qualità si cambia fuori diretta: l'app si riavvia (2–3 s).</small>` : ""}`;
 }
 function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="cam:${k}" class="${on ? "on" : ""}">${on ? t1 : t0}</button>`;
   const rot = +c.rot || 0, foto = TEL && TEL.foto;
@@ -377,6 +389,7 @@ function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="c
       <div class="two"><small>Zoom</small><input type="range" min="0" max="100" step="1" value="${+c.zoom || 0}" data-o="camz"><b>${+c.zoom || 0}%</b></div>
       <div class="two"><button data-o="cam:af" class="${c.af ? "" : "on"}">${c.af ? "Fuoco AUTO" : "Fuoco MAN"}</button><input type="range" min="0" max="100" step="1" value="${+c.fuoco || 0}" data-o="camf"${c.af ? " disabled" : ""}><b>${+c.fuoco || 0}%</b></div>
       <div class="two"><button data-o="cam:bolla" title="Il telefono legge il suo sensore e si raddrizza da solo">📐 In bolla</button><input type="range" min="-10" max="10" step="0.5" value="${rot}" data-o="camr" title="Raddrizza a mano: gradi"><b>${camFmt("rot", rot)}</b></div>
+      ${camQualHTML()}
       <div class="two"><button data-o="cam:gira">🔄 Cambia fotocamera</button><button data-o="cam:dritto" title="Toglie la correzione della bolla">Bolla a 0°</button></div>
       ${camErr ? `<p class="err">${esc(camErr)}</p>` : ""}
       <small>Fuoco: 0 = lontano, 100 = vicino. I comandi arrivano in 1–2 s. ${telFresco() ? "I pulsanti mostrano lo stato del telefono." : "Senza notizie dal telefono i pulsanti mostrano gli ultimi comandi inviati."}</small></div>`;
