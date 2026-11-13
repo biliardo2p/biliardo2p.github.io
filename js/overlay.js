@@ -312,28 +312,28 @@ function ondaToggle(){
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
       if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value});
-      else if(k==="camz" || k==="camf" || k==="camr"){ camDrag = false; camSet(({camz:"zoom", camf:"fuoco", camr:"rot"})[k], +e.target.value); } });
+      else if(k==="camz" || k==="camf" || k==="camr" || k==="came"){ camDrag = false; camSet(({camz:"zoom", camf:"fuoco", camr:"rot", came:"ev"})[k], +e.target.value); } });
     p.addEventListener("input", e=>{ const k = e.target.dataset.o;
       if(k==="bga"){ const b = e.target.parentNode.querySelector("b"); if(b) b.textContent = Math.round(e.target.value*100) + "%"; }
-      else if(k==="camz" || k==="camf" || k==="camr") camInput(({camz:"zoom", camf:"fuoco", camr:"rot"})[k], e.target); });
+      else if(k==="camz" || k==="camf" || k==="camr" || k==="came") camInput(({camz:"zoom", camf:"fuoco", camr:"rot", came:"ev"})[k], e.target); });
   }
   ondaPaint();
 }
 /* ================= regia: telefono con l'app B2P Camera (nodo camera, uno solo per tutte le gare) =================
    Comandi: l'app ascolta il nodo camera e applica solo la voce k (con t nuovo): all'avvio non riprende comandi vecchi.
-   camera = {mic, cam, ov, af: true/false, zoom, fuoco: 0-100, rot: gradi -10..10, q: "540"/"720"/"1080", gira e bolla: contatori, k, t, guarda}.
+   camera = {mic, cam, ov, af, ael (esposizione bloccata): true/false, zoom, fuoco: 0-100, rot: gradi -10..10, ev: -2..+2, q: "540"/"720"/"1080", gira e bolla: contatori, k, t, guarda}.
    Ritorno (dal 09/11/2026, app 0.6 con account in ⚙): il telefono scrive telefono/stato (ogni 3 s) e telefono/foto
    (anteprima JPEG ogni 2 s, solo finché la regia "guarda": camera/guarda cambia ogni 15 s col pannello aperto).
    telefono si legge solo da utenti autenticati: fetch REST con idToken ogni 2 s. Con lo stato fresco (cambiato
    negli ultimi 12 s) i pulsanti mostrano lo stato vero del telefono, altrimenti gli ultimi comandi inviati. */
 let C = null, camOn = false, camErr = "", camLast = 0, camDrag = false;   /* camDrag: cursore in movimento, niente ridisegno del pannello */
 let TEL = null, telVisto = 0, telT = 0, telTimer = 0, telGuarda = 0, telFirma = "";
-const CAM0 = {mic:true, cam:true, ov:false, af:true, zoom:0, fuoco:0, rot:0, gira:0, bolla:0};
+const CAM0 = {mic:true, cam:true, ov:false, af:true, zoom:0, fuoco:0, rot:0, ael:false, ev:0, gira:0, bolla:0};
 const camO = () => Object.assign({}, CAM0, C || {});
 const telFresco = () => TEL && TEL.stato && Date.now() - telVisto < 12000;
 /* stato mostrato: quello vero del telefono se fresco, altrimenti gli ultimi comandi */
 const camV = () => { const c = camO(); if(!telFresco()) return c; const st = TEL.stato;
-  ["mic","cam","ov","af","zoom","fuoco","rot"].forEach(k=>{ if(st[k]!==undefined) c[k] = st[k]; }); return c; };
+  ["mic","cam","ov","af","zoom","fuoco","rot","ael","ev"].forEach(k=>{ if(st[k]!==undefined) c[k] = st[k]; }); return c; };
 function camWatch(){ if(camOn || !db) return; camOn = true;
   db.ref("camera").on("value", s=>{ C = s.val() || null; if(!camDrag) ondaPaint(); }, ()=>{ camErr = "Non riesco a leggere il nodo camera: aggiungilo alle regole del database."; ondaPaint(); }); }
 async function camSet(k, val, paint = true){
@@ -343,12 +343,14 @@ async function camSet(k, val, paint = true){
   if(paint) ondaPaint(); if(camErr) setFlash(camErr);
 }
 function camClick(v){ const c = camV();
-  if(v==="mic" || v==="cam" || v==="ov" || v==="af") camSet(v, !c[v]);
+  if(v==="mic" || v==="cam" || v==="ov" || v==="af" || v==="ael") camSet(v, !c[v]);
   else if(v==="gira" || v==="bolla") camSet(v, (+camO()[v] || 0) + 1);
   else if(v==="dritto") camSet("rot", 0);
+  else if(v==="ev0") camSet("ev", 0);
   else if(/^q\d+$/.test(v)) camSet("q", v.slice(1)); }
 /* cursori: mentre si trascina, un comando ogni 300 ms (il valore finale lo manda "change") */
-const camFmt = (k, v) => k==="rot" ? (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + "°" : v + "%";
+const camFmt = (k, v) => k==="rot" ? (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + "°"
+  : k==="ev" ? (+v===0 ? "0 EV" : (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + " EV") : v + "%";
 function camInput(k, el){ const b = el.parentNode.querySelector("b"); if(b) b.textContent = camFmt(k, el.value);
   camDrag = true; const now = Date.now();
   if(now - camLast > 300){ camLast = now; camSet(k, +el.value, false); } }
@@ -364,7 +366,7 @@ async function telTick(){
   TEL = j; const t = j && j.stato && +j.stato.t || 0; if(t && t!==telT){ telT = t; telVisto = Date.now(); }
   const img = document.getElementById("camfoto"); if(img && j && j.foto && img.getAttribute("src")!==j.foto) img.setAttribute("src", j.foto);
   const st = document.getElementById("camst"); if(st) st.innerHTML = telStatoHTML();
-  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,telFresco(),!!(j && j.foto),j && j.stato && j.stato.q,j && j.stato && j.stato.live].join();
+  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,c.ael,c.ev,telFresco(),!!(j && j.foto),j && j.stato && j.stato.q,j && j.stato && j.stato.live].join();
   if(firma!==telFirma && !camDrag){ telFirma = firma; ondaPaint(); }
 }
 function telStatoHTML(){
@@ -389,6 +391,7 @@ function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="c
       <div class="two"><small>Zoom</small><input type="range" min="0" max="100" step="1" value="${+c.zoom || 0}" data-o="camz"><b>${+c.zoom || 0}%</b></div>
       <div class="two"><button data-o="cam:af" class="${c.af ? "" : "on"}">${c.af ? "Fuoco AUTO" : "Fuoco MAN"}</button><input type="range" min="0" max="100" step="1" value="${+c.fuoco || 0}" data-o="camf"${c.af ? " disabled" : ""}><b>${+c.fuoco || 0}%</b></div>
       <div class="two"><button data-o="cam:bolla" title="Il telefono legge il suo sensore e si raddrizza da solo">📐 In bolla</button><input type="range" min="-10" max="10" step="0.5" value="${rot}" data-o="camr" title="Raddrizza a mano: gradi"><b>${camFmt("rot", rot)}</b></div>
+      <div class="two"><button data-o="cam:ael" class="${c.ael ? "on" : ""}" title="Blocca la luminosità com'è adesso: non cambia più quando qualcuno passa davanti">${c.ael ? "🔒 Esposiz. bloccata" : "🔓 Esposiz. auto"}</button><input type="range" min="-2" max="2" step="0.1" value="${+c.ev || 0}" data-o="came" title="Più scuro / più chiaro"><b>${camFmt("ev", +c.ev || 0)}</b></div>
       ${camQualHTML()}
       <div class="two"><button data-o="cam:gira">🔄 Cambia fotocamera</button><button data-o="cam:dritto" title="Toglie la correzione della bolla">Bolla a 0°</button></div>
       ${camErr ? `<p class="err">${esc(camErr)}</p>` : ""}
