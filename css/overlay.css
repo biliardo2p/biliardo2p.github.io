@@ -204,6 +204,15 @@ body.ovm > *:not(#app){display:none!important}
 #ov .lt .rot i{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,.25)}
 #ov .lt .rot i.on{background:var(--gold)}
 #ov .lt.team .p{font-size:25px}
+/* traguardo leggibile (13/11/2026): stessa altezza della specialità, numero in grassetto oro */
+#ov .lt .mid .s{font-size:23px;max-width:100%;overflow:hidden}
+#ov .lt .mid .s small{font-family:var(--fh);font-size:1em;font-weight:700;letter-spacing:.02em;margin-left:8px}
+/* bilie (13/11/2026): bianca accanto al punteggio di sinistra, gialla accanto a quello di destra */
+#ov .lt.balls{grid-template-columns:1fr 128px 44px 300px 44px 128px 1fr}
+#ov .lt .bb{display:grid;place-items:center}
+#ov .ball{display:inline-block;width:28px;height:28px;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.55),inset -2px -3px 5px rgba(0,0,0,.28);flex:none}
+#ov .ball.wh{background:radial-gradient(circle at 34% 30%,#fff 0,#fbfaf4 22%,#e4dfd0 62%,#a9a290 100%)}
+#ov .ball.ye{background:radial-gradient(circle at 34% 30%,#fff7cf 0,#ffd94a 24%,#f0b400 62%,#9a6b00 100%)}
 #ov .lt.team .lsc{font-size:62px}
 #ov .chip .t2{color:var(--gold)}
 /* mini-overlay (PRISM, telecamera): fascia più bassa e compatta */
@@ -217,6 +226,10 @@ body.ovm > *:not(#app){display:none!important}
 #ov.mini .mid .k{font-size:12.5px}
 #ov.mini .mid .s{font-size:19px}
 #ov.mini .mid .s small{font-size:15px}
+#ov.mini .lt .mid .s{font-size:21px}
+#ov.mini .lt .mid .s small{font-size:1em}
+#ov.mini .lt.balls{grid-template-columns:1fr 100px 36px 270px 36px 100px 1fr}
+#ov.mini .lt .ball{width:24px;height:24px}
 #ov.mini .lt .bars{width:240px;height:4px}
 #ov.mini .lt .tot{font-size:12.5px}
 #ov.mini .lt .tot b{font-size:17px}
@@ -250,6 +263,11 @@ body.ovm > *:not(#app){display:none!important}
 #ondap .lk small{color:#93a5bf;font-size:12.5px}
 #ondap .hint{color:#93a5bf;font-size:12.5px;margin:0}
 #ondap .err{color:#ff8a8a;margin:0}
+#ondap .seg.s2{grid-template-columns:1fr 1fr}
+#ondap .bia button{display:flex;align-items:center;justify-content:center;gap:6px;min-width:0}
+#ondap .bia button span{min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#ondap .bia .ball{display:inline-block;width:14px;height:14px;border-radius:50%;flex:none;background:radial-gradient(circle at 34% 30%,#fff 0,#f4f1e6 30%,#b9b3a2 100%);box-shadow:0 1px 2px rgba(0,0,0,.5)}
+#ondap .bia small{color:#93a5bf;font-size:12.5px}
 #ondap .cam .two small{color:#93a5bf;font-size:12.5px}
 #ondap .cam .two>small:first-child{min-width:3.2em}
 #ondap .cam>small{color:#93a5bf;font-size:12.5px}

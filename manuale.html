@@ -439,6 +439,7 @@ assente
 <tr><th>Comando</th><th>Tasto</th><th>Effetto</th></tr>
 <tr><td>In onda: Tabellone / Fascia incontro / Nascosto</td><td><kbd>V</kbd> · <kbd>N</kbd></td><td>V passa da tabellone a fascia; N nasconde e rimostra l'overlay.</td></tr>
 <tr><td>Incontro in primo piano</td><td><kbd>F</kbd></td><td>Quale incontro va nella fascia. Automatico = quello in corso; se sono più d'uno, l'ultimo messo in corso. Scegliendone uno resta fisso; F passa al successivo tra quelli in corso (è il modo per mostrare gli altri biliardi).</td></tr>
+<tr><td>Bilia bianca</td><td><kbd>B</kbd></td><td>Solo per la fascia: a sinistra va chi ha la bilia bianca, a destra chi ha la gialla, a prescindere da casa e trasferta. Si sceglie per l'incontro in primo piano toccando il nome di chi ha la bianca; B scambia. Ogni incontro ricorda la sua scelta. Il tabellone completo resta con la casa a sinistra.</td></tr>
 <tr><td>Pagina del tabellone</td><td></td><td>Solo tornei con batterie: pagina fissa, automatica, oppure rotazione ogni 10–30 secondi.</td></tr>
 <tr><td>Sfondo del tabellone</td><td><kbd>[</kbd> <kbd>]</kbd></td><td>Più pieno o più trasparente.</td></tr>
 <tr><td>📷 Telefono con B2P Camera</td><td></td><td>Comandi per il telefono che trasmette con l'app B2P Camera: microfono, immagine, overlay, zoom, fuoco, cambio fotocamera (vedi più sotto).</td></tr>
@@ -451,6 +452,7 @@ assente
 <ul>
   <li>Mostra l'incontro in corso con giocatori, categoria, punteggi, specialità, numero del biliardo e (nelle gare a squadre) i punti delle squadre. La squadra di appartenenza dei giocatori compare solo nei campionati a squadre. In alto a sinistra il nome della gara con il bollino LIVE.</li>
   <li>Con <b>due o più incontri in corso</b> mostra l'ultimo messo in corso; per passare a un altro biliardo si usa <kbd>F</kbd> (o il menu “Incontro in primo piano”) nel pannello 📺 Onda, per vederli tutti <kbd>V</kbd> (riepilogo). Chi vuole la rotazione automatica aggiunge <code>&amp;rot</code> all'indirizzo (ogni 12 secondi; <code>&amp;rot=20</code> per 20 secondi): i pallini sotto indicano quale si sta vedendo.</li>
+  <li>Accanto ai punteggi ci sono una <b>bilia bianca</b> (a sinistra) e una <b>gialla</b> (a destra): all'inizio dell'incontro, nel pannello 📺 Onda, si tocca il nome di chi ha la bianca (o si preme <kbd>B</kbd>) e la fascia mette quel giocatore a sinistra. Il traguardo (“a 120”) è scritto grande come la specialità.</li>
   <li>Nelle gare a squadre, quando nessun incontro è in corso, mostra squadre e punti con il prossimo incontro.</li>
   <li>Con <b>PRISM Live Studio</b> sul telefono: modalità Camera, poi Widget → Web con l'indirizzo del mini-overlay (per le prove <code>&amp;prova</code> in fondo), riquadro a tutto schermo e livello bloccato. Lo sfondo è trasparente. La fascia si adatta da sola alla forma del riquadro: occupa sempre tutta la larghezza e sta in basso; il riquadro si può anche disegnare come una striscia bassa sul fondo (in quel caso il titolo della gara in alto non compare). Lo zoom del widget va lasciato a 100%. Con la versione gratuita di PRISM il logo “PRISM Live” in basso a destra non si può togliere: aggiungendo <code>&amp;alza</code> all'indirizzo la fascia si solleva e lo lascia libero sotto (<code>&amp;alza=20</code> per sollevarla di più). Per ricaricare il widget dopo un aggiornamento del sito si aggiunge in fondo all'indirizzo <code>&amp;r=2</code>, poi <code>&amp;r=3</code> e così via.</li>
   <li>Dal pannello 📺 Onda: “Incontro in primo piano” lo blocca su un incontro, “Nascosto” lo toglie. Con “Tabellone” la fascia sparisce e al suo posto compare il riepilogo (vedi sotto).</li>
@@ -583,6 +585,7 @@ assente
 <h2><span class="n">15</span>Novità</h2>
 <h3>13 novembre 2026</h3>
 <ul>
+  <li>Fascia dell'overlay e mini-overlay: <b>bilia bianca a sinistra, gialla a destra</b>, con il giocatore che ha la bianca scelto dal pannello 📺 Onda (tasto B); traguardo più grande e leggibile.</li>
   <li>B2P Camera 0.9: <b>esposizione</b> bloccabile e regolabile (più chiaro / più scuro), dal telefono e dal pannello 📺 Onda; anti-sfarfallio a 50 Hz.</li>
 </ul>
 <h3>11 novembre 2026</h3>
