@@ -235,7 +235,9 @@ function ovFasciaHTML(){
   const [x, y] = ovFSides(m, i), ix = sd => sd==="h" ? 0 : 1, w = winner(m), tor = isTorneo(), yy = gYear();
   const club = (sd) => tor ? "" : esc((sd==="h" ? S.home : S.away).short || (sd==="h" ? S.home : S.away).name);   /* squadra solo nei campionati a squadre */
   const names = sd => { const ns = m[sd].map((_,j)=>ovName(m, sd, j)).filter(Boolean); return ns.length ? ns.map(n=>`<span>${n}</span>`).join("") : "—"; };   /* coppie: un nome per riga */
-  const side = sd => `<div class="side ${sd} ${sd===x ? "L" : "R"}">${tor ? "" : `<div class="tm">${club(sd)}</div>`}<div class="p${m[sd].length>1 && m.kind!=="Staffetta" ? " two" : ""}">${m.kind==="Staffetta" ? ovName(m, sd, Math.min(relayIdx(m), m[sd].length-1)) || "—" : names(sd)}</div></div>`;
+  const txt = sd => `${tor ? "" : `<div class="tm">${club(sd)}</div>`}<div class="p${m[sd].length>1 && m.kind!=="Staffetta" ? " two" : ""}">${m.kind==="Staffetta" ? ovName(m, sd, Math.min(relayIdx(m), m[sd].length-1)) || "—" : names(sd)}</div>`;
+  const side = sd => { const lg = tor ? "" : ovSqLogo(sd);
+    return `<div class="side ${sd} ${sd===x ? "L" : "R"}${lg ? " lg" : ""}">${lg ? `${lg}<div class="tx">${txt(sd)}</div>` : txt(sd)}</div>`; };
   const sc = sd => `<div class="lsc ${sd}${w===sd ? " w" : ""}" data-sc="${i}.${sd}">${m.s[ix(sd)]}</div>`;
   const t = totals();
   const k = tor ? [m.turno || "", m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ") : [`Incontro ${i+1}`, m.kind + (m.kind==="Staffetta" ? ` · ${relayIdx(m)+1}ª frazione` : ""), m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ");
@@ -245,10 +247,14 @@ function ovFasciaHTML(){
   const ball = c => `<div class="bb"><i class="ball ${c}" title="${c==="wh" ? "bilia bianca" : "bilia gialla"}"></i></div>`;
   return chip + `<div class="lt balls${x==="a" ? " sw" : ""}${fresh ? " in" : ""}${dots ? " rotn" : ""}">${dots}${side(x)}${sc(x)}${ball("wh")}<div class="mid"><div class="k">${k}</div>${ovSpec(m)}${ovBars(m, x, y)}${extra}</div>${ball("ye")}${sc(y)}${side(y)}</div>`;
 }
+/* logo della squadra agli estremi della fascia (campionati a squadre, dal 15/11/2026): casa = logo del circolo già ridotto, ospite = logo o sigla */
+function ovSqLogo(sd){ const img = sd==="h" ? `<img src="${LOGO_96}" alt="">` : S.away.logo ? `<img src="${esc(S.away.logo)}" alt="">` : S.away.badge ? `<div class="badge">${esc(S.away.badge)}</div>` : "";
+  return img ? `<div class="flg">${img}</div>` : ""; }
 /* mini-overlay, campionati a squadre, nessun incontro in corso: squadre e punti */
 function ovTeamBand(){
   const t = totals(), [x, y] = SDS(), ix = sd => sd==="h" ? 0 : 1, done = S.matches.filter(m=>winner(m)).length, n = S.matches.length;
-  const side = sd => { const o = sd==="h" ? S.home : S.away; return `<div class="side ${sd} ${sd===x ? "L" : "R"}"><div class="tm">${esc(o.city || "")}</div><div class="p">${esc(o.short || o.name)}</div></div>`; };
+  const side = sd => { const o = sd==="h" ? S.home : S.away, lg = ovSqLogo(sd), tx = `<div class="tm">${esc(o.city || "")}</div><div class="p">${esc(o.short || o.name)}</div>`;
+    return `<div class="side ${sd} ${sd===x ? "L" : "R"}${lg ? " lg" : ""}">${lg ? `${lg}<div class="tx">${tx}</div>` : tx}</div>`; };
   const nx = S.matches.findIndex(m=>!winner(m));
   const k = S.stato==="finita" ? "Risultato finale" : done ? `${done} incontr${done>1 ? "i" : "o"} su ${n}` : "Si comincia";
   const sub = S.stato!=="finita" && nx>=0 ? `<div class="tot">PROSSIMO · ${nx+1} ${esc(S.matches[nx].kind)}</div>` : "";

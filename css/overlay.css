@@ -177,6 +177,13 @@ body.ovm > *:not(#app){display:none!important}
 #ov .lt.sw::before{background:linear-gradient(90deg,var(--away),var(--away2) 40%,var(--home2) 60%,var(--home))}
 #ov .lt .side{display:flex;flex-direction:column;justify-content:center;gap:3px;padding:0 22px;min-width:0}
 #ov .lt .side.R{text-align:right}
+/* logo della squadra agli estremi (15/11/2026) */
+#ov .lt .side.lg{flex-direction:row;align-items:center;justify-content:flex-start;gap:16px;padding:0 20px 0 16px}
+#ov .lt .side.lg.R{flex-direction:row-reverse;padding:0 16px 0 20px}
+#ov .lt .side .tx{display:flex;flex-direction:column;justify-content:center;gap:3px;min-width:0;flex:1}
+#ov .lt .flg{flex:none;width:74px;height:74px;display:grid;place-items:center}
+#ov .lt .flg img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(0 2px 6px rgba(0,0,0,.6))}
+#ov .lt .flg .badge{width:62px;height:62px;font-size:30px}
 #ov .lt .tm{font-size:16px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;white-space:nowrap;overflow:hidden;min-height:19px}
 #ov .lt .side.h .tm{color:var(--home)} #ov .lt .side.a .tm{color:var(--away)}
 #ov .lt .p{font-size:27px;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;line-height:1.08}
@@ -218,6 +225,11 @@ body.ovm > *:not(#app){display:none!important}
 /* mini-overlay (PRISM, telecamera): fascia più bassa e compatta */
 #ov.mini .lt{bottom:14px;height:82px;grid-template-columns:1fr 100px 280px 100px 1fr;border-radius:12px}
 #ov.mini .lt .side{gap:1px;padding:0 18px}
+#ov.mini .lt .side.lg{gap:12px;padding:0 14px 0 12px}
+#ov.mini .lt .side.lg.R{padding:0 12px 0 14px}
+#ov.mini .lt .side .tx{gap:1px}
+#ov.mini .lt .flg{width:54px;height:54px}
+#ov.mini .lt .flg .badge{width:46px;height:46px;font-size:22px}
 #ov.mini .lt .tm{font-size:13px;min-height:0;letter-spacing:.14em}
 #ov.mini .lt .p{font-size:26px}
 #ov.mini .lt .p.two{font-size:20px}
