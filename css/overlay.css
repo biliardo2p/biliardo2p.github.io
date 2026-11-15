@@ -290,6 +290,15 @@ body.ovm > *:not(#app){display:none!important}
 #ondap .cam .two button{white-space:nowrap}
 #ondap .cam .two .seg{flex:1}
 #ondap .cam button:disabled{opacity:.45;cursor:not-allowed}
+#ondap .cam .dir{display:flex;flex-direction:column;gap:6px;padding:8px;border:1px solid #26385a;border-radius:8px;background:#0e1830}
+#ondap .cam .dir .dt{font-size:13px;color:#cfe0ff;letter-spacing:0;text-transform:none}
+#ondap .cam .dir small{letter-spacing:0;text-transform:none;font-size:12.5px;color:#93a5bf;font-weight:400}
+#ondap .cam .dir .seg{display:flex;gap:6px}#ondap .cam .dir .seg button{flex:1}
+#ondap .cam .dir>button{width:100%}
+#ondap .cam .dir select,#ondap .cam .dir input[type=text]{width:100%;box-sizing:border-box;background:#0b1424;color:#e8eefb;border:1px solid #2f4570;border-radius:6px;padding:7px 8px;font:inherit;font-size:14px}
+#ondap .cam .dir .go{background:#c81e1e;border-color:#c81e1e;color:#fff;font-weight:700;padding:9px}
+#ondap .cam .dir .stop{background:#3a0d0d;border-color:#c81e1e;color:#ffb3b3;font-weight:700;padding:9px}
+#ondap .cam .dir .stop.conf{background:#c81e1e;color:#fff}
 #ondap .cam .two button.on{background:#f6c853;border-color:#f6c853;color:#1a1205}
 #ondap input[type=range]:disabled{opacity:.4}
 #ondap kbd{font:12px ui-monospace,Consolas,monospace;border:1px solid #3b4a63;border-bottom-width:2px;border-radius:3px;padding:0 4px}

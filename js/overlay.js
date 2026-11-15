@@ -336,16 +336,18 @@ function ondaToggle(){
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
       if(k==="primo") ondaSet({primo:+e.target.value}); else if(k==="pag") ondaSet({pag:e.target.value}); else if(k==="ciclo") ondaSet({ciclo:+e.target.value}); else if(k==="bga") ondaSet({bga:+e.target.value});
+      else if(k==="camdest"){ camLiveInit(); camLive.dest = e.target.value; }
       else if(k==="camz" || k==="camf" || k==="camr" || k==="came"){ camDrag = false; camSet(({camz:"zoom", camf:"fuoco", camr:"rot", came:"ev"})[k], +e.target.value); } });
     p.addEventListener("input", e=>{ const k = e.target.dataset.o;
       if(k==="bga"){ const b = e.target.parentNode.querySelector("b"); if(b) b.textContent = Math.round(e.target.value*100) + "%"; }
+      else if(k==="camtit"){ camLiveInit(); camLive.titolo = e.target.value; }
       else if(k==="camz" || k==="camf" || k==="camr" || k==="came") camInput(({camz:"zoom", camf:"fuoco", camr:"rot", came:"ev"})[k], e.target); });
   }
   ondaPaint();
 }
 /* ================= regia: telefono con l'app B2P Camera (nodo camera, uno solo per tutte le gare) =================
    Comandi: l'app ascolta il nodo camera e applica solo la voce k (con t nuovo): all'avvio non riprende comandi vecchi.
-   camera = {mic, cam, ov, af, ael (esposizione bloccata): true/false, zoom, fuoco: 0-100, rot: gradi -10..10, ev: -2..+2, q: "540"/"720"/"1080", gira e bolla: contatori, k, t, guarda}.
+   camera = {mic, cam, ov, af, ael (esposizione bloccata), prova (overlay sulle gare di prova): true/false, avvia/ferma: contatori con lv (vedi camAvvia), zoom, fuoco: 0-100, rot: gradi -10..10, ev: -2..+2, q: "540"/"720"/"1080", gira e bolla: contatori, k, t, guarda}.
    Ritorno (dal 09/11/2026, app 0.6 con account in ⚙): il telefono scrive telefono/stato (ogni 3 s) e telefono/foto
    (anteprima JPEG ogni 2 s, solo finché la regia "guarda": camera/guarda cambia ogni 15 s col pannello aperto).
    telefono si legge solo da utenti autenticati: fetch REST con idToken ogni 2 s. Con lo stato fresco (cambiato
@@ -359,9 +361,9 @@ const telFresco = () => TEL && TEL.stato && Date.now() - telVisto < 12000;
 const camV = () => { const c = camO(); if(!telFresco()) return c; const st = TEL.stato;
   ["mic","cam","ov","af","zoom","fuoco","rot","ael","ev"].forEach(k=>{ if(st[k]!==undefined) c[k] = st[k]; }); return c; };
 function camWatch(){ if(camOn || !db) return; camOn = true;
-  db.ref("camera").on("value", s=>{ C = s.val() || null; if(!camDrag) ondaPaint(); }, ()=>{ camErr = "Non riesco a leggere il nodo camera: aggiungilo alle regole del database."; ondaPaint(); }); }
-async function camSet(k, val, paint = true){
-  const n = Object.assign(camO(), {[k]: val, k, t: Date.now()}); C = n;
+  db.ref("camera").on("value", s=>{ C = s.val() || null; if(!camBusy()) ondaPaint(); }, ()=>{ camErr = "Non riesco a leggere il nodo camera: aggiungilo alle regole del database."; ondaPaint(); }); }
+async function camSet(k, val, paint = true, extra = null){
+  const n = Object.assign(camO(), extra || {}, {[k]: val, k, t: Date.now()}); C = n;
   try{ await dbWrite({camera: n}); camErr = ""; }
   catch(err){ camErr = err && err.code==="PERMISSION_DENIED" ? "Comando non inviato: Firebase lo rifiuta. Aggiungi il nodo camera alle regole del database (vedi manuale, Dirette video)." : "Comando non inviato: controlla la connessione."; }
   if(paint) ondaPaint(); if(camErr) setFlash(camErr);
@@ -371,7 +373,11 @@ function camClick(v){ const c = camV();
   else if(v==="gira" || v==="bolla") camSet(v, (+camO()[v] || 0) + 1);
   else if(v==="dritto") camSet("rot", 0);
   else if(v==="ev0") camSet("ev", 0);
-  else if(/^q\d+$/.test(v)) camSet("q", v.slice(1)); }
+  else if(/^q\d+$/.test(v)) camSet("q", v.slice(1));
+  else if(v==="prova") camSet("prova", !camProva());
+  else if(v==="pub0" || v==="pub1"){ camLiveInit(); camLive.pub = v==="pub1"; ondaPaint(); }
+  else if(v==="avvia") camAvvia();
+  else if(v==="ferma") camFerma(); }
 /* cursori: mentre si trascina, un comando ogni 300 ms (il valore finale lo manda "change") */
 const camFmt = (k, v) => k==="rot" ? (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + "°"
   : k==="ev" ? (+v===0 ? "0 EV" : (v>0 ? "+" : "") + (+v).toFixed(1).replace(".", ",") + " EV") : v + "%";
@@ -390,13 +396,51 @@ async function telTick(){
   TEL = j; const t = j && j.stato && +j.stato.t || 0; if(t && t!==telT){ telT = t; telVisto = Date.now(); }
   const img = document.getElementById("camfoto"); if(img && j && j.foto && img.getAttribute("src")!==j.foto) img.setAttribute("src", j.foto);
   const st = document.getElementById("camst"); if(st) st.innerHTML = telStatoHTML();
-  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,c.ael,c.ev,telFresco(),!!(j && j.foto),j && j.stato && j.stato.q,j && j.stato && j.stato.live].join();
-  if(firma!==telFirma && !camDrag){ telFirma = firma; ondaPaint(); }
+  const st0 = j && j.stato || {};
+  const c = camV(), firma = [c.mic,c.cam,c.ov,c.af,c.zoom,c.fuoco,c.rot,c.ael,c.ev,st0.prova,st0.fb,st0.srv,st0.dest,st0.msgT,telFresco(),!!(j && j.foto),j && j.stato && j.stato.q,j && j.stato && j.stato.live].join();
+  if(firma!==telFirma && !camBusy()){ telFirma = firma; ondaPaint(); }
 }
 function telStatoHTML(){
   if(!TEL || !TEL.stato) return "Telefono: nessuna notizia (serve l'app 0.6 con l'account in ⚙ → Regia).";
   const s = TEL.stato, fresco = telFresco();
   return `${fresco ? "" : "⚠ non risponde da un po' · "}${s.live ? `<b class="rec">● IN DIRETTA</b> ${String(s.mbit ?? "").replace(".", ",")} Mbit/s` : "fuori onda"} · ${esc(s.q || "")} · 🔋 ${+s.batt || 0}%`;
+}
+/* ---- diretta avviata dalla regia (dal 15/11/2026, app 26.11.0) ----
+   Comando "avvia" con lv = {dest: "fb" | "srv", titolo, pub (true = Pubblica), prova}: il telefono imposta le gare di prova
+   dell'overlay e parte (Facebook: crea la diretta con la Live Video API; srv: server di ⚙, es. YouTube). "ferma" la chiude.
+   Titolo e pubblico restano in questo pannello (camLive) finché non si cambia gara; il titolo proposto è quello della gara aperta. */
+let camLive = null, camFermaT = 0;
+const camBusy = () => camDrag || (document.activeElement && document.activeElement.dataset && document.activeElement.dataset.o==="camtit");
+function camTitolo(){ const m = metaOf(S), pz = [];
+  if(m.casa && m.ospite) pz.push(m.trasferta ? `${m.ospite} – ${m.casa}` : `${m.casa} – ${m.ospite}`);
+  if(m.titolo) pz.push(m.titolo); if(m.sottotitolo) pz.push(m.sottotitolo);
+  const d = String(S.data || "").split("-"); if(d.length===3) pz.push(`${d[2]}/${d[1]}/${d[0]}`);
+  return pz.join(" · ") || "Biliardo Seconda Passione"; }
+function camLiveInit(){ if(camLive && camLive.gara===GARA) return;
+  const st = TEL && TEL.stato || {};
+  camLive = {gara: GARA, titolo: camTitolo(), pub: !!st.fbPub, dest: st.fb===false && st.srv ? "srv" : "fb"}; }
+const camProva = () => { const st = telFresco() ? TEL.stato : null; return st && st.prova!==undefined ? !!st.prova : !!camO().prova; };
+function camAvvia(){ camLiveInit();
+  const prova = visOf(S)==="prova";   /* l'overlay segue questa gara: gare di prova solo se è di prova */
+  camSet("avvia", (+camO().avvia || 0) + 1, true, {lv: {dest: camLive.dest, titolo: camLive.titolo.trim() || camTitolo(), pub: !!camLive.pub, prova}}); }
+function camFerma(){ const now = Date.now();
+  if(now - camFermaT > 4000){ camFermaT = now; ondaPaint(); setTimeout(()=>{ if(Date.now() - camFermaT >= 4000) ondaPaint(); }, 4100); return; }
+  camFermaT = 0; camSet("ferma", (+camO().ferma || 0) + 1); }
+function camLiveHTML(){ camLiveInit();
+  const st = telFresco() ? TEL.stato : null, live = !!(st && st.live), fb = !st || st.fb!==false, srv = !st || !!st.srv;
+  const conf = Date.now() - camFermaT < 4000;
+  const dest = `<select data-o="camdest"${live ? " disabled" : ""}>
+        <option value="fb"${camLive.dest==="fb" ? " selected" : ""}${fb ? "" : " disabled"}>Facebook (diretta automatica)${fb ? "" : " – manca il token sul telefono"}</option>
+        <option value="srv"${camLive.dest==="srv" ? " selected" : ""}${srv ? "" : " disabled"}>Server del telefono (YouTube…)${srv ? "" : " – non impostato"}</option></select>`;
+  const pub = camLive.dest==="fb" ? `<div class="seg"><button data-o="cam:pub0" class="${camLive.pub ? "" : "on"}"${live ? " disabled" : ""}>Solo io (prova)</button><button data-o="cam:pub1" class="${camLive.pub ? "on" : ""}"${live ? " disabled" : ""}>Pubblica</button></div>` : "";
+  const tit = camLive.dest==="fb" ? `<input type="text" data-o="camtit" value="${esc(camLive.titolo)}" placeholder="Titolo della diretta"${live ? " disabled" : ""}>` : "";
+  const btn = live
+    ? `<button data-o="cam:ferma" class="stop${conf ? " conf" : ""}">${conf ? "Conferma: ferma la diretta" : "■ Ferma diretta"}${st && st.dest==="fb" ? " (chiude anche su Facebook)" : ""}</button>`
+    : `<button data-o="cam:avvia" class="go">● Avvia diretta</button>`;
+  const prova = visOf(S)==="prova";
+  return `<div class="dir"><b class="dt">Diretta</b>${dest}${tit}${pub}${btn}
+      ${st && st.msg && Date.now() - telVisto < 60000 ? `<p class="err">${esc(st.msg)}</p>` : ""}
+      <div class="two"><button data-o="cam:prova" class="${camProva() ? "on" : ""}" title="L'overlay del telefono segue le gare di prova (&prova)">${camProva() ? "🧪 Overlay: gare di prova" : "Overlay: gare pubbliche"}</button><small>${prova ? "Questa gara è di prova: Avvia diretta attiva da solo le gare di prova." : "Avvia diretta passa da solo alle gare pubbliche."}</small></div></div>`;
 }
 /* qualità del telefono (540/720/1080): l'app si riavvia per cambiarla, quindi solo fuori diretta (dall'11/11/2026) */
 function camQualHTML(){
@@ -411,6 +455,7 @@ function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="c
   return `<div class="og cam"><span>📱 Telefono con B2P Camera</span>
       <div class="foto">${foto ? `<img id="camfoto" src="${foto}" alt="Anteprima del telefono">` : `<img id="camfoto" alt="" hidden><p>Anteprima: compare qui quando il telefono ha l'account in ⚙ → Regia (circa una foto ogni 2 secondi, con l'overlay).</p>`}</div>
       <small id="camst">${telStatoHTML()}</small>
+      ${camLiveHTML()}
       <div class="seg">${sw("mic", c.mic, "🎤 Microfono ON", "🎤 Microfono OFF")}${sw("cam", c.cam, "🎥 Immagine ON", "🎥 Nero")}${sw("ov", c.ov, "🏷 Overlay ON", "🏷 Overlay OFF")}</div>
       <div class="two"><small>Zoom</small><input type="range" min="0" max="100" step="1" value="${+c.zoom || 0}" data-o="camz"><b>${+c.zoom || 0}%</b></div>
       <div class="two"><button data-o="cam:af" class="${c.af ? "" : "on"}">${c.af ? "Fuoco AUTO" : "Fuoco MAN"}</button><input type="range" min="0" max="100" step="1" value="${+c.fuoco || 0}" data-o="camf"${c.af ? " disabled" : ""}><b>${+c.fuoco || 0}%</b></div>
