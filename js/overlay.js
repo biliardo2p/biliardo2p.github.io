@@ -231,6 +231,7 @@ function ovFasciaHTML(){
   const lv = OVMINI && S.stato==="live" ? `<span class="live"><i></i>LIVE</span>` : "";
   const chip = `<div class="chip"><img src="${LOGO_56}" alt="">${esc(S.title)}${S.subtitle ? `<span class="t2">${esc(S.subtitle)}</span>` : ""}${lv}</div>`;
   const i = ovPrimo(), m = S.matches[i]; if(!m) return chip + (OVMINI && !isTorneo() ? ovTeamBand() : "");
+  if(ovO().np) return chip + ovVsHTML(m, i);
   const L = ovRotList(), dots = L.length>1 ? `<div class="rot">${L.map(j=>`<i class="${j===i ? "on" : ""}"></i>`).join("")}</div>` : "";
   const [x, y] = ovFSides(m, i), ix = sd => sd==="h" ? 0 : 1, w = winner(m), tor = isTorneo(), yy = gYear();
   const club = (sd) => tor ? "" : esc((sd==="h" ? S.home : S.away).short || (sd==="h" ? S.home : S.away).name);   /* squadra solo nei campionati a squadre */
@@ -247,6 +248,19 @@ function ovFasciaHTML(){
   const ball = c => `<div class="bb"><i class="ball ${c}" title="${c==="wh" ? "bilia bianca" : "bilia gialla"}"></i></div>`;
   return chip + `<div class="lt balls${x==="a" ? " sw" : ""}${fresh ? " in" : ""}${dots ? " rotn" : ""}">${dots}${side(x)}${sc(x)}${ball("wh")}<div class="mid"><div class="k">${k}</div>${ovSpec(m)}${ovBars(m, x, y)}${extra}</div>${ball("ye")}${sc(y)}${side(y)}</div>`;
 }
+/* fascia senza punteggi (dal 23/11/2026): onda.np = true → "nome 1 VS nome 2" con squadra, logo e specialità; niente punteggi, bilie, set e punti squadra.
+   Per le dirette in cui nessuno aggiorna i punti (es. Enrico gioca). Lati come il tabellone (casa a sinistra). */
+function ovVsHTML(m, i){
+  const [x, y] = SDS(), tor = isTorneo();
+  const club = sd => esc((sd==="h" ? S.home : S.away).short || (sd==="h" ? S.home : S.away).name);
+  const names = sd => { const ns = m[sd].map((_,j)=>ovName(m, sd, j)).filter(Boolean); return ns.length ? ns.map(n=>`<span>${n}</span>`).join("") : "—"; };
+  const txt = sd => `${tor ? "" : `<div class="tm">${club(sd)}</div>`}<div class="p${m[sd].length>1 && m.kind!=="Staffetta" ? " two" : ""}">${m.kind==="Staffetta" ? ovName(m, sd, Math.min(relayIdx(m), m[sd].length-1)) || "—" : names(sd)}</div>`;
+  const side = sd => { const lg = tor ? "" : ovSqLogo(sd);
+    return `<div class="side ${sd} ${sd===x ? "L" : "R"}${lg ? " lg" : ""}">${lg ? `${lg}<div class="tx">${txt(sd)}</div>` : txt(sd)}</div>`; };
+  const k = tor ? [m.turno || "", m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ") : [`Incontro ${i+1}`, m.kind, m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ");
+  const fresh = i!==ovLastPrimo && ovLastPrimo!==-2; ovLastPrimo = i;
+  return `<div class="lt vs${x==="a" ? " sw" : ""}${fresh ? " in" : ""}">${side(x)}<div class="mid">${k ? `<div class="k">${k}</div>` : ""}<div class="vsv">VS</div>${ovSpec(m)}</div>${side(y)}</div>`;
+}
 /* logo della squadra agli estremi della fascia (campionati a squadre, dal 15/11/2026): casa = logo del circolo già ridotto, ospite = logo o sigla */
 function ovSqLogo(sd){ const img = sd==="h" ? `<img src="${LOGO_96}" alt="">` : S.away.logo ? `<img src="${esc(S.away.logo)}" alt="">` : S.away.badge ? `<div class="badge">${esc(S.away.badge)}</div>` : "";
   return img ? `<div class="flg">${img}</div>` : ""; }
@@ -259,6 +273,7 @@ function ovTeamBand(){
   const k = S.stato==="finita" ? "Risultato finale" : done ? `${done} incontr${done>1 ? "i" : "o"} su ${n}` : "Si comincia";
   const sub = S.stato!=="finita" && nx>=0 ? `<div class="tot">PROSSIMO · ${nx+1} ${esc(S.matches[nx].kind)}</div>` : "";
   ovLastPrimo = -1;
+  if(ovO().np) return `<div class="lt vs team${x==="a" ? " sw" : ""}">${side(x)}<div class="mid"><div class="k">${esc(S.subtitle || "")}</div><div class="vsv">VS</div></div>${side(y)}</div>`;
   return `<div class="lt team${x==="a" ? " sw" : ""}">${side(x)}<div class="lsc ${x}" data-tot="${x}">${t[ix(x)]}</div><div class="mid"><div class="k">${k}</div><div class="s">Punti squadra</div>${sub}</div><div class="lsc ${y}" data-tot="${y}">${t[ix(y)]}</div>${side(y)}</div>`;
 }
 /* ---- disegno ---- */
@@ -301,7 +316,9 @@ function ondaPaint(){
     <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (l'ultimo messo in corso)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
     ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
       <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
-    ${ondaBiancaHTML()}
+    <div class="og"><span>Punteggi nella fascia</span><div class="seg s2">${[[0,"Mostrati"],[1,"Nascosti (VS)"]].map(([k,t])=>`<button data-o="np:${k}" class="${!!o.np===!!k ? "on" : ""}">${t}</button>`).join("")}</div>
+      ${o.np ? `<small>Fascia senza punteggi, bilie e set: per le dirette in cui nessuno aggiorna i punti. Il tabellone (V) li mostra comunque. Tasto <kbd>S</kbd>.</small>` : ""}</div>
+    ${o.np ? "" : ondaBiancaHTML()}
     <div class="og"><span>Sfondo del tabellone</span><div class="two"><input type="range" min="0" max="1" step="0.05" value="${o.bga ?? .55}" data-o="bga"><b>${Math.round((o.bga ?? .55)*100)}%</b></div></div>
     ${camHTML()}
     <div class="og lk"><span>Sorgente Browser in OBS (1280×720)</span>
@@ -311,7 +328,7 @@ function ondaPaint(){
       <div class="two"><code>${esc(pub)}?overlay&amp;riepilogo&amp;live</code><button data-o="copy:riep">Copia</button></div>
       <small>Gli ultimi due sono per le dirette con telecamera (due widget di PRISM): la fascia con l'incontro in primo piano (tasto F per cambiarlo), e il riepilogo a tutto schermo che compare al posto della fascia quando è in onda il Tabellone (tasto V).</small></div>
     ${ondaErr ? `<p class="err">${esc(ondaErr)}</p>` : ""}
-    <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>B</kbd> bilia bianca · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
+    <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>B</kbd> bilia bianca · <kbd>S</kbd> punteggi sì/no · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
 }
 /* bilia bianca dell'incontro in primo piano nella fascia (a sinistra) */
 function ondaBiancaHTML(){ const i = ovPrimo(), m = S.matches[i]; if(!m) return "";
@@ -323,6 +340,7 @@ async function ondaBianca(sd){ const i = ovPrimo(), m = S.matches[i]; if(!m) ret
   const k = mkey(m, i), cur = ovFSides(m, i)[0]; if(!sd) sd = cur==="h" ? "a" : "h";
   await ondaSet({bianca: Object.assign({}, ovO().bianca || {}, {[k]: sd})});
   if(!ondaErr) setFlash(`Bilia bianca: ${m.kind==="Staffetta" ? teamShort(sd) : namesOf(m, sd) || (sd==="h" ? "casa" : "ospite")}`); }
+async function ondaNp(on){ await ondaSet({np: on}); if(!ondaErr) setFlash(on ? "Fascia senza punteggi" : "Fascia con i punteggi"); }
 function ondaToggle(){
   ondaOpen = !ondaOpen; ondaWatch(); camWatch(); if(ondaOpen) telStart(); else telStop();
   let p = document.getElementById("ondap");
@@ -332,6 +350,7 @@ function ondaToggle(){
       else if(k==="v") ondaSet({v});
       else if(k==="cam") camClick(v);
       else if(k==="bia") ondaBianca(v);
+      else if(k==="np") ondaNp(v==="1");
       else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : v==="mini" ? "?overlay&mini&live" : v==="riep" ? "?overlay&riepilogo&live" : "?overlay&gara=" + GARA);
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
@@ -469,13 +488,14 @@ function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="c
 document.addEventListener("keydown", e=>{
   if(!editor || mode!=="board" || e.ctrlKey || e.metaKey || e.altKey) return;
   const ae = document.activeElement; if(ae && (ae.isContentEditable || /INPUT|SELECT|TEXTAREA/.test(ae.tagName))) return;
-  const k = e.key.toLowerCase(), o = ovO(); if(!/^[nvfb\[\]]$/.test(k)) return;
+  const k = e.key.toLowerCase(), o = ovO(); if(!/^[nvfbs\[\]]$/.test(k)) return;
   ondaWatch();
   if(k==="n") ondaSet({v: o.v==="off" ? (ondaLastV || "tab") : "off"});
   else if(k==="v") ondaSet({v: o.v==="fascia" ? "tab" : "fascia"});
   else if(k==="f"){ const L = (S.inCorso||[]).length ? S.inCorso : ondaMatches().map(x=>x.i); if(!L.length) return;
     const cur = L.indexOf(o.primo); ondaSet({primo: L[(cur + 1) % L.length]}); }
-  else if(k==="b") ondaBianca();
+  else if(k==="b"){ if(!o.np) ondaBianca(); }
+  else if(k==="s") ondaNp(!o.np);
   else if(k==="[") ondaSet({bga: Math.min(1, Math.round(((o.bga ?? .55) + .1)*20)/20)});
   else if(k==="]") ondaSet({bga: Math.max(0, Math.round(((o.bga ?? .55) - .1)*20)/20)});
 });

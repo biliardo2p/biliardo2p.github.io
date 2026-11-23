@@ -217,6 +217,10 @@ body.ovm > *:not(#app){display:none!important}
 /* bilie (13/11/2026): bianca accanto al punteggio di sinistra, gialla accanto a quello di destra */
 #ov .lt.balls{grid-template-columns:1fr 128px 44px 300px 44px 128px 1fr}
 #ov .lt .bb{display:grid;place-items:center}
+/* fascia senza punteggi (23/11/2026): nome VS nome */
+#ov .lt.vs{grid-template-columns:1fr 420px 1fr}
+#ov .lt.vs .mid{gap:2px}
+#ov .lt .vsv{font-family:var(--fh);font-weight:700;font-size:34px;line-height:1;color:var(--gold);letter-spacing:.08em;text-shadow:0 0 14px rgba(246,200,83,.35)}
 #ov .ball{display:inline-block;width:28px;height:28px;border-radius:50%;box-shadow:0 2px 5px rgba(0,0,0,.55),inset -2px -3px 5px rgba(0,0,0,.28);flex:none}
 #ov .ball.wh{background:radial-gradient(circle at 34% 30%,#fff 0,#fbfaf4 22%,#e4dfd0 62%,#a9a290 100%)}
 #ov .ball.ye{background:radial-gradient(circle at 34% 30%,#fff7cf 0,#ffd94a 24%,#f0b400 62%,#9a6b00 100%)}
@@ -242,6 +246,9 @@ body.ovm > *:not(#app){display:none!important}
 #ov.mini .lt .mid .s small{font-size:1em}
 #ov.mini .lt.balls{grid-template-columns:1fr 100px 36px 270px 36px 100px 1fr}
 #ov.mini .lt .ball{width:24px;height:24px}
+#ov.mini .lt.vs{grid-template-columns:1fr 340px 1fr}
+#ov.mini .lt.vs .mid{gap:1px}
+#ov.mini .lt .vsv{font-size:25px}
 #ov.mini .lt .bars{width:240px;height:4px}
 #ov.mini .lt .tot{font-size:12.5px}
 #ov.mini .lt .tot b{font-size:17px}
