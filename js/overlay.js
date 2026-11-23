@@ -248,7 +248,7 @@ function ovFasciaHTML(){
   const ball = c => `<div class="bb"><i class="ball ${c}" title="${c==="wh" ? "bilia bianca" : "bilia gialla"}"></i></div>`;
   return chip + `<div class="lt balls${x==="a" ? " sw" : ""}${fresh ? " in" : ""}${dots ? " rotn" : ""}">${dots}${side(x)}${sc(x)}${ball("wh")}<div class="mid"><div class="k">${k}</div>${ovSpec(m)}${ovBars(m, x, y)}${extra}</div>${ball("ye")}${sc(y)}${side(y)}</div>`;
 }
-/* fascia senza punteggi (dal 23/11/2026): onda.np = true → "nome 1 VS nome 2" con squadra, logo e specialità; niente punteggi, bilie, set e punti squadra.
+/* fascia senza punteggi (dal 23/11/2026): onda.np = true → solo i nomi con squadra, logo e specialità (senza "VS" dal 23/11); niente punteggi, bilie, set e punti squadra.
    Per le dirette in cui nessuno aggiorna i punti (es. Enrico gioca). Lati come il tabellone (casa a sinistra). */
 function ovVsHTML(m, i){
   const [x, y] = SDS(), tor = isTorneo();
@@ -259,7 +259,7 @@ function ovVsHTML(m, i){
     return `<div class="side ${sd} ${sd===x ? "L" : "R"}${lg ? " lg" : ""}">${lg ? `${lg}<div class="tx">${txt(sd)}</div>` : txt(sd)}</div>`; };
   const k = tor ? [m.turno || "", m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ") : [`Incontro ${i+1}`, m.kind, m.bil ? "Biliardo " + esc(m.bil) : ""].filter(Boolean).join(" · ");
   const fresh = i!==ovLastPrimo && ovLastPrimo!==-2; ovLastPrimo = i;
-  return `<div class="lt vs${x==="a" ? " sw" : ""}${fresh ? " in" : ""}">${side(x)}<div class="mid">${k ? `<div class="k">${k}</div>` : ""}<div class="vsv">VS</div>${ovSpec(m)}</div>${side(y)}</div>`;
+  return `<div class="lt vs${x==="a" ? " sw" : ""}${fresh ? " in" : ""}">${side(x)}<div class="mid">${k ? `<div class="k">${k}</div>` : ""}${ovSpec(m)}</div>${side(y)}</div>`;
 }
 /* logo della squadra agli estremi della fascia (campionati a squadre, dal 15/11/2026): casa = logo del circolo già ridotto, ospite = logo o sigla */
 function ovSqLogo(sd){ const img = sd==="h" ? `<img src="${LOGO_96}" alt="">` : S.away.logo ? `<img src="${esc(S.away.logo)}" alt="">` : S.away.badge ? `<div class="badge">${esc(S.away.badge)}</div>` : "";
@@ -273,7 +273,7 @@ function ovTeamBand(){
   const k = S.stato==="finita" ? "Risultato finale" : done ? `${done} incontr${done>1 ? "i" : "o"} su ${n}` : "Si comincia";
   const sub = S.stato!=="finita" && nx>=0 ? `<div class="tot">PROSSIMO · ${nx+1} ${esc(S.matches[nx].kind)}</div>` : "";
   ovLastPrimo = -1;
-  if(ovO().np) return `<div class="lt vs team${x==="a" ? " sw" : ""}">${side(x)}<div class="mid"><div class="k">${esc(S.subtitle || "")}</div><div class="vsv">VS</div></div>${side(y)}</div>`;
+  if(ovO().np) return `<div class="lt vs team${x==="a" ? " sw" : ""}">${side(x)}<div class="mid"><div class="s">${esc(S.subtitle || "")}</div></div>${side(y)}</div>`;
   return `<div class="lt team${x==="a" ? " sw" : ""}">${side(x)}<div class="lsc ${x}" data-tot="${x}">${t[ix(x)]}</div><div class="mid"><div class="k">${k}</div><div class="s">Punti squadra</div>${sub}</div><div class="lsc ${y}" data-tot="${y}">${t[ix(y)]}</div>${side(y)}</div>`;
 }
 /* ---- disegno ---- */
@@ -316,7 +316,7 @@ function ondaPaint(){
     <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (l'ultimo messo in corso)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
     ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
       <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
-    <div class="og"><span>Punteggi nella fascia</span><div class="seg s2">${[[0,"Mostrati"],[1,"Nascosti (VS)"]].map(([k,t])=>`<button data-o="np:${k}" class="${!!o.np===!!k ? "on" : ""}">${t}</button>`).join("")}</div>
+    <div class="og"><span>Punteggi nella fascia</span><div class="seg s2">${[[0,"Mostrati"],[1,"Solo nomi"]].map(([k,t])=>`<button data-o="np:${k}" class="${!!o.np===!!k ? "on" : ""}">${t}</button>`).join("")}</div>
       ${o.np ? `<small>Fascia senza punteggi, bilie e set: per le dirette in cui nessuno aggiorna i punti. Il tabellone (V) li mostra comunque. Tasto <kbd>S</kbd>.</small>` : ""}</div>
     ${o.np ? "" : ondaBiancaHTML()}
     <div class="og"><span>Sfondo del tabellone</span><div class="two"><input type="range" min="0" max="1" step="0.05" value="${o.bga ?? .55}" data-o="bga"><b>${Math.round((o.bga ?? .55)*100)}%</b></div></div>
