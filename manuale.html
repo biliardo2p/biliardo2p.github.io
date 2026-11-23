@@ -435,6 +435,14 @@ assente
 <figure class="sh"><img src="img/manuale/overlay-tabellone.webp" alt="Overlay del tabellone di un torneo" loading="lazy" width="1280" height="720"><figcaption>Torneo con batterie: pagina della batteria con l'incontro in diretta</figcaption></figure><figure class="sh"><img src="img/manuale/overlay-fascia.webp" alt="Fascia dell'incontro in primo piano" loading="lazy" width="1280" height="720"><figcaption>Fascia dell'incontro in primo piano</figcaption></figure>
 <h3>Comandi dalla regia: pannello 📺 Onda</h3>
 <p>Nella barra di regia, <span class="btn">📺 Onda</span> apre il pannello dei comandi dell'overlay. Questi comandi vanno in onda <b>subito</b>, senza PUBBLICA (risultati e nomi invece con PUBBLICA, come sempre). Il sito pubblico non ne è toccato.</p>
+<p>Il pannello è diviso in quattro schede, e riapre l'ultima usata:</p>
+<ul>
+  <li><b>🏷 Overlay</b>: cosa va in onda e come (comandi della tabella qui sotto).</li>
+  <li><b>🎥 Telefono</b>: anteprima e comandi del telefono con B2P Camera (microfono, immagine, zoom, fuoco, bolla, esposizione, cambio fotocamera).</li>
+  <li><b>Diretta</b>: anteprima, avvio e chiusura della diretta, titolo, pubblico, qualità. Quando il telefono è in diretta la scheda ha un pallino rosso.</li>
+  <li><b>🔗 Link</b>: gli indirizzi da incollare in OBS o in PRISM, con il pulsante Copia.</li>
+</ul>
+<p>I tasti funzionano da qualsiasi scheda. L'anteprima del telefono viene chiesta solo mentre è aperta la scheda Telefono o Diretta.</p>
 <table>
 <tr><th>Comando</th><th>Tasto</th><th>Effetto</th></tr>
 <tr><td>In onda: Tabellone / Fascia incontro / Nascosto</td><td><kbd>V</kbd> · <kbd>N</kbd></td><td>V passa da tabellone a fascia; N nasconde e rimostra l'overlay.</td></tr>
@@ -443,9 +451,7 @@ assente
 <tr><td>Bilia bianca</td><td><kbd>B</kbd></td><td>Solo per la fascia: a sinistra va chi ha la bilia bianca, a destra chi ha la gialla, a prescindere da casa e trasferta. Si sceglie per l'incontro in primo piano toccando il nome di chi ha la bianca; B scambia. Ogni incontro ricorda la sua scelta. Il tabellone completo resta con la casa a sinistra.</td></tr>
 <tr><td>Pagina del tabellone</td><td></td><td>Solo tornei con batterie: pagina fissa, automatica, oppure rotazione ogni 10–30 secondi.</td></tr>
 <tr><td>Sfondo del tabellone</td><td><kbd>[</kbd> <kbd>]</kbd></td><td>Più pieno o più trasparente.</td></tr>
-<tr><td>📷 Telefono con B2P Camera</td><td></td><td>Comandi per il telefono che trasmette con l'app B2P Camera: microfono, immagine, overlay, zoom, fuoco, cambio fotocamera (vedi più sotto).</td></tr>
 </table>
-<p>Il pannello mostra anche gli indirizzi da incollare in OBS, con il pulsante Copia.</p>
 <figure class="sh"><img src="img/manuale/regia-onda.webp" alt="Pannello Onda nella regia" loading="lazy" width="1100" height="760"><figcaption>Il pannello 📺 Onda aperto nella regia</figcaption></figure>
 <h3>Diretta improvvisata con telecamera: il mini-overlay</h3>
 <p>Per una diretta senza il PC della sala (un PC qualsiasi con webcam, oppure il telefono usato come telecamera) c'è una versione ridotta dell'overlay: solo la <b>fascia in basso</b>, con sfondo trasparente, che lascia vedere il tavolo. Indirizzo:</p>
@@ -477,17 +483,17 @@ assente
   <li><b>Qualità</b> in ⚙: 540p (1,2 Mbit/s, rete debole), 720p (2,5 Mbit/s) o 1080p (4,5 Mbit/s, testo dell'overlay più nitido). Cambiandola l'app si riavvia. La spunta “Abbassa la qualità da sola se la rete rallenta” (accesa di norma) riduce i Mbit/s quando la rete non ce la fa.</li>
   <li><b>YouTube e Facebook</b>: titolo, privacy e dove pubblicare (canale, profilo, Pagina) non si scelgono nell'app ma dove si prende la chiave: YouTube Studio → Trasmetti dal vivo; per Facebook <b>Live Producer</b> dal computer (Crea diretta → Software di streaming), dove si copiano server e chiave, si scelgono titolo e pubblico e, dopo aver premuto LIVE nell'app, si preme <b>Trasmetti/Vai in diretta</b> anche su Facebook.</li>
 </ul>
-<p><b>Telefono comandato dalla regia.</b> Nel pannello 📺 Onda c'è la sezione <b>📱 Telefono con B2P Camera</b>: anteprima, stato del telefono, microfono, immagine/nero, overlay, zoom, fuoco automatico o manuale, bolla e cambio fotocamera. Il telefono riceve il comando in 1–2 secondi, da qualunque rete (anche con i dati mobili); in alto a sinistra sullo schermo del telefono compare “📡 Regia collegata” e l'ultimo comando ricevuto.</p>
+<p><b>Telefono comandato dalla regia.</b> Nel pannello 📺 Onda ci sono le schede <b>🎥 Telefono</b> e <b>Diretta</b>: anteprima, stato del telefono, microfono, immagine/nero, overlay, zoom, fuoco automatico o manuale, bolla e cambio fotocamera. Il telefono riceve il comando in 1–2 secondi, da qualunque rete (anche con i dati mobili); in alto a sinistra sullo schermo del telefono compare “📡 Regia collegata” e l'ultimo comando ricevuto.</p>
 <ul>
   <li><b>Anteprima e stato</b>: con il pannello aperto il telefono manda una piccola foto ogni 2 secondi (con overlay e bolla, anche quando in diretta va il nero) e il suo stato: in diretta o no, Mbit/s, qualità, batteria. I pulsanti mostrano allora lo stato vero del telefono. Serve un utente di Firebase per il telefono (una volta sola: console di Firebase → Authentication → Users → Aggiungi utente, con un'email anche inventata, es. <code>telefono@biliardo2p.it</code>, e una password), da scrivere nell'app in ⚙ → Regia. Senza, i comandi funzionano lo stesso e il pannello mostra gli ultimi comandi inviati.</li>
-  <li>L'anteprima parte solo mentre il pannello 📺 Onda è aperto (circa 20–30 KB ogni 2 secondi) e si ferma da sola una quarantina di secondi dopo la chiusura.</li>
-  <li><b>Diretta dalla regia</b>: nel riquadro “Diretta” si sceglie dove trasmettere (Facebook automatica oppure il server impostato sul telefono, es. YouTube), si controlla il <b>titolo</b> (proposto dalla gara aperta, modificabile) e il pubblico (<b>Solo io</b> per le prove, <b>Pubblica</b>), poi <b>● Avvia diretta</b>. Per fermare: <b>■ Ferma diretta</b> e conferma con un secondo clic entro 4 secondi; con Facebook la diretta viene chiusa anche lì e resta come video. Basta che il telefono sia acceso con l'app aperta e il token di Facebook in ⚙. Avvia diretta imposta da solo le <b>gare di prova</b> dell'overlay (attive se la gara aperta è di prova); il pulsante “Overlay: gare di prova / pubbliche” le cambia a mano. Se qualcosa non va (token mancante o scaduto, server non impostato) il messaggio compare nel riquadro. Resta da fare a mano la condivisione nel gruppo, dal post.</li>
+  <li>L'anteprima parte solo mentre il pannello 📺 Onda è aperto sulla scheda Telefono o Diretta (circa 20–30 KB ogni 2 secondi) e si ferma da sola una quarantina di secondi dopo la chiusura.</li>
+  <li><b>Diretta dalla regia</b>: nella scheda “Diretta” si sceglie dove trasmettere (Facebook automatica oppure il server impostato sul telefono, es. YouTube), si controlla il <b>titolo</b> (proposto dalla gara aperta, modificabile) e il pubblico (<b>Solo io</b> per le prove, <b>Pubblica</b>), poi <b>● Avvia diretta</b>. Per fermare: <b>■ Ferma diretta</b> e conferma con un secondo clic entro 4 secondi; con Facebook la diretta viene chiusa anche lì e resta come video. Basta che il telefono sia acceso con l'app aperta e il token di Facebook in ⚙. Avvia diretta imposta da solo le <b>gare di prova</b> dell'overlay (attive se la gara aperta è di prova); il pulsante “Overlay: gare di prova / pubbliche” le cambia a mano. Se qualcosa non va (token mancante o scaduto, server non impostato) il messaggio compare nel riquadro. Resta da fare a mano la condivisione nel gruppo, dal post.</li>
   <li><b>Esposizione</b>: se la luminosità cambia da sola (qualcuno passa davanti, luci che variano), “🔓 Esposiz. auto” diventa “🔒 Esposiz. bloccata” e la tiene com'è in quel momento; il cursore accanto rende l'immagine più scura o più chiara (da −2 a +2 EV). Le stesse cose sul telefono: lucchetto e cursore in basso, pressione lunga sul lucchetto = correzione a 0. Il telefono usa sempre l'anti-sfarfallio a 50 Hz per le luci al neon e LED.</li>
-  <li><b>Qualità</b> (540p, 720p, 1080p) anche dalla regia: il telefono si riavvia in 2–3 secondi con la nuova risoluzione. Solo fuori diretta: in diretta i pulsanti sono spenti.</li>
+  <li><b>Qualità</b> (540p, 720p, 1080p) anche dalla regia, nella scheda Diretta: il telefono si riavvia in 2–3 secondi con la nuova risoluzione. Solo fuori diretta: in diretta i pulsanti sono spenti.</li>
   <li>All'accensione il telefono non ripete i comandi vecchi: parte con le sue impostazioni e segue solo i comandi nuovi.</li>
   <li>I comandi si possono spegnere sul telefono: ⚙ → “Accetta comandi dalla regia”.</li>
 </ul>
-<figure class="sh"><img src="img/manuale/regia-onda-camera.webp" alt="Sezione Telefono con B2P Camera nel pannello Onda" loading="lazy" width="1100" height="760"><figcaption>Pannello 📺 Onda: i comandi per il telefono con B2P Camera</figcaption></figure>
+<figure class="sh"><img src="img/manuale/regia-onda-camera.webp" alt="Scheda Telefono del pannello Onda" loading="lazy" width="1100" height="760"><figcaption>Pannello 📺 Onda, scheda Telefono: i comandi per il telefono con B2P Camera</figcaption></figure>
 <p><b>Preparare un PC personale (una volta sola):</b></p>
 <ol>
   <li>Installa <b>OBS Studio</b> (obsproject.com). Nella configurazione guidata scegli “Ottimizza per lo streaming”, servizio <b>YouTube - RTMPS</b> e <b>Usa chiave di streaming</b>.</li>
@@ -572,7 +578,7 @@ assente
   <dt>Pannello Onda: “Comando non inviato: Firebase lo rifiuta. Aggiungi il nodo camera…”.</dt>
   <dd>Le regole del database pubblicate non hanno ancora il nodo <code>camera</code>: incolla in Firebase il file <code>regole_database.json</code> aggiornato e premi Pubblica (sezione Amministrazione). Se invece il telefono mostra “📡 Regia: non collegata”, controlla che abbia la rete.</dd>
   <dt>Nel pannello Onda non compare l'anteprima del telefono.</dt>
-  <dd>Sul telefono, in alto a sinistra, la riga sotto lo stato dice cosa non va: “accesso non riuscito” = email o password sbagliate in ⚙ → Regia; “la regia rifiuta i dati” = regole del database senza il nodo <code>telefono</code>; “rete assente” = il telefono non ha internet. Serve anche la regia con l'accesso fatto (l'anteprima si legge solo da utenti autenticati).</dd>
+  <dd>L'anteprima c'è solo nelle schede Telefono e Diretta. Sul telefono, in alto a sinistra, la riga sotto lo stato dice cosa non va: “accesso non riuscito” = email o password sbagliate in ⚙ → Regia; “la regia rifiuta i dati” = regole del database senza il nodo <code>telefono</code>; “rete assente” = il telefono non ha internet. Serve anche la regia con l'accesso fatto (l'anteprima si legge solo da utenti autenticati).</dd>
   <dt>Il pubblico non vede un punteggio che ho inserito.</dt>
   <dd>Controlla la barra di regia: se dice “Modifiche NON ancora pubblicate”, premi PUBBLICA.</dd>
   <dt>Un nome è sottolineato in arancione.</dt>
@@ -588,6 +594,7 @@ assente
 <h2><span class="n">15</span>Novità</h2>
 <h3>23 novembre 2026</h3>
 <ul>
+  <li>Pannello 📺 Onda diviso in <b>schede</b>: Overlay, Telefono, Diretta (con il pallino rosso quando si è in diretta), Link.</li>
   <li>Pannello 📺 Onda: <b>fascia senza punteggi</b> (tasto S), solo i nomi dei giocatori con squadra e specialità, per le dirette in cui i punti non vengono aggiornati.</li>
 </ul>
 <h3>15 novembre 2026</h3>

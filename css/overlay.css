@@ -267,6 +267,15 @@ body.ovm > *:not(#app){display:none!important}
 #ondap .oh{display:flex;align-items:baseline;gap:8px}
 #ondap .oh b{font-size:16px} #ondap .oh span{color:#93a5bf;font-size:12.5px;flex:1}
 #ondap .ox{background:transparent;border:0;color:#93a5bf;font-size:18px;cursor:pointer;padding:0 4px}
+/* schede del pannello (23/11/2026) */
+#ondap{padding-top:0}
+#ondap .oh{position:sticky;top:0;z-index:2;background:#101b2e;padding-top:12px}
+#ondap .otabs{position:sticky;top:40px;z-index:2;background:#101b2e;display:grid;grid-template-columns:repeat(4,1fr);gap:3px;padding:2px 0 8px;border-bottom:1px solid #26385a;margin-top:-4px}
+#ondap .otabs button{padding:7px 2px;font-size:13px;font-weight:600;background:transparent;border:1px solid transparent;border-radius:6px;color:#93a5bf;white-space:nowrap}
+#ondap .otabs button:hover{color:#eef3fb;background:#1b2536}
+#ondap .otabs button.on{color:#1a1205;background:#f6c853;border-color:#f6c853}
+#ondap .otabs .rec{color:#ff5a5a;font-style:normal}
+#ondap .otabs button.on .rec{color:#b40000}
 #ondap .og{display:flex;flex-direction:column;gap:5px}
 #ondap .og>span{color:#93a5bf;font-weight:600;font-size:13px}
 #ondap .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}

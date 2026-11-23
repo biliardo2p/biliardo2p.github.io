@@ -311,25 +311,39 @@ function ondaPaint(){
   const lab = (m,i) => `${i+1} · ${isTorneo() ? (m.turno||"") : m.kind} · ${(namesOf(m, "h") || "—")} – ${(namesOf(m, "a") || "—")}${isAct(i) ? " (in corso)" : ""}`;
   const pages = isTab() ? buildTab(S).pages : [];
   p.hidden = false;
-  p.innerHTML = `<div class="oh"><b>📺 Onda</b><span>comandi immediati per l'overlay di OBS</span><button class="ox" data-o="x" aria-label="Chiudi">✕</button></div>
-    <div class="og"><span>In onda</span><div class="seg">${[["tab","Tabellone"],["fascia","Fascia incontro"],["off","Nascosto"]].map(([k,t])=>`<button data-o="v:${k}" class="${o.v===k ? "on" : ""}">${t}</button>`).join("")}</div></div>
+  const T = ondaTabOk(), st = telFresco() && TEL && TEL.stato, live = !!(st && st.live);
+  const tabs = [["ovl","🏷 Overlay"],["tel","🎥 Telefono"],["dir", live ? `<i class="rec">●</i> Diretta` : "Diretta"],["lnk","🔗 Link"]];
+  const body = {
+    ovl: `<div class="og"><span>In onda</span><div class="seg">${[["tab","Tabellone"],["fascia","Fascia incontro"],["off","Nascosto"]].map(([k,t])=>`<button data-o="v:${k}" class="${o.v===k ? "on" : ""}">${t}</button>`).join("")}</div></div>
     <div class="og"><span>Incontro in primo piano</span><select data-o="primo"><option value="-1">Automatico (l'ultimo messo in corso)</option>${ondaMatches().map(x=>`<option value="${x.i}"${o.primo===x.i ? " selected" : ""}>${esc(lab(x.m, x.i))}</option>`).join("")}</select></div>
-    ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
-      <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
     <div class="og"><span>Punteggi nella fascia</span><div class="seg s2">${[[0,"Mostrati"],[1,"Solo nomi"]].map(([k,t])=>`<button data-o="np:${k}" class="${!!o.np===!!k ? "on" : ""}">${t}</button>`).join("")}</div>
       ${o.np ? `<small>Fascia senza punteggi, bilie e set: per le dirette in cui nessuno aggiorna i punti. Il tabellone (V) li mostra comunque. Tasto <kbd>S</kbd>.</small>` : ""}</div>
     ${o.np ? "" : ondaBiancaHTML()}
+    ${pages.length>1 ? `<div class="og"><span>Pagina del tabellone</span><div class="two"><select data-o="pag"><option value="">Automatica</option>${pages.map(pg=>`<option value="${pg.key}"${o.pag===pg.key ? " selected" : ""}>${esc(pg.title)}</option>`).join("")}</select>
+      <select data-o="ciclo" title="Rotazione automatica delle pagine (con pagina Automatica)">${[[0,"Ferma"],[10,"Ruota ogni 10 s"],[15,"Ruota ogni 15 s"],[20,"Ruota ogni 20 s"],[30,"Ruota ogni 30 s"]].map(([v,t])=>`<option value="${v}"${(+o.ciclo||0)===v ? " selected" : ""}>${t}</option>`).join("")}</select></div></div>` : ""}
     <div class="og"><span>Sfondo del tabellone</span><div class="two"><input type="range" min="0" max="1" step="0.05" value="${o.bga ?? .55}" data-o="bga"><b>${Math.round((o.bga ?? .55)*100)}%</b></div></div>
-    ${camHTML()}
-    <div class="og lk"><span>Sorgente Browser in OBS (1280×720)</span>
+    <p class="hint">Tasti (valgono da qualsiasi scheda): <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>B</kbd> bilia bianca · <kbd>S</kbd> punteggi sì/no · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`,
+    tel: camHTML(),
+    dir: `<div class="og cam">${telPrevHTML()}${camLiveHTML()}${camQualHTML()}${camErr ? `<p class="err">${esc(camErr)}</p>` : ""}</div>`,
+    lnk: `<div class="og lk"><span>Sorgente Browser in OBS (1280×720)</span>
       <div class="two"><code>${esc(pub)}?overlay&amp;live</code><button data-o="copy:live">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;gara=${esc(GARA)}</code><button data-o="copy:gara">Copia</button></div>
+      <span>Dirette con telecamera (PRISM, B2P Camera)</span>
       <div class="two"><code>${esc(pub)}?overlay&amp;mini&amp;live</code><button data-o="copy:mini">Copia</button></div>
       <div class="two"><code>${esc(pub)}?overlay&amp;riepilogo&amp;live</code><button data-o="copy:riep">Copia</button></div>
-      <small>Gli ultimi due sono per le dirette con telecamera (due widget di PRISM): la fascia con l'incontro in primo piano (tasto F per cambiarlo), e il riepilogo a tutto schermo che compare al posto della fascia quando è in onda il Tabellone (tasto V).</small></div>
-    ${ondaErr ? `<p class="err">${esc(ondaErr)}</p>` : ""}
-    <p class="hint">Tasti: <kbd>N</kbd> nascondi/mostra · <kbd>V</kbd> tabellone/fascia · <kbd>F</kbd> incontro in primo piano · <kbd>B</kbd> bilia bianca · <kbd>S</kbd> punteggi sì/no · <kbd>[</kbd> <kbd>]</kbd> sfondo. Risultati e nomi vanno in onda con PUBBLICA; questi comandi subito.</p>`;
+      <small>La fascia con l'incontro in primo piano (tasto F per cambiarlo) e il riepilogo a tutto schermo che compare al posto della fascia quando è in onda il Tabellone (tasto V).</small></div>`
+  };
+  p.innerHTML = `<div class="oh"><b>📺 Onda</b><span>comandi immediati per l'overlay</span><button class="ox" data-o="x" aria-label="Chiudi">✕</button></div>
+    <div class="otabs" role="tablist">${tabs.map(([k,t])=>`<button role="tab" aria-selected="${k===T}" data-o="tab:${k}" class="${k===T ? "on" : ""}">${t}</button>`).join("")}</div>
+    ${body[T]}
+    ${ondaErr ? `<p class="err">${esc(ondaErr)}</p>` : ""}`;
 }
+/* schede del pannello Onda (dal 23/11/2026): Overlay, Telefono, Diretta, Link; l'ultima scelta resta nel browser */
+let ondaTab = (()=>{ try{ return localStorage.getItem("onda2p.tab") || "ovl"; }catch(e){ return "ovl"; } })();
+const ondaTabOk = () => ["ovl","tel","dir","lnk"].includes(ondaTab) ? ondaTab : "ovl";
+const ondaFoto = () => ["tel","dir"].includes(ondaTabOk());   /* l'anteprima del telefono serve solo in queste due schede */
+function ondaSetTab(t){ ondaTab = t; try{ localStorage.setItem("onda2p.tab", t); }catch(e){} ondaPaint();
+  if(ondaFoto()){ telGuarda = 0; telTick(); } }
 /* bilia bianca dell'incontro in primo piano nella fascia (a sinistra) */
 function ondaBiancaHTML(){ const i = ovPrimo(), m = S.matches[i]; if(!m) return "";
   const [x] = ovFSides(m, i), nm = sd => esc(m.kind==="Staffetta" ? teamShort(sd) : namesOf(m, sd) || (sd==="h" ? "Casa" : "Ospite"));
@@ -351,6 +365,7 @@ function ondaToggle(){
       else if(k==="cam") camClick(v);
       else if(k==="bia") ondaBianca(v);
       else if(k==="np") ondaNp(v==="1");
+      else if(k==="tab") ondaSetTab(v);
       else if(k==="copy"){ const t = (PUBLIC_URL || pageURL("")) + (v==="live" ? "?overlay&live" : v==="mini" ? "?overlay&mini&live" : v==="riep" ? "?overlay&riepilogo&live" : "?overlay&gara=" + GARA);
         try{ navigator.clipboard.writeText(t).then(()=>setFlash("Indirizzo per OBS copiato"), ()=>setFlash(t)); }catch(err){ setFlash(t); } } });
     p.addEventListener("change", e=>{ const k = e.target.dataset.o; if(!k) return;
@@ -409,7 +424,7 @@ function telStop(){ clearInterval(telTimer); telTimer = 0; }
 async function telTick(){
   if(!ondaOpen){ telStop(); return; }
   const now = Date.now();
-  if(now - telGuarda > 15000){ telGuarda = now; try{ await dbWrite({"camera/guarda": now}); }catch(e){} }
+  if(ondaFoto() && now - telGuarda > 15000){ telGuarda = now; try{ await dbWrite({"camera/guarda": now}); }catch(e){} }
   let j = null;
   try{ const r = await fetch(FIREBASE.databaseURL + "/telefono.json?auth=" + encodeURIComponent(await idToken())); if(r.ok) j = await r.json(); }catch(e){ return; }
   TEL = j; const t = j && j.stato && +j.stato.t || 0; if(t && t!==telT){ telT = t; telVisto = Date.now(); }
@@ -469,18 +484,18 @@ function camQualHTML(){
   return `<div class="two"><small>Qualità</small><div class="seg">${b("540")}${b("720")}${b("1080")}</div></div>
       ${live ? `<small>La qualità si cambia fuori diretta: l'app si riavvia (2–3 s).</small>` : ""}`;
 }
+/* anteprima e stato del telefono (schede Telefono e Diretta) */
+function telPrevHTML(){ const foto = TEL && TEL.foto;
+  return `<div class="foto">${foto ? `<img id="camfoto" src="${foto}" alt="Anteprima del telefono">` : `<img id="camfoto" alt="" hidden><p>Anteprima: compare qui quando il telefono ha l'account in ⚙ → Regia (circa una foto ogni 2 secondi, con l'overlay).</p>`}</div>
+      <small id="camst">${telStatoHTML()}</small>`; }
 function camHTML(){ const c = camV(), sw = (k, on, t1, t0) => `<button data-o="cam:${k}" class="${on ? "on" : ""}">${on ? t1 : t0}</button>`;
-  const rot = +c.rot || 0, foto = TEL && TEL.foto;
-  return `<div class="og cam"><span>📱 Telefono con B2P Camera</span>
-      <div class="foto">${foto ? `<img id="camfoto" src="${foto}" alt="Anteprima del telefono">` : `<img id="camfoto" alt="" hidden><p>Anteprima: compare qui quando il telefono ha l'account in ⚙ → Regia (circa una foto ogni 2 secondi, con l'overlay).</p>`}</div>
-      <small id="camst">${telStatoHTML()}</small>
-      ${camLiveHTML()}
+  const rot = +c.rot || 0;
+  return `<div class="og cam">${telPrevHTML()}
       <div class="seg">${sw("mic", c.mic, "🎤 Microfono ON", "🎤 Microfono OFF")}${sw("cam", c.cam, "🎥 Immagine ON", "🎥 Nero")}${sw("ov", c.ov, "🏷 Overlay ON", "🏷 Overlay OFF")}</div>
       <div class="two"><small>Zoom</small><input type="range" min="0" max="100" step="1" value="${+c.zoom || 0}" data-o="camz"><b>${+c.zoom || 0}%</b></div>
       <div class="two"><button data-o="cam:af" class="${c.af ? "" : "on"}">${c.af ? "Fuoco AUTO" : "Fuoco MAN"}</button><input type="range" min="0" max="100" step="1" value="${+c.fuoco || 0}" data-o="camf"${c.af ? " disabled" : ""}><b>${+c.fuoco || 0}%</b></div>
       <div class="two"><button data-o="cam:bolla" title="Il telefono legge il suo sensore e si raddrizza da solo">📐 In bolla</button><input type="range" min="-10" max="10" step="0.5" value="${rot}" data-o="camr" title="Raddrizza a mano: gradi"><b>${camFmt("rot", rot)}</b></div>
       <div class="two"><button data-o="cam:ael" class="${c.ael ? "on" : ""}" title="Blocca la luminosità com'è adesso: non cambia più quando qualcuno passa davanti">${c.ael ? "🔒 Esposiz. bloccata" : "🔓 Esposiz. auto"}</button><input type="range" min="-2" max="2" step="0.1" value="${+c.ev || 0}" data-o="came" title="Più scuro / più chiaro"><b>${camFmt("ev", +c.ev || 0)}</b></div>
-      ${camQualHTML()}
       <div class="two"><button data-o="cam:gira">🔄 Cambia fotocamera</button><button data-o="cam:dritto" title="Toglie la correzione della bolla">Bolla a 0°</button></div>
       ${camErr ? `<p class="err">${esc(camErr)}</p>` : ""}
       <small>Fuoco: 0 = lontano, 100 = vicino. I comandi arrivano in 1–2 s. ${telFresco() ? "I pulsanti mostrano lo stato del telefono." : "Senza notizie dal telefono i pulsanti mostrano gli ultimi comandi inviati."}</small></div>`;
