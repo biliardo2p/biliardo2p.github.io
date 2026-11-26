@@ -8,12 +8,19 @@ function loginHTML(msg){
     <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password" required>
     <button type="submit">Entra</button>${msg?`<p class="err">${esc(msg)}</p>`:""}</form></main>`;
 }
+/* il modulo Nuova gara parte chiuso (più spazio per l'elenco): si apre toccando il titolo o con ⧉ Duplica */
+let ngOpen = false;
+function ngSetOpen(v){
+  ngOpen = !!v; const f = $("#newgara"), b = $("#ng-tog"); if(!f) return;
+  f.classList.toggle("chiuso", !ngOpen);
+  if(b){ b.setAttribute("aria-expanded", String(ngOpen)); const i = b.querySelector(".ngi"); if(i) i.textContent = ngOpen ? "−" : "+"; }
+}
 function regiaHomeHTML(idx){
   const opts = Object.entries(FORMULE).filter(([k,f])=>!f.vecchia).map(([k,f])=>`<option value="${k}">${esc(f.nome)}</option>`).join("");
   return `<main class="wrap"><div class="top"><div><div class="comp">Regia tabellone</div><div class="sub">${esc(session && session.email || "")}</div></div>
       <div class="rtop"><a class="ghost" href="manuale.html" target="_blank" rel="noopener">📖 Manuale</a><a class="ghost" href="?regia&amp;anagrafica">👥 Giocatori, circoli e squadre</a><button class="ghost" id="logout">Esci</button></div></div>
-    <form id="newgara" class="panel grid">
-      <h2>Nuova gara</h2>
+    <form id="newgara" class="panel grid${ngOpen ? "" : " chiuso"}">
+      <h2><button type="button" class="ngtog" id="ng-tog" aria-expanded="${ngOpen}" aria-controls="newgara">Nuova gara<span class="ngi" aria-hidden="true">${ngOpen ? "−" : "+"}</span></button></h2>
       <label for="ng-f">Competizione</label><select id="ng-f">${opts}</select>
       <label for="ng-d">Data</label><input id="ng-d" type="date" value="${today()}" required>
       <label for="ng-ora">Ora di inizio <span class="opz">(facoltativa)</span></label><input id="ng-ora" type="time" step="300">
@@ -61,7 +68,7 @@ async function dupGara(id){
   let src = null;
   try{ if(db) src = normalize((await db.ref("gare/" + id).once("value")).val()); }catch(e){}
   if(!src){ delErr = true; delMsg = "Non riesco a leggere la gara da duplicare: controlla la connessione"; render(); return; }
-  delMsg = ""; dupSrc = src; render();
+  delMsg = ""; dupSrc = src; ngOpen = true; render(); ngSetOpen(true);
   const f = $("#newgara"); if(!f) return;
   let fk = src.formula;
   if(!FORMULE[fk] || FORMULE[fk].vecchia){ const nome = (FORMULE[fk] || {}).nome; fk = (Object.entries(FORMULE).find(([k,x])=>!x.vecchia && x.nome===nome) || Object.entries(FORMULE).find(([k,x])=>!x.vecchia))[0]; }

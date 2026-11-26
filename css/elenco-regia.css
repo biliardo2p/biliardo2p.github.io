@@ -64,6 +64,13 @@ body.ed [data-logo]{cursor:pointer}
 @media (max-width:520px){.panel.grid{grid-template-columns:1fr}}
 .panel h2,.lh{font-family:var(--fh);font-weight:600;font-size:18px;letter-spacing:.06em;text-transform:uppercase;margin:0}
 .panel label{color:var(--mute);font-weight:600}
+/* modulo Nuova gara richiudibile: chiuso resta solo il titolo */
+.panel button.ngtog{all:unset;box-sizing:border-box;width:100%;display:flex;justify-content:space-between;align-items:center;gap:12px;cursor:pointer;font:inherit;letter-spacing:inherit;text-transform:inherit;color:inherit}
+.panel button.ngtog:focus-visible{outline:2px solid var(--ok);outline-offset:4px;border-radius:4px}
+.ngtog .ngi{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:6px;border:1px solid #4b5563;font-family:system-ui,sans-serif;font-size:20px;font-weight:600;line-height:1;color:var(--ok)}
+.ngtog:hover .ngi{border-color:var(--ok)}
+.panel.grid.chiuso{padding-top:12px;padding-bottom:12px}
+.panel.grid.chiuso > :not(h2){display:none}
 .panel label .opz{font-weight:400;color:var(--dim)}
 .panel input,.panel select{font:inherit;padding:8px 10px;border-radius:6px;border:1px solid #3b4a63;background:#1b2536;color:var(--ink);min-width:0}
 .panel button,.ghost{font:inherit;font-weight:700;padding:9px 16px;border-radius:6px;border:1px solid var(--ok);background:var(--ok);color:#05220f;cursor:pointer}

@@ -339,6 +339,7 @@ document.addEventListener("keydown", e=>{ if(e.key!=="Escape") return; if(!$("#n
 function toggleAct(i){ snapshot(); const a = new Set(S.inCorso||[]); a.has(i) ? a.delete(i) : a.add(i); S.inCorso = [...a].sort(); commit(); }
 app.addEventListener("click", e=>{
   if(e.target.id==="logout"){ signOut(); return; }
+  if(e.target.closest("#ng-tog")){ e.preventDefault(); ngSetOpen(!ngOpen); if(ngOpen){ const x = $("#ng-f"); if(x) x.focus({preventScroll:true}); } return; }
   if(e.target.closest("[data-campo]")){ e.preventDefault(); if(editor && S && !isTorneo()){ snapshot(); S.trasferta = !S.trasferta; commit(); } return; }
   const dp = e.target.closest("[data-dup]"); if(dp){ e.preventDefault(); if(mode==="regiahome") dupGara(dp.dataset.dup); return; }
   const dl = e.target.closest("[data-del]"); if(dl){ e.preventDefault(); if(mode==="regiahome" && !dl.disabled) delGara(dl.dataset.del); return; }
